@@ -81,4 +81,6 @@ function loadImage(
   });
 }
 
-export default loadImage;
+export default {
+  image: loadImage,
+};

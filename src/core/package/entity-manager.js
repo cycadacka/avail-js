@@ -352,7 +352,7 @@ class EntityManager {
    * Retrieves the children of an entity.
    * 
    * @param {string} entity 
-   * @return {Iterator<string, number>} Children of an entity.
+   * @return {Iterator<string, number, undefined>} Children of an entity.
    * 
    * @memberof EntityManager
    */

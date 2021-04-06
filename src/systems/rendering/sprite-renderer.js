@@ -1,12 +1,13 @@
-import System from '../../core/system.js';
-import Transform2D from '../../components/common/transform-2d.js';
-import Sprite from '../../components/rendering/sprite.js';
+import System from '../core/system.js.js';
+import Transform2D from '../../components/common/transform-2d.js.js';
+import Sprite from './sprite.js.js.js';
 
 /**
  * Handles rendering unto a canvas element.
- * @augments {System}
+ *
+ * @class SpriteRenderer
  */
-class SpriteRenderer extends System {
+class SpriteRenderer {
   /** @type {CanvasRenderingContext2D} */
   #context;
 
@@ -17,10 +18,6 @@ class SpriteRenderer extends System {
     this.#context = canvas.getContext('2d');
   }
 
-  /**
-   * @param {{time: number, deltaTime: number}} time 
-   * @param {import('../entityManager.js').default} manager 
-   */
   update(time, manager) {
     this.#context.clearRect(0, 0, this.#context.canvas.width, this.#context.canvas.height);
 
@@ -28,7 +25,7 @@ class SpriteRenderer extends System {
     for (const entity of entities) {
       /** @type {Sprite} */
       const sprite = manager.getComponent(entity, Sprite);
-      /** @type {import('../common/matrix3x3.js').default} */
+      /** @type {import('../common/matrix3x3.js.js').default} */
       const matrix = manager.getComponent(entity, Transform2D).localToWorldMatrix;
 
       this.#context.save();

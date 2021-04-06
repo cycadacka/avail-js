@@ -1,6 +1,8 @@
 import EntityManager from "./package/entity-manager.js";
 
 /**
+ *
+ * @static
  * @class Component
  */
 class Component {
@@ -18,43 +20,46 @@ class Component {
   });
 
   constructor() {
-    /** @type {string|null} */
-    this.ENTITY = null;
-    /** @type {EntityManager|null} */
-    this.ENTITY_MANAGER = null;
+    throw new Error('Component cannot be constructed');
   }
 
   /**
-   * First component of the parent of the same type.
+   * Retrieves the components of the parent of the same type.
    *
-   * @readonly
-   * @return {Component|null}
-   *
-   * @memberOf Component
+   * @static
+   * @param {{
+   *   ENTITY_MANAGER: import('./package/entity-manager.js').default,
+   *   ENTITY: string
+   * }} target
+   * @return {Component[]}
+   * @memberof Component
    */
-  get _parent() {
-    return this.ENTITY_MANAGER.getComponent(
-      this.ENTITY_MANAGER.getParentOfEntity(this.ENTITY),
-      this.constructor,
+  static parent(target) {
+    return target.ENTITY_MANAGER.getComponents(
+      target.ENTITY_MANAGER.getParentOfEntity(target.ENTITY),
+      target.constructor,
     );
   }
 
   /**
-   * First component of each children of the same type.
+   * Retrieves the components of each children of the same type.
    *
-   * @readonly
-   * @return {Component[]}
-   *
-   * @memberOf Component
+   * @static
+   * @param {{
+   *   ENTITY_MANAGER: import('./package/entity-manager.js').default,
+   *   ENTITY: string
+   * }} target
+   * @return {Component[][]} 
+   * @memberof Component
    */
-  get _children() {
-    const iterator = this.ENTITY_MANAGER.getChildrenOfEntity(this.ENTITY);
+  static children(target) {
+    const iterator = target.ENTITY_MANAGER.getChildrenOfEntity(target.ENTITY);
     const children = [];
 
     const result = iterator.next();
     while (!result.done) {
       children.push(
-        this.ENTITY_MANAGER.getComponent(result.value, this.constructor),
+        target.ENTITY_MANAGER.getComponent(result.value, target.constructor),
       );
       result = iterator.next();
     }
@@ -67,12 +72,13 @@ class Component {
    * reconstructed later.
    *
    * @virtual
+   * @param {object} target
    * @return {string}
    *
    * @memberOf Component
    */
-  serialize() {
-    return JSON.stringify(this);
+  static serialize(target) {
+    return JSON.stringify(target);
   }
 
   /**
@@ -80,18 +86,17 @@ class Component {
    *
    * @virtual
    * @param {string} data
-   * @return {Component}
+   * @return {object}
    *
    * @memberOf Component
    */
   static deserialize(data) {
-    const component = new (this.constructor)();
+    const component = new this.constructor();
 
     const object = JSON.parse(data);
     for (const key in object) {
       if (Object.hasOwnProperty.call(object, key)) {
-        const element = object[key];
-        result[key] = element;
+        result[key] = object[key];
       }
     }
 
@@ -109,8 +114,7 @@ class Component {
 
     if (prototype === System) {
       return true;
-    } else if (prototype.name.length <= 0) {
-      // anonymous()
+    } else if (prototype.name.length <= 0) { // anonymous()
       return false;
     } else {
       return this.isComponent(prototype);

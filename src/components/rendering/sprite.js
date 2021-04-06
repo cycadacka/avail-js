@@ -1,6 +1,6 @@
-import Component from '../../core/component.js';
-import Vector2 from '../../math/vector2.js';
-import Transform2D from '../transform-2d.js';
+import Component from '../core/component.js.js';
+import Vector2 from '../math/vector2.js.js';
+import Transform2D from '../transform-2d.js.js';
 
 class Sprite extends Component {
   static ATTRIBUTES = {
