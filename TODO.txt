@@ -1,0 +1,23 @@
+== COLLISION-MODULE ==
+
+- collision.js
+  + implement seperating axis theorem for optimizng collision between convex polygons.
+
+- ColliderComponent
+  + REQUIRES - transform, polygon, transform
+  + get bounds (from polygon)
+  + get subpolygons (cached from polygon)
+
+- RigidbodyComponent
+  + REQUIRES - collider component, polygon, transform
+  + gravity
+  + weight
+  + friction
+
+- PhysicsSystem against RigidbodyComponent, ColliderComponent
+  + broad phase collision
+    - seperate canvas into 4 parts - Map<string(entity id), string(area)>
+    - sweep and prune using aabb
+  + narrow phase collision
+    - SAT subpolygon (or currently, we will use the polygonToPolygon from collision.js)
+  

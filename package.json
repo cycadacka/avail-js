@@ -1,0 +1,15 @@
+{
+  "name": "zombies1",
+  "version": "1.0.0",
+  "description": "Cyril Cole's first game remade with JavaScript",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^7.10.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Cyril Cole",
+  "license": "GPL-3.0-or-later"
+}

@@ -1,0 +1,27 @@
+
+The architecture is entirely based on the Entity-Component-System.
+
+The "EntityManager" stores the components of each entity through a map whose
+type is "<Function, <string, object[]>>". "Function" is the constructor/type of
+the component. "string" is the entity (or at least the ID). "object[]" is an
+array of component instances.
+
+NOTE: The entity created is only kept as an UUID v4 and not an actual, quote en
+quote, object.
+
+The game loop is handled by the "Game" class where we have a hybrid of variable
+and fixed timesteps. You must be wise to use the correct timestep or else you
+will encounter some bugs in your implementation. You will only
+provide your own systems (System[]), fixedDeltaTime (number), variableDeltaTime
+(number).
+
+IMPORTANT: You cannot add new Systems to an already created "Game" instance.
+
+You don't have to inherit any class in order to create a new System or new
+Component, you only have to create the function yourself; if it is not present,
+it will not be called.
+
+If you want to make dependencies with your component, you
+have to implement a static variable called "REQUIRED" whose type is
+"Function[]" where "Function[]" is an array of constructors of
+components that you must provide.
