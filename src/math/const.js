@@ -1,7 +1,0 @@
-const DEG_TO_RAD = 0.017453292519943295;
-const RAD_TO_DEG = 57.29577951308232;
-
-export default {
-  DEG_TO_RAD,
-  RAD_TO_DEG
-};

@@ -1,4 +1,4 @@
-import MATH_CONST from './const.js';
+import {RAD_TO_DEG} from './math.js';
 import clamp from './clamp.js';
 
 /**
@@ -6,13 +6,13 @@ import clamp from './clamp.js';
  *
  * Inspired by Unity [game engine] developed by Unity Technologies
  */
-class Vector2 {
+class Vector2d {
   /**
-   * Creates an instance of Vector2.
+   * Creates an instance of Vector2d.
    *
    * @param {number} x X component of the 2D vector.
    * @param {number} y Y component of the 2D vector.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   constructor(x, y) {
     this.x = x;
@@ -22,7 +22,7 @@ class Vector2 {
   /**
    * Iterates over the X and Y components of this 2D vector.
    *
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   * [Symbol.iterator]() {
     yield this.x;
@@ -32,8 +32,8 @@ class Vector2 {
   /**
    * Makes this 2D vector negative.
    *
-   * @memberof Vector2
-   * @return {Vector2} The 2D vector itself.
+   * @memberof Vector2d
+   * @return {Vector2d} The 2D vector itself.
    */
   negative() {
     this.x = -this.x;
@@ -44,9 +44,9 @@ class Vector2 {
   /**
    * Adds this 2D vector to another 2D vector.
    *
-   * @param {Vector2} vector 2D vector to add to this 2D vector.
-   * @return {Vector2} The 2D vector itself.
-   * @memberof Vector2
+   * @param {Vector2d} vector 2D vector to add to this 2D vector.
+   * @return {Vector2d} The 2D vector itself.
+   * @memberof Vector2d
    */
   add(vector) {
     this.x += vector.x;
@@ -57,9 +57,9 @@ class Vector2 {
   /**
    * Subtracts this 2D vector by another 2D vector.
    *
-   * @param {Vector2} vector 2D vector to subtract to this 2D vector.
-   * @return {Vector2} The 2D vector itself.
-   * @memberof Vector2
+   * @param {Vector2d} vector 2D vector to subtract to this 2D vector.
+   * @return {Vector2d} The 2D vector itself.
+   * @memberof Vector2d
    */
   subtract(vector) {
     this.x -= vector.x;
@@ -71,8 +71,8 @@ class Vector2 {
    * Divides this 2D vector by a number
    *
    * @param {number} n Any number to divide by.
-   * @return {Vector2} The 2D vector itself.
-   * @memberof Vector2
+   * @return {Vector2d} The 2D vector itself.
+   * @memberof Vector2d
    */
   divide(n) {
     this.x /= n;
@@ -84,8 +84,8 @@ class Vector2 {
    * Multiplies this 2D vector by a number
    *
    * @param {number} n Any number to multiply by.
-   * @return {Vector2} The 2D vector itself.
-   * @memberof Vector2
+   * @return {Vector2d} The 2D vector itself.
+   * @memberof Vector2d
    */
   multiply(n) {
     this.x *= n;
@@ -96,30 +96,30 @@ class Vector2 {
   /**
    * Compares this 2D vector to another 2D vector if they are the same.
    *
-   * @param {Vector2} vector 2D vector to compare to this 2D vector.
+   * @param {Vector2d} vector 2D vector to compare to this 2D vector.
    * @return {boolean} If this 2D vector and another 2D vector are the same.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   equals(vector) {
     return (
       this.clone()
-          .subtract(vector)
-          .sqrMagnitude() < Number.EPSILON
+        .subtract(vector)
+        .sqrMagnitude() < Number.EPSILON
     );
   }
 
   /**
    * Compares this 2D vector to another 2D vector if they are not the same.
    *
-   * @param {Vector2} vector 2D vector to compare to this 2D vector.
+   * @param {Vector2d} vector 2D vector to compare to this 2D vector.
    * @return {boolean} If this 2D vector and another 2D vector are not the same.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   notEquals(vector) {
     return (
       this.clone()
-          .subtract(vector)
-          .sqrMagnitude() >= Number.EPSILON
+        .subtract(vector)
+        .sqrMagnitude() >= Number.EPSILON
     );
   }
 
@@ -128,7 +128,7 @@ class Vector2 {
    *
    * @param {number} [radix] Base to use for representing a numeric value
    * @return {string} String representation of a 2D vector.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   toString(radix = 10) {
     return `(${this.x.toString(radix)}, ${this.y.toString(radix)})`;
@@ -138,7 +138,7 @@ class Vector2 {
    * Returns the length of the 2D vector.
    *
    * @return {number} The length of the 2D vector.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   magnitude() {
     return Math.sqrt(this.x * this.x + this.y * this.y);
@@ -148,7 +148,7 @@ class Vector2 {
    * Returns the squared length of the 2D vector.
    *
    * @return {number} The squared length of the 2D vector.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   sqrMagnitude() {
     return this.x * this.x + this.y + this.y;
@@ -157,8 +157,8 @@ class Vector2 {
   /**
    * Returns a copy of this vector that has a magnitude of 1.
    *
-   * @return {Vector2} A copy of this vector that has a magnitude of 1.
-   * @memberof Vector2
+   * @return {Vector2d} A copy of this vector that has a magnitude of 1.
+   * @memberof Vector2d
    */
   normalized() {
     return this.clone().normalize();
@@ -167,11 +167,11 @@ class Vector2 {
   /**
    * Returns a copy of this 2D vector.
    *
-   * @return {Vector2} A copy of this 2D vector.
-   * @memberof Vector2
+   * @return {Vector2d} A copy of this 2D vector.
+   * @memberof Vector2d
    */
   clone() {
-    return new Vector2(this.x, this.y);
+    return new Vector2d(this.x, this.y);
   }
 
   /**
@@ -179,8 +179,8 @@ class Vector2 {
    *
    * @param {number} x X component of this 2D vector.
    * @param {number} y Y component of this 2D vector.
-   * @return {Vector2} The 2D vector itself.
-   * @memberof Vector2
+   * @return {Vector2d} The 2D vector itself.
+   * @memberof Vector2d
    */
   set(x, y) {
     this.x = x;
@@ -191,8 +191,8 @@ class Vector2 {
   /**
    * Makes this 2D vector have a magnitude of 1.
    *
-   * @return {Vector2} The 2D vector itself.
-   * @memberof Vector2
+   * @return {Vector2d} The 2D vector itself.
+   * @memberof Vector2d
    */
   normalize() {
     const mag = this.magnitude();
@@ -205,117 +205,117 @@ class Vector2 {
   }
 
   /**
-   * Returns a shortcut for writing Vector2(0, 0).
+   * Returns a shortcut for writing Vector2d(0, 0).
    *
    * @static
-   * @return {Vector2} A shortcut for writing Vector2(0, 0).
-   * @memberof Vector2
+   * @return {Vector2d} A shortcut for writing Vector2d(0, 0).
+   * @memberof Vector2d
    */
   static get zero() {
-    return new Vector2(0, 0);
+    return new Vector2d(0, 0);
   }
 
   /**
-   * Returns a shortcut for writing Vector2(1, 1).
+   * Returns a shortcut for writing Vector2d(1, 1).
    *
    * @static
-   * @return {Vector2} A shortcut for writing Vector2(1, 1).
-   * @memberof Vector2
+   * @return {Vector2d} A shortcut for writing Vector2d(1, 1).
+   * @memberof Vector2d
    */
   static get one() {
-    return new Vector2(1, 1);
+    return new Vector2d(1, 1);
   }
 
   /**
-   * Returns a shortcut for writing Vector2(Infinity, Infinity).
+   * Returns a shortcut for writing Vector2d(Infinity, Infinity).
    *
    * @static
-   * @return {Vector2} A shortcut for writing Vector2(Infinity, Infinity).
-   * @memberof Vector2
+   * @return {Vector2d} A shortcut for writing Vector2d(Infinity, Infinity).
+   * @memberof Vector2d
    */
   static get positiveInfinity() {
-    return new Vector2(Infinity, Infinity);
+    return new Vector2d(Infinity, Infinity);
   }
 
   /**
-   * Returns a shortcut for writing Vector2(-Infinity, -Infinity).
+   * Returns a shortcut for writing Vector2d(-Infinity, -Infinity).
    *
    * @static
-   * @return {Vector2} A shortcut for writing Vector2(-Infinity, -Infinity).
-   * @memberof Vector2
+   * @return {Vector2d} A shortcut for writing Vector2d(-Infinity, -Infinity).
+   * @memberof Vector2d
    */
   static get negativeInfinity() {
-    return new Vector2(-Infinity, -Infinity);
+    return new Vector2d(-Infinity, -Infinity);
   }
 
   /**
-   * Returns a shortcut for writing Vector2(0, -1).
+   * Returns a shortcut for writing Vector2d(0, -1).
    *
    * @static
-   * @return {Vector2} A shortcut for writing Vector2(0, -1).
-   * @memberof Vector2
+   * @return {Vector2d} A shortcut for writing Vector2d(0, -1).
+   * @memberof Vector2d
    */
   static get up() {
-    return new Vector2(0, -1);
+    return new Vector2d(0, -1);
   }
 
   /**
-   * Returns a shortcut for writing Vector2(1, 0).
+   * Returns a shortcut for writing Vector2d(1, 0).
    *
    * @static
-   * @return {Vector2} A shortcut for writing Vector2(1, 0).
-   * @memberof Vector2
+   * @return {Vector2d} A shortcut for writing Vector2d(1, 0).
+   * @memberof Vector2d
    */
   static get right() {
-    return new Vector2(1, 0);
+    return new Vector2d(1, 0);
   }
 
   /**
-   * Returns a shortcut for writing Vector2(0, 1).
+   * Returns a shortcut for writing Vector2d(0, 1).
    *
    * @static
-   * @return {Vector2} A shortcut for writing Vector2(0, 1).
-   * @memberof Vector2
+   * @return {Vector2d} A shortcut for writing Vector2d(0, 1).
+   * @memberof Vector2d
    */
   static get down() {
-    return new Vector2(0, 1);
+    return new Vector2d(0, 1);
   }
 
   /**
-   * Returns a shortcut for writing Vector2(-1, 0).
+   * Returns a shortcut for writing Vector2d(-1, 0).
    *
    * @static
-   * @return {Vector2} A shortcut for writing Vector2(-1, 0).
-   * @memberof Vector2
+   * @return {Vector2d} A shortcut for writing Vector2d(-1, 0).
+   * @memberof Vector2d
    */
   static get left() {
-    return new Vector2(-1, 0);
+    return new Vector2d(-1, 0);
   }
 
   /**
    * Returns the angle between two 2D vectors in degrees.
    *
    * @static
-   * @param {Vector2} from 2D vector to start from.
-   * @param {Vector2} to 2D vector to end to.
+   * @param {Vector2d} from 2D vector to start from.
+   * @param {Vector2d} to 2D vector to end to.
    * @return {number} The angle between two 2D vectors in degrees.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   static angle(from, to) {
-    const n = Vector2.dot(from.normalized(), to.normalized());
-    return Math.acos(clamp(n, -1, 1)) * MATH_CONST.RAD_TO_DEG;
+    const n = Vector2d.dot(from.normalized(), to.normalized());
+    return Math.acos(clamp(n, -1, 1)) * RAD_TO_DEG;
   }
 
   /**
    * Returns the angle ABC in radians defined by three points, ABC.
-   * 
+   *
    * @static
-   * @param {Vector2} pointA
-   * @param {Vector2} pointB 
-   * @param {Vector2} pointC 
-   * @returns 
-   * 
-   * @memberOf Vector2
+   * @param {Vector2d} pointA
+   * @param {Vector2d} pointB
+   * @param {Vector2d} pointC
+   * @returns
+   *
+   * @memberOf Vector2d
    */
   static angle3(pointA, pointB, pointC) {
     return Math.atan2(pointB.y - pointC.y, pointB.x - pointC.x) -
@@ -326,11 +326,11 @@ class Vector2 {
    * Returns a copy of this 2D vector with its magnitude clamped to maxLength.
    *
    * @static
-   * @param {Vector2} vector 2D vector to clamp.
+   * @param {Vector2d} vector 2D vector to clamp.
    * @param {number} maxLength Max magnitude of the 2D vector.
-   * @return {Vector2} A copy of the 2D vector with its magnitude clamped to
+   * @return {Vector2d} A copy of the 2D vector with its magnitude clamped to
    * maxLength.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   static clampMagnitude(vector, maxLength) {
     if (vector.sqrMagnitude() > maxLength * maxLength) {
@@ -344,26 +344,26 @@ class Vector2 {
    * Returns the distance between two 2D vectors.
    *
    * @static
-   * @param {Vector2} from 2D vector to start from.
-   * @param {Vector2} to 2D vector to end to.
+   * @param {Vector2d} from 2D vector to start from.
+   * @param {Vector2d} to 2D vector to end to.
    * @return {number} The distance between two 2D vectors.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   static distance(from, to) {
     return from
-        .clone()
-        .subtract(to)
-        .magnitude();
+      .clone()
+      .subtract(to)
+      .magnitude();
   }
 
   /**
    * Returns the dot product of two 2D vectors.
    *
    * @static
-   * @param {Vector2} lhs Left hand side of equation.
-   * @param {Vector2} rhs Right hand side of equation.
+   * @param {Vector2d} lhs Left hand side of equation.
+   * @param {Vector2d} rhs Right hand side of equation.
    * @return {number} The dot product of two 2D vectors.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   static dot(lhs, rhs) {
     return lhs.x * rhs.y + lhs.y * rhs.y;
@@ -373,11 +373,11 @@ class Vector2 {
    * Linearly interpolates between `v1` and `v2` by `t`.
    *
    * @static
-   * @param {Vector2} v1 First vector.
-   * @param {Vector2} v2 Second vector.
+   * @param {Vector2d} v1 First vector.
+   * @param {Vector2d} v2 Second vector.
    * @param {number} t Interpolation factor.
-   * @return {Vector2} Linear interpolation between `v1` and `v2` by `t`.
-   * @memberof Vector2
+   * @return {Vector2d} Linear interpolation between `v1` and `v2` by `t`.
+   * @memberof Vector2d
    */
   static lerp(v1, v2, t) {
     return this.unclampedLerp(v1, v2, clamp(t, 0, 1));
@@ -387,14 +387,14 @@ class Vector2 {
    * Linearly interpolates between `v1` and `v2` by `t`.
    *
    * @static
-   * @param {Vector2} v1 First vector.
-   * @param {Vector2} v2 Second vector.
+   * @param {Vector2d} v1 First vector.
+   * @param {Vector2d} v2 Second vector.
    * @param {number} t Interpolation factor.
-   * @return {Vector2} Linear interpolation between `v1` and `v2` by `t`.
-   * @memberof Vector2
+   * @return {Vector2d} Linear interpolation between `v1` and `v2` by `t`.
+   * @memberof Vector2d
    */
   static unclampedLerp(v1, v2, t) {
-    return new Vector2(v1.x + (v2.x - v1.x) * t, v1.y + (v2.y - v1.y) * t);
+    return new Vector2d(v1.x + (v2.x - v1.x) * t, v1.y + (v2.y - v1.y) * t);
   }
 
   /**
@@ -402,14 +402,14 @@ class Vector2 {
    * two 2D vectors.
    *
    * @static
-   * @param {Vector2} lhs Left hand side of equation.
-   * @param {Vector2} rhs Right hand side of equation.
-   * @return {Vector2} A 2D vector made from the highest values of each
+   * @param {Vector2d} lhs Left hand side of equation.
+   * @param {Vector2d} rhs Right hand side of equation.
+   * @return {Vector2d} A 2D vector made from the highest values of each
    * component of the two 2D vectors.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   static max(lhs, rhs) {
-    return new Vector2(Math.max(lhs.x, rhs.x), Math.max(lhs.y, rhs.y));
+    return new Vector2d(Math.max(lhs.x, rhs.x), Math.max(lhs.y, rhs.y));
   }
 
   /**
@@ -417,25 +417,25 @@ class Vector2 {
    * two 2D vectors.
    *
    * @static
-   * @param {Vector2} lhs Left hand side of equation.
-   * @param {Vector2} rhs Right hand side of equation.
-   * @return {Vector2} A 2D vector made from the lowest values of each component
-   * of the two 2D vectors.
-   * @memberof Vector2
+   * @param {Vector2d} lhs Left hand side of equation.
+   * @param {Vector2d} rhs Right hand side of equation.
+   * @return {Vector2d} A 2D vector made from the lowest values of each
+   * component of the two 2D vectors.
+   * @memberof Vector2d
    */
   static min(lhs, rhs) {
-    return new Vector2(Math.min(lhs.x, rhs.x), Math.min(lhs.y, rhs.y));
+    return new Vector2d(Math.min(lhs.x, rhs.x), Math.min(lhs.y, rhs.y));
   }
 
   /**
    * Moves a 2D vector towards another 2D vector.
    *
    * @static
-   * @param {Vector2} current 2D vector to start from.
-   * @param {Vector2} target 2D vector to travel to.
-   * @param {Vector2} maxDistanceDelta Max distance to travel
-   * @return {Vector2} Finished distance from one call.
-   * @memberof Vector2
+   * @param {Vector2d} current 2D vector to start from.
+   * @param {Vector2d} target 2D vector to travel to.
+   * @param {Vector2d} maxDistanceDelta Max distance to travel
+   * @return {Vector2d} Finished distance from one call.
+   * @memberof Vector2d
    */
   static moveTowards(current, target, maxDistanceDelta) {
     const difference = target.clone().subtract(current);
@@ -445,10 +445,10 @@ class Vector2 {
       return target;
     } else {
       return difference
-          .clone()
-          .divide(distance)
-          .multiply(maxDistanceDelta)
-          .add(current);
+        .clone()
+        .divide(distance)
+        .multiply(maxDistanceDelta)
+        .add(current);
     }
   }
 
@@ -456,29 +456,29 @@ class Vector2 {
    * Returns the 2D vector perpendicular to this 2D vector.
    *
    * @static
-   * @param {Vector2} direction Input direction.
-   * @return {Vector2} Vector perpendicular to this vector.
-   * @memberof Vector2
+   * @param {Vector2d} direction Input direction.
+   * @return {Vector2d} Vector perpendicular to this vector.
+   * @memberof Vector2d
    */
   static perpendicular(direction) {
-    return new Vector2(-direction.y, direction.x);
+    return new Vector2d(-direction.y, direction.x);
   }
 
   /**
    * Proejcts a vector unto another vector.
    *
    * @static
-   * @param {Vector2} vector Vector to project.
-   * @param {Vector2} onNormal Vector to project unto.
-   * @return {Vector2} Proejction of a vector unto another vector.
-   * @memberof Vector2
+   * @param {Vector2d} vector Vector to project.
+   * @param {Vector2d} onNormal Vector to project unto.
+   * @return {Vector2d} Proejction of a vector unto another vector.
+   * @memberof Vector2d
    */
   static project(vector, onNormal) {
     const sqrMag = onNormal.sqrMagnitude();
     if (sqrMag < Number.EPSILON) {
       return 0;
     } else {
-      return onNormal * Vector2.dot(vector, onNormal) / sqrMag;
+      return onNormal * Vector2d.dot(vector, onNormal) / sqrMag;
     }
   }
 
@@ -486,44 +486,44 @@ class Vector2 {
    * Reflects a vector off the vector defined by a normal.
    *
    * @static
-   * @param {Vector2} direction Input direction.
-   * @param {Vector2} normal Input normal.
-   * @return {Vector2} Reflection of a vector off the vector defined by a
+   * @param {Vector2d} direction Input direction.
+   * @param {Vector2d} normal Input normal.
+   * @return {Vector2d} Reflection of a vector off the vector defined by a
    * normal.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   static reflect(direction, normal) {
     return direction
-        .clone()
-        .multiply(-2 * Vector2.dot(normal, direction))
-        .add(direction);
+      .clone()
+      .multiply(-2 * Vector2d.dot(normal, direction))
+      .add(direction);
   }
 
   /**
    * Multiplies two 2D vectors component-wise.
    *
    * @static
-   * @param {Vector2} lhs Left hand side of equation.
-   * @param {Vector2} rhs Right hand side of equation.
-   * @return {Vector2} The product of two 2D vectors component-wise.
-   * @memberof Vector2
+   * @param {Vector2d} lhs Left hand side of equation.
+   * @param {Vector2d} rhs Right hand side of equation.
+   * @return {Vector2d} The product of two 2D vectors component-wise.
+   * @memberof Vector2d
    */
   static scale(lhs, rhs) {
-    return new Vector2(lhs.x * rhs.x, lhs.y * rhs.y);
+    return new Vector2d(lhs.x * rhs.x, lhs.y * rhs.y);
   }
 
   /**
    * Returns the signed angle between two 2D vectors in degrees.
    *
    * @static
-   * @param {Vector2} from Vector to start from.
-   * @param {Vector2} to Vector to travel to.
+   * @param {Vector2d} from Vector to start from.
+   * @param {Vector2d} to Vector to travel to.
    * @return {number} The angle between two 2D vectors in degrees.
-   * @memberof Vector2
+   * @memberof Vector2d
    */
   static signedAngle(from, to) {
-    return Vector2.angle(from, to) * Math.sign(from.x * to.y - from.y * to.x);
+    return Vector2d.angle(from, to) * Math.sign(from.x * to.y - from.y * to.x);
   }
 }
 
-export default Vector2;
+export default Vector2d;
