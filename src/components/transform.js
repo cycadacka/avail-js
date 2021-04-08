@@ -1,22 +1,24 @@
-import Component from '../core/component.js'
-import Vector2 from '../math/vector2.js';
+import Vector2 from '../math/vector2d.js';
 import Matrix3x3 from '../math/matrix3x3.js';
-import EntityManager from '../core/package/entity-manager.js';
+import Component from '../core/component.js';
 
 /**
+ * Position, rotation and scale of an entity.
+ *
+ * @class Transform
  * @extends {Component}
  */
 class Transform extends Component {
-  static ATTRIBUTES = Object.freeze({
-    SINGLE: true,
-  });
-
   /**
    * @param {Vector2} [localPosition]
    * @param {number} [localRotation]
    * @param {Vector2} [localScale]
    */
-  constructor(localPosition=Vector2.zero, localRotation=0, localScale=Vector2.one) {
+  constructor(
+    localPosition=Vector2.zero,
+    localRotation=0,
+    localScale=Vector2.one,
+  ) {
     super();
 
     this.localPosition = localPosition;
@@ -25,30 +27,9 @@ class Transform extends Component {
   }
 
   /**
-   * @return {string}
-   * 
-   * @memberOf Transform
-   */
-  serialize() {
-    return JSON.stringify(this);
-  }
-
-  /**
-   * @param {string} data 
-   * 
-   * @memberOf Transform
-   */
-  deserialize(data) {
-    const json = JSON.parse(data);
-    
-    this.localPosition = new Vector2(json.localPosition.x, json.localPosition.y);
-    this.localRotation = json.localRotation;
-    this.localScale = new Vector2(json.localScale.x, json.localScale.y);
-  }
-
-  /**
+   * Position of an entity.
+   *
    * @type {Vector2}
-   * 
    * @memberOf Transform
    */
   get position() {
@@ -56,29 +37,33 @@ class Transform extends Component {
     const parent = this._parent;
     return new Proxy(this.localPosition, {
       get(target, p) {
-        return parent?.localToWorldMatrix.multiplyVector2(target)[p] || target.clone()[p];
+        return parent?.localToWorldMatrix.multiplyVector2(target)[p] ||
+        target.clone()[p];
       },
       set(target, p, value) {
         switch (p) {
-          case 'x':
-            target.x = parent?.localToWorldMatrix.multiplyVector2({x: value, y: 0}).x || value;
-            break;
-          case 'y':
-            target.y = parent?.localToWorldMatrix.multiplyVector2({x: 0, y: value}).y || value;
-            break;
-          default:
-            target[p] = value;
-            break;
+        case 'x':
+          target.x = parent?.localToWorldMatrix
+            .multiplyVector2({x: value, y: 0}).x || value;
+          break;
+        case 'y':
+          target.y = parent?.localToWorldMatrix
+            .multiplyVector2({x: 0, y: value}).y || value;
+          break;
+        default:
+          target[p] = value;
+          break;
         }
 
         return true;
-      }
+      },
     });
   }
 
   /**
+   * Position of an entity.
+   *
    * @type {Vector2}
-   * 
    * @memberOf Transform
    */
   set position(value) {
@@ -89,8 +74,9 @@ class Transform extends Component {
   }
 
   /**
+   * Rotation of an entity.
+   *
    * @type {number}
-   * 
    * @memberOf Transform
    */
   get rotation() {
@@ -98,8 +84,9 @@ class Transform extends Component {
   }
 
   /**
+   * Rotation of an entity.
+   *
    * @type {number}
-   * 
    * @memberOf Transform
    */
   set rotation(value) {
@@ -107,8 +94,9 @@ class Transform extends Component {
   }
 
   /**
+   * Scale of an entity.
+   *
    * @type {Vector2}
-   * 
    * @memberOf Transform
    */
   get scale() {
@@ -120,25 +108,26 @@ class Transform extends Component {
       },
       set(target, p, value) {
         switch (p) {
-          case 'x':
-            target.x = value / (self._parent?.scale.x || 1);
-            break;
-          case 'y':
-            target.y = value / (self._parent?.scale.y || 1);
-            break;
-          default:
-            target[p] = value;
-            break;
+        case 'x':
+          target.x = value / (self._parent?.scale.x || 1);
+          break;
+        case 'y':
+          target.y = value / (self._parent?.scale.y || 1);
+          break;
+        default:
+          target[p] = value;
+          break;
         }
 
         return true;
       },
-    })
+    });
   }
 
   /**
+   * Scale of an entity.
+   *
    * @type {Vector2}
-   * 
    * @memberOf Transform
    */
   set scale(value) {
@@ -149,24 +138,30 @@ class Transform extends Component {
   }
 
   /**
-   * @type {Matrix3x3}
+   * Matrix that transforms a point from local space into world space.
+   *
    * @readonly
-   * 
-   * @memberOf Transform
+   * @type {Matrix3x3}
+   * @memberof Transform
    */
   get localToWorldMatrix() {
     return Matrix3x3.createTRS(this.position, this.rotation, this.scale);
   }
 
   /**
-   * @type {Matrix3x3}
+   * Matrix that transforms a point from world space into local space.
+   *
    * @readonly
-   * 
+   * @type {Matrix3x3}
    * @memberOf Transform
    */
   get worldToLocalMatrix() {
     return this.localToWorldMatrix.inverse;
   }
 }
+
+Transform.ATTRIBUTES = Object.freeze({
+  SINGLE: true,
+});
 
 export default Transform;

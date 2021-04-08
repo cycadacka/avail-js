@@ -1,4 +1,4 @@
-import clamp from "../math/clamp.js";
+import clamp from '../math/clamp.js';
 
 /** @type {WeakMap<string, HTMLImageElement}} */
 const imageCache = new WeakMap();
@@ -17,7 +17,7 @@ const imageCache = new WeakMap();
  */
 function loadImage(
   source,
-  { sx = 0, sy = 0, sw = null, sh = null, cachable = true },
+  {sx = 0, sy = 0, sw = null, sh = null, cachable = true},
 ) {
   const key = `${source}-${sx}-${sy}-${sw}-${sh}`;
   // Resolve to the cached image if possible.
@@ -26,7 +26,7 @@ function loadImage(
   }
 
   const sourceImage = new Image();
-  sourceImage.crossOrigin = "anonymous";
+  sourceImage.crossOrigin = 'anonymous';
   sourceImage.src = source;
 
   return new Promise((resolve, reject) => {
@@ -42,23 +42,23 @@ function loadImage(
       }
 
       // Modify the source image.
-      const canvas = document.createElement("canvas");
-      canvas.style.display = "none";
+      const canvas = document.createElement('canvas');
+      canvas.style.display = 'none';
       canvas.width = clamp(
         Number.isFinite(sw) ? sw : sourceImage.width - sx,
         0,
         sourceImage.width,
       );
       canvas.height = clamp(
-        Number.isFinite(sh) ? sh : texture.height - sy,
+        Number.isFinite(sh) ? sh : sourceImage.height - sy,
         0,
         sourceImage.height,
       );
 
-      canvas.getContext("2d").drawImage(sourceImage, -sx, -sy);
+      canvas.getContext('2d').drawImage(sourceImage, -sx, -sy);
 
       const modifiedImage = new Image();
-      modifiedImage.crossOrigin = "anonymous";
+      modifiedImage.crossOrigin = 'anonymous';
       modifiedImage.src = canvas.toDataURL();
 
       canvas.remove();

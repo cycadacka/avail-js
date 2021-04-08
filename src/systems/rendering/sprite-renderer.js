@@ -1,39 +1,58 @@
-import System from '../core/system.js.js';
-import Transform2D from '../../components/common/transform-2d.js.js';
-import Sprite from './sprite.js.js.js';
+import Transform from '../../components/transform.js';
+import Sprite from '../../components/rendering/sprite.js';
 
 /**
- * Handles rendering unto a canvas element.
+ * Handles rendering of `Sprite` unto a canvas element.
  *
  * @class SpriteRenderer
  */
 class SpriteRenderer {
-  /** @type {CanvasRenderingContext2D} */
-  #context;
-
   /**
+   * Creates an instance of SpriteRenderer.
+   *
    * @param {HTMLCanvasElement} canvas
+   * @memberof SpriteRenderer
    */
   constructor(canvas) {
-    this.#context = canvas.getContext('2d');
+    this._context = canvas.getContext('2d');
   }
 
+  /**
+   * Callback called every frame.
+   *
+   * @param {{deltaTime: number, time: number}} time
+   * @param {import('../../core/package/entity-manager.js').default} manager
+   * @memberof SpriteRenderer
+   */
   update(time, manager) {
-    this.#context.clearRect(0, 0, this.#context.canvas.width, this.#context.canvas.height);
+    this._context.clearRect(
+      0,
+      0,
+      this._context.canvas.width,
+      this._context.canvas.height,
+    );
 
     const entities = manager.getEntitiesWithComponent(Sprite);
     for (const entity of entities) {
-      /** @type {Sprite} */
       const sprite = manager.getComponent(entity, Sprite);
-      /** @type {import('../common/matrix3x3.js.js').default} */
-      const matrix = manager.getComponent(entity, Transform2D).localToWorldMatrix;
+      const matrix = manager.getComponent(
+        entity,
+        Transform,
+      ).localToWorldMatrix;
 
-      this.#context.save();
-    
-      this.#context.setTransform(matrix.m00, matrix.m10, matrix.m01, matrix.m11, matrix.m02, matrix.m12);
-      this.#context.drawImage(img, sprite.pivot.x, sprite.pivot.y);
+      this._context.save();
 
-      this.#context.restore();
+      this._context.setTransform(
+        matrix.m00,
+        matrix.m10,
+        matrix.m01,
+        matrix.m11,
+        matrix.m02,
+        matrix.m12,
+      );
+      this._context.drawImage(sprite.texture, sprite.pivot.x, sprite.pivot.y);
+
+      this._context.restore();
     }
   }
 }

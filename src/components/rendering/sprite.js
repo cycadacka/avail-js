@@ -2,16 +2,18 @@ import Component from '../core/component.js.js';
 import Vector2 from '../math/vector2.js.js';
 import Transform2D from '../transform-2d.js.js';
 
+/**
+ * Texture of an entity with pivot.
+ *
+ * @class Sprite
+ * @extends {Component}
+ */
 class Sprite extends Component {
-  static ATTRIBUTES = {
-    REQUIRES: [Transform2D],
-  };
-
   /**
    * Creates an instance of Sprite.
+   *
    * @param {CanvasImageSource} texture
    * @param {Vector2} [pivot]
-   * 
    * @memberOf Sprite
    */
   constructor(texture, pivot=null) {
@@ -23,10 +25,10 @@ class Sprite extends Component {
       pivot?.y || texture.height / 2,
     );
   }
-
-  toJSON() {
-    
-  }
 }
+
+Sprite.ATTRIBUTES = Object.freeze({
+  REQUIRES: [Transform2D],
+});
 
 export default Sprite;

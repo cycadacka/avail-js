@@ -1,58 +1,41 @@
-import Component from '../component.js';
-
-/** 
- * Translates the entity into a format that can be stored and
- * reconstructed later.
- * 
- * @param {string} entity
- * @param {string|null} tag
- * @param {string} parent
- * @param {Component[]} components
- * @return {string}
- */
-function serializeEntity(entity, tag, parent, components) {
-  return JSON.stringify({
-    entity,
-    tag,
-    parent,
-    components: components.map((value, index) => {
-      `value.serialize()`;
-    }),
-  })
-}
-
-// TODO: Reconstruct a component
-function serializeComponentConstructor(constructor) {
-  return constructor.toString();
-}
 
 /**
+ * Manages entities and their attached components.
+ *
  * @package
+ * @class EntityManager
  */
 class EntityManager {
-  /** @type {Map<typeof Component, Map<string, Component[]>>} */
-  #componentStorage = new Map(); // component-type => (entity => components[])
-  /** @type {Map<string, {parent: string|null, children: string[]}>} */
-  #entityStorage = new Map(); // entity => (parent, children[])
-  /** @type {Map<string, string>} */
-  #entity2tag = new Map();
-  /** @type {Map<string, string[]>} */
-  #tag2entity = new Map();
+  /**
+   * Creates an instance of EntityManager.
+   *
+   * @memberof EntityManager
+   */
+  constructor() {
+    /** @type {Map<typeof Component, Map<string, Component[]>>} */
+    this._componentStorage = new Map();
+    /** @type {Map<string, {parent: string, children: string[]}>} */
+    this._entityStorage = new Map();
+    /** @type {Map<string, string>} */
+    this._entity2tag = new Map();
+    /** @type {Map<string, string[]>} */
+    this._tag2entity = new Map();
+  }
 
   // #region Component
 
   /**
-   * Retrieves the first-attached component of an entity. Returns null if there is none attached.
-   * 
+   * Retrieves the first-attached component of an entity. Returns null if there
+   * is none attached.
+   *
    * @template T
    * @param {string} entity
    * @param {new T} component
    * @return {T|null} First-attached component of an entity.
-   * 
    * @memberof EntityManager
    */
   getComponent(entity, component) {
-    return this.#componentStorage.get(component)?.get(entity)?.[0] || null;
+    return this._componentStorage.get(component)?.get(entity)?.[0] || null;
   }
 
   /**
@@ -62,24 +45,26 @@ class EntityManager {
    * @param {string} entity
    * @param {new T} component
    * @return {T[]} Multiple components attached to an entity.
-   * 
    * @memberof EntityManager
    */
   getComponents(entity, component) {
-    return this.#componentStorage.get(component)?.get(entity) || [];
+    return this._componentStorage.get(component)?.get(entity) || [];
   }
 
   /**
    * Attaches multiple components to an entity.
-   * 
-   * @param {string} entity 
+   *
+   * @param {string} entity
    * @param {...Component} components
    * @return {EntityManager}
-   * 
    * @memberof EntityManager
    */
   addComponents(entity, ...components) {
-    /** @type {Map<typeof Component, {present: boolean, beggars: Set<typeof Component>} */
+    /**
+     * @type {Map<typeof Component, {
+     *   present: boolean, beggars: Set<typeof Component
+     * }>}
+     * */
     const requiredComponents = new Map();
     /** @type {Set<typeof Component>} */
     const missingRequiredComponents = new Set();
@@ -93,25 +78,29 @@ class EntityManager {
 
       while (componentType.name.length > 0) {
         // Associate component/component-parent with [child] instance.
-        let storage = this.#componentStorage.get(componentType);
+        let storage = this._componentStorage.get(componentType);
 
         if (!storage) {
           storage = new Map();
-          this.#componentStorage.set(componentType, storage);
+          this._componentStorage.set(componentType, storage);
         }
 
         if (storage.has(entity)) {
-          if (componentType.ATTRIBUTES.SINGLE)
-            throw new Error(`Component '${componentType.name}' can only have one instance attached per entity.`);
+          if (componentType.ATTRIBUTES.SINGLE) {
+            throw new Error(
+              `Component '${componentType.name}' can only have one instance` +
+              `attached per entity.`,
+            );
+          }
 
           storage.get(entity).push(componentInstance);
         } else {
           storage.set(entity, [componentInstance]);
         }
 
-        // Keep track of required components from the component/component-parent.
+        // Keep track of required components from the target/parent.
         if (componentType.ATTRIBUTES.REQUIRES) {
-          for (let requiredType of componentType.ATTRIBUTES.REQUIRES) {
+          for (const requiredType of componentType.ATTRIBUTES.REQUIRES) {
             if (requiredComponents.has(requiredType)) {
               if (!requiredComponents.get(requiredType).present) {
                 requiredComponents.get(requiredType).beggars.add(componentType);
@@ -120,7 +109,7 @@ class EntityManager {
               missingRequiredComponents.add(requiredType);
               requiredComponents.set(
                 requiredType,
-                {"present": false, "beggars": new Set([componentType])}
+                {'present': false, 'beggars': new Set([componentType])},
               );
             }
           }
@@ -132,7 +121,7 @@ class EntityManager {
         } else {
           requiredComponents.set(
             componentType,
-            {"present": true, "beggars": new Set()}
+            {'present': true, 'beggars': new Set()},
           );
         }
 
@@ -141,9 +130,16 @@ class EntityManager {
       }
     }
 
-    for (let missingComponentType of missingRequiredComponents) {
-      const beggars = Array.from(requiredComponents.get(missingComponentType).beggars);
-      throw new Error(`Component${beggars.length > 1 ? "s" : ""} ${beggars.map((value) => '"' + value.name + '"').join(', ')} requires "${missingComponentType.name}"`);
+    for (const missingComponentType of missingRequiredComponents) {
+      const beggars = Array.from(
+        requiredComponents.get(missingComponentType).beggars,
+      );
+
+      throw new Error(
+        `Component${beggars.length > 1 ? 's' : ''}` +
+        beggars.map((value) => '"' + value.name + '"').join(', ') +
+        `requires "${missingComponentType.name}"`,
+      );
     }
 
     return this;
@@ -151,12 +147,12 @@ class EntityManager {
 
   /**
    * Attaches a component to an entity.
-   * 
+   *
    * @template T
    * @param {string} entity
    * @param {T} component
    * @return {EntityManager}
-   * 
+   *
    * @memberof EntityManager
    */
   addComponent(entity, component) {
@@ -165,10 +161,10 @@ class EntityManager {
 
   /**
    * Removes attached components from an entity.
-   * 
+   *
    * @param {...Component} components
    * @return {EntityManager}
-   * 
+   *
    * @memberOf EntityManager
    */
   removeComponents(...components) {
@@ -176,12 +172,12 @@ class EntityManager {
       let componentType = components[i].constructor;
 
       while (componentType.name.length > 0) {
-        const storage =this.#componentStorage.get(componentType)
-        .get(components[i].ENTITY);
-  
+        const storage =this._componentStorage.get(componentType)
+          .get(components[i].ENTITY);
+
         storage.splice(
           storage.indexOf(components[i]),
-          1
+          1,
         );
 
         componentType = Reflect.getPrototypeOf(componentType);
@@ -193,26 +189,26 @@ class EntityManager {
 
   /**
    * Removes attached components of the same component type from an entity.
-   * 
+   *
    * @template T
-   * @param {string} entity 
+   * @param {string} entity
    * @param {new T} componentType
    * @return {EntityManager}
-   * 
+   *
    * @memberOf EntityManager
    */
   removeComponentsOfType(entity, componentType) {
-    this.#componentStorage.get(componentType).set(entity, []);
+    this._componentStorage.get(componentType).set(entity, []);
 
     let type = Reflect.getPrototypeOf(componentType);
     while (type.name.length > 0) {
-      const storage = this.#componentStorage.get(type)
-      .get(entity);
+      const storage = this._componentStorage.get(type)
+        .get(entity);
 
-      this.#componentStorage.get(type)
-      .set(entity, storage.filter((value) => {
-        return !(value instanceof componentType);
-      }));
+      this._componentStorage.get(type)
+        .set(entity, storage.filter((value) => {
+          return !(value instanceof componentType);
+        }));
 
       type = Reflect.getPrototypeOf(type);
     }
@@ -226,25 +222,25 @@ class EntityManager {
 
   /**
    * Creates an entity.
-   * 
+   *
    * @param {string} [tag]
    * @return {string} Identifier representing an entity.
-   * 
+   *
    * @memberof EntityManager
    */
   createEntity(tag='') {
-    const entity = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    const entity = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c) =>
       (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4)
-      .toString(16)
+        .toString(16),
     );
 
     if (tag.length > 0) {
-      this.#entity2tag.set(entity, tag);
+      this._entity2tag.set(entity, tag);
 
-      if (this.#tag2entity.has(tag)) {
-        this.#tag2entity.get(tag).push(id);
+      if (this._tag2entity.has(tag)) {
+        this._tag2entity.get(tag).push(entity);
       } else {
-        this.#tag2entity.set(tag, [id]);
+        this._tag2entity.set(tag, [entity]);
       }
     }
 
@@ -253,21 +249,21 @@ class EntityManager {
 
   /**
    * Destroys an entity as well as its children.
-   * 
-   * @param {string} entity 
-   * 
+   *
+   * @param {string} entity
+   *
    * @memberOf EntityManager
    */
   destroyEntity(entity) {
     // Remove associated components.
-    for (const storage of this.#componentStorage.values()) {
+    for (const storage of this._componentStorage.values()) {
       if (storage.has(entity)) {
         storage.delete(entity);
       }
     }
 
     // Destroy relationships and children.
-    for (const child of this.#entityStorage.get(entity).children.values()) {
+    for (const child of this._entityStorage.get(entity).children.values()) {
       this.destroyEntity(child);
     }
 
@@ -276,16 +272,16 @@ class EntityManager {
       this.removeChildFromEntity(parent, entity);
     }
 
-    this.#entityStorage.delete(entity);
+    this._entityStorage.delete(entity);
 
     // Remove associated tag.
-    if (this.#tag2entity.has(entity) || this.#entity2tag.has(entity)) {
-      const entities = this.#tag2entity.get(this.#entity2tag.get(entity));
+    if (this._tag2entity.has(entity) || this._entity2tag.has(entity)) {
+      const entities = this._tag2entity.get(this._entity2tag.get(entity));
       entities.splice(
-        entities.indexOf(child),
-        1
+        entities.indexOf(entity),
+        1,
       );
-      this.#entity2tag.delete(entity);
+      this._entity2tag.delete(entity);
     }
 
     return this;
@@ -297,52 +293,53 @@ class EntityManager {
    * @template T
    * @param {new T} componentType
    * @return {Iterator<string, undefined>} Entities associated with a component.
-   * 
+   *
    * @memberof EntityManager
    */
   getEntitiesWithComponentType(componentType) {
-    return this.#componentStorage.get(componentType)?.keys() || (function* () {
+    return this._componentStorage.get(componentType)?.keys() || (function* () {
     })();
   }
 
   // #region Hierarchy
 
   /**
-   * Retrieves the parent of an entity. Returns null if the entity has no parent.
-   * 
-   * @param {string} entity 
+   * Retrieves the parent of an entity. Returns null if the entity has no
+   * parent.
+   *
+   * @param {string} entity
    * @return {string|null} Parent of an entity.
-   * 
+   *
    * @memberof EntityManager
    */
   getParentOfEntity(entity) {
-    return this.#entityStorage.get(entity)?.parent || null;
+    return this._entityStorage.get(entity)?.parent || null;
   }
 
   /**
    * Assigns a new parent for an entity.
-   * 
+   *
    * @param {string} entity
-   * @param {string} parent 
+   * @param {string} parent
    * @return {EntityManager}
-   * 
+   *
    * @memberof EntityManager
    */
   setParentOfEntity(entity, parent) {
-    const entityStore = this.#entityStorage.get(entity);
+    const entityStore = this._entityStorage.get(entity);
 
     if (entityStore) {
       entityStore.parent = parent;
     } else {
-      this.#entityStorage.set(entity, { parent, children: [] });
+      this._entityStorage.set(entity, {parent, children: []});
     }
 
-    const parentStore = this.#entityStorage.get(parent);
+    const parentStore = this._entityStorage.get(parent);
 
     if (parentStore) {
       parentStore.children.push(entity);
     } else {
-      this.#entityStorage.set(parent, { parent: null, children: [entity] });
+      this._entityStorage.set(parent, {parent: null, children: [entity]});
     }
 
     return this;
@@ -350,15 +347,15 @@ class EntityManager {
 
   /**
    * Retrieves the children of an entity.
-   * 
-   * @param {string} entity 
+   *
+   * @param {string} entity
    * @return {Iterator<string, number, undefined>} Children of an entity.
-   * 
+   *
    * @memberof EntityManager
    */
   getChildrenOfEntity(entity) {
-    const children = this.#entityStorage.get(entity).children || [];
-    
+    const children = this._entityStorage.get(entity).children || [];
+
     return (function* () {
       for (let i = 0; i < children.length; i++) {
         yield children[i];
@@ -371,28 +368,28 @@ class EntityManager {
   /**
    * Adds a child to an entity.
    *
-   * @param {string} entity 
-   * @param {string} child 
+   * @param {string} entity
+   * @param {string} child
    * @return {EntityManager}
-   * 
+   *
    * @memberof EntityManager
    */
   addChildToEntity(entity, child) {
-    const entityStore = this.#entityStorage.get(entity);
+    const entityStore = this._entityStorage.get(entity);
 
     if (entityStore) {
       entityStore.children.push(child);
     } else {
-      this.#entityStorage.set(entity, { parent: null, children: [child] });
+      this._entityStorage.set(entity, {parent: null, children: [child]});
     }
 
-    const childStore = this.#entityStorage.get(child);
+    const childStore = this._entityStorage.get(child);
 
     if (childStore) {
       this.removeChildFromEntity(childStore.parent, child);
       childStore.parent = entity;
     } else {
-      this.#entityStorage.set(child, { parent: entity, children: [] });
+      this._entityStorage.set(child, {parent: entity, children: []});
     }
 
     return this;
@@ -400,11 +397,11 @@ class EntityManager {
 
   /**
    * Adds multiple children to an entity.
-   * 
-   * @param {string} entity 
-   * @param {...string} children 
+   *
+   * @param {string} entity
+   * @param {...string} children
    * @return {EntityManager}
-   * 
+   *
    * @memberof EntityManager
    */
   addChildrenToEntity(entity, ...children) {
@@ -418,23 +415,23 @@ class EntityManager {
   /**
    * Removes a child from an entity.
    *
-   * @param {string} entity 
-   * @param {string} child 
+   * @param {string} entity
+   * @param {string} child
    * @return {EntityManager}
-   * 
+   *
    * @memberof EntityManager
    */
   removeChildFromEntity(entity, child) {
-    const entityStore = this.#entityStorage.get(entity);
+    const entityStore = this._entityStorage.get(entity);
 
     if (entityStore) {
       entityStore.children.splice(
         entityStore.children.indexOf(child),
-        1
+        1,
       );
     }
 
-    const childStore = this.#entityStorage.get(child);
+    const childStore = this._entityStorage.get(child);
 
     if (childStore) {
       childStore.parent = null;
@@ -446,10 +443,10 @@ class EntityManager {
   /**
    * Removes multiple children from an entity.
    *
-   * @param {string} entity 
+   * @param {string} entity
    * @param {...string} children
    * @return {EntityManager}
-   * 
+   *
    * @memberof EntityManager
    */
   removeChildrenFromEntity(entity, ...children) {
@@ -466,64 +463,64 @@ class EntityManager {
 
   /**
    * Retrieves the first entity associated with a tag.
-   * 
+   *
    * @param {string} tag
    * @return {string|null} First entity associated with a tag.
-   * 
+   *
    * @memberof EntityManager
    */
   getEntityWithTag(tag) {
-    return this.#tag2entity.get(tag)?.[0] || null
+    return this._tag2entity.get(tag)?.[0] || null;
   }
 
   /**
    * Retrieves entities associated with a tag.
-   * 
+   *
    * @param {string} tag
    * @return {string[]} Entities associated with a tag.
-   * 
+   *
    * @memberof EntityManager
    */
   getEntitiesWithTag(tag) {
-    return this.#tag2entity.get(tag) || [];
+    return this._tag2entity.get(tag) || [];
   }
-  
+
   /**
    * Retrieves tag associated with an entity.
-   * 
+   *
    * @param {string} entity
    * @return {string} Tag associated with an entity.
-   * 
+   *
    * @memberof EntityManager
    */
   getTagOfEntity(entity) {
-    return this.#entity2tag.get(entity) || "";
+    return this._entity2tag.get(entity) || '';
   }
 
   /**
    * Associates tag with an entity.
-   * 
-   * @param {string} entity 
+   *
+   * @param {string} entity
    * @param {string} tag
    * @return {EntityManager}
-   * 
+   *
    * @memberof EntityManager
    */
   setTagOfEntity(entity, tag) {
-    this.#entity2tag.set(entity, tag);
+    this._entity2tag.set(entity, tag);
 
-    if (this.#tag2entity.has(tag)) {
-      this.#tag2entity.get(tag).push(entity);
+    if (this._tag2entity.has(tag)) {
+      this._tag2entity.get(tag).push(entity);
     } else {
-      this.#tag2entity.set(tag, [entity]);
+      this._tag2entity.set(tag, [entity]);
     }
 
     return this;
   }
-  
+
   // #endregion
 
   // #endregion
 }
 
-export default EntityManager
+export default EntityManager;
