@@ -120,10 +120,6 @@ class Polygon extends Component {
   }
 }
 
-Polygon.ATTRIBUTES = {
-  REQUIRES: [
-    Transform,
-  ],
-};
+Polygon.ATTRIBUTES.REQUIRES = [Transform];
 
 export default Polygon;
