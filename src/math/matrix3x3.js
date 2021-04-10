@@ -1,5 +1,5 @@
 import {DEG_TO_RAD} from './math.js';
-import Vector2d from './vector2d.js';
+import Vector2D from './vector2d.js';
 
 /**
  * Representation of a 3x3 transformation matrix.
@@ -91,12 +91,12 @@ class Matrix3x3 {
   /**
    * Transforms a position by this matrix.
    *
-   * @param {Vector2d} vector2d
-   * @return {Vector2d}
+   * @param {Vector2D} vector2d
+   * @return {Vector2D}
    * @memberof Matrix3x3
    */
   multiplyVector2(vector2d) {
-    return new Vector2d(
+    return new Vector2D(
       this.m00 * vector2d.x + this.m01 * vector2d.y + this.m02,
       this.m10 * vector2d.x + this.m11 * vector2d.y + this.m12,
     );
@@ -126,7 +126,7 @@ class Matrix3x3 {
   /**
    * Creates a translation matrix.
    *
-   * @param {Vector2d} translation
+   * @param {Vector2D} translation
    * @return {Matrix3x3}
    * @memberof Matrix3x3
    */
@@ -162,7 +162,7 @@ class Matrix3x3 {
    * Creates a scaling matrix.
    *
    * @static
-   * @param {Vector2d} scale
+   * @param {Vector2D} scale
    * @return {Matrix3x3}
    * @memberof Matrix3x3
    */
@@ -177,9 +177,9 @@ class Matrix3x3 {
   /**
    * Creates a translation, rotation and scaling matrix.
    *
-   * @param {Vector2d} translation
+   * @param {Vector2D} translation
    * @param {number} rotation
-   * @param {Vector2d} scale
+   * @param {Vector2D} scale
    * @return {Matrix3x3}
    */
   static createTRS(translation, rotation, scale) {

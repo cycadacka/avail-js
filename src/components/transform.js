@@ -1,4 +1,4 @@
-import Vector2 from '../math/vector2d.js';
+import Vector2D from '../math/vector2d.js';
 import Matrix3x3 from '../math/matrix3x3.js';
 import Component from '../core/component.js';
 
@@ -10,14 +10,14 @@ import Component from '../core/component.js';
  */
 class Transform extends Component {
   /**
-   * @param {Vector2} [localPosition]
+   * @param {Vector2D} [localPosition]
    * @param {number} [localRotation]
-   * @param {Vector2} [localScale]
+   * @param {Vector2D} [localScale]
    */
   constructor(
-    localPosition=Vector2.zero,
+    localPosition=Vector2D.zero,
     localRotation=0,
-    localScale=Vector2.one,
+    localScale=Vector2D.one,
   ) {
     super();
 
@@ -29,7 +29,7 @@ class Transform extends Component {
   /**
    * Position of an entity.
    *
-   * @type {Vector2}
+   * @type {Vector2D}
    * @memberOf Transform
    */
   get position() {
@@ -63,7 +63,7 @@ class Transform extends Component {
   /**
    * Position of an entity.
    *
-   * @type {Vector2}
+   * @type {Vector2D}
    * @memberOf Transform
    */
   set position(value) {
@@ -96,7 +96,7 @@ class Transform extends Component {
   /**
    * Scale of an entity.
    *
-   * @type {Vector2}
+   * @type {Vector2D}
    * @memberOf Transform
    */
   get scale() {
@@ -104,7 +104,7 @@ class Transform extends Component {
 
     return new Proxy(this.localScale, {
       get(target, p) {
-        return Vector2.scale((self._parent?.scale || Vector2.one), target)[p];
+        return Vector2D.scale((self._parent?.scale || Vector2D.one), target)[p];
       },
       set(target, p, value) {
         switch (p) {
@@ -127,11 +127,11 @@ class Transform extends Component {
   /**
    * Scale of an entity.
    *
-   * @type {Vector2}
+   * @type {Vector2D}
    * @memberOf Transform
    */
   set scale(value) {
-    const offset = this._parent?.scale || Vector2.one;
+    const offset = this._parent?.scale || Vector2D.one;
 
     this.localScale.x = value.x / offset.x;
     this.localScale.y = value.y / offset.y;
@@ -160,8 +160,8 @@ class Transform extends Component {
   }
 }
 
-Transform.ATTRIBUTES = Object.freeze({
+Transform.ATTRIBUTES = {
   SINGLE: true,
-});
+};
 
 export default Transform;
