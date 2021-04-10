@@ -1,7 +1,7 @@
 import Transform from '../src/components/transform.js';
 import Scene from '../src/core/scene.js';
 import Vector2D from '../src/math/vector2d.js';
-import Polygon from '../src/components/shapes/polygon.js';
+import Rect from '../src/components/shapes/rect.js';
 import PolygonRenderer from '../src/systems/rendering/polygon-renderer.js';
 import PolygonMaterial from '../src/components/rendering/polygon-material.js';
 
@@ -25,10 +25,7 @@ const scene = new Scene([
 const entityA = scene.entityManager.createEntity('5fps');
 scene.entityManager.addComponents(
   entityA,
-  new Polygon([
-    new Vector2D(-1, -1), new Vector2D(1, -1),
-    new Vector2D(1, 1), new Vector2D(-1, 1),
-  ]),
+  new Rect(1, 1),
   new PolygonMaterial({
     fillStyle: (() => {
       const grd = context.createLinearGradient(0, 0, 600, 0);
