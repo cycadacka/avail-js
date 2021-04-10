@@ -61,9 +61,9 @@ class Component {
 /**
  * @type {Readonly<{SINGLE: boolean, REQUIRES: (typeof Component)[]}>}
  */
-Component.ATTRIBUTES = Object.freeze({
+Component.ATTRIBUTES = {
   SINGLE: false,
   REQUIRES: [],
-});
+};
 
 export default Component;
