@@ -15,15 +15,15 @@ const scene = new Scene([
   {
     fixedUpdate(time, entityManager) {
       const transform = entityManager.getComponent(
-        entityManager.getEntityWithTag('5fps'),
+        entityManager.getEntityWithTag('a'),
         Transform,
       );
       transform.rotation += 20 * time.deltaTime;
     },
   },
-], 5, 60);
+]);
 
-const entityA = scene.entityManager.createEntity('5fps');
+const entityA = scene.entityManager.createEntity('a');
 scene.entityManager.addComponents(
   entityA,
   new Rect(1, 1),
