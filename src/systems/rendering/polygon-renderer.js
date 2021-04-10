@@ -1,6 +1,8 @@
 import Transform from '../../components/transform.js';
 import PolygonMaterial from '../../components/rendering/polygon-material.js';
 import Polygon from '../../components/shapes/polygon.js';
+import Ellipse from '../../components/shapes/ellipse.js';
+import {DEG_TO_RAD} from '../../math/math.js';
 
 /**
  * Handles rendering of `Polygon2dMaterial` unto a canvas element.
@@ -36,32 +38,56 @@ class PolygonRenderer {
     const entities = manager.getEntitiesWithComponentType(PolygonMaterial);
     for (const entity of entities) {
       const material = manager.getComponent(entity, PolygonMaterial);
-      const vertices = manager.getComponent(entity, Polygon).vertices;
-      const matrix = manager.getComponent(
-        entity,
-        Transform,
-      ).localToWorldMatrix;
+      const transform = manager.getComponent(entity, Transform);
+      const position = transform.position;
+      const scale = transform.scale;
 
       this._context.save();
 
-      this._context.beginPath();
-
-      const first = matrix.multiplyVector2(vertices.get(0));
-      this._context.moveTo(first.x, first.y);
-
-      for (let i = 0; i < vertices.length; i++) {
-        const vertex = matrix.multiplyVector2(vertices.get(i));
-        this._context.lineTo(vertex.x, vertex.y);
-      }
-
-      this._context.lineTo(first.x, first.y);
-
       material.setStyling(this._context);
 
-      this._context.fill();
-      this._context.stroke();
+      const polygons = manager.getComponents(entity, Polygon);
+      const matrix = transform.localToWorldMatrix;
+      for (let i = 0; i < polygons.length; i++) {
+        const vertices = polygons[i].vertices;
 
-      this._context.closePath();
+        this._context.beginPath();
+
+        const first = matrix.multiplyVector2(vertices.get(0));
+        this._context.moveTo(first.x, first.y);
+
+        for (let i = 0; i < vertices.length; i++) {
+          const vertex = matrix.multiplyVector2(vertices.get(i));
+          this._context.lineTo(vertex.x, vertex.y);
+        }
+
+        this._context.lineTo(first.x, first.y);
+
+        this._context.fill();
+        this._context.stroke();
+
+        this._context.closePath();
+      }
+
+      const ellipses = manager.getComponents(entity, Ellipse);
+      for (let i = 0; i < ellipses.length; i++) {
+        this._context.beginPath();
+
+        this._context.ellipse(
+          position.x,
+          position.y,
+          ellipses[i].radiusX * (scale.x / 2),
+          ellipses[i].radiusY * (scale.y / 2),
+          transform.rotation * DEG_TO_RAD,
+          0,
+          Math.PI * 2,
+        );
+
+        this._context.fill();
+        this._context.stroke();
+
+        this._context.closePath();
+      }
 
       this._context.restore();
     }
