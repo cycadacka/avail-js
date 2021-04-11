@@ -136,9 +136,9 @@ class EntityManager {
       );
 
       throw new Error(
-        `Component${beggars.length > 1 ? 's' : ''}` +
+        `Component ${beggars.length > 1 ? 's' : ''}` +
         beggars.map((value) => '"' + value.name + '"').join(', ') +
-        `requires "${missingComponentType.name}"`,
+        ` requires "${missingComponentType.name}"`,
       );
     }
 
