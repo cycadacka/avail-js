@@ -1,5 +1,5 @@
 import Transform from '../../components/transform.js';
-import PolygonMaterial from '../../components/rendering/polygon-material.js';
+import ShapeMaterial from '../../components/rendering/shape-material.js';
 import Polygon from '../../components/shapes/polygon.js';
 import Ellipse from '../../components/shapes/ellipse.js';
 import {DEG_TO_RAD} from '../../math/math.js';
@@ -35,9 +35,9 @@ class PolygonRenderer {
       this._context.canvas.height,
     );
 
-    const entities = manager.getEntitiesWithComponentType(PolygonMaterial);
+    const entities = manager.getEntitiesWithComponentType(ShapeMaterial);
     for (const entity of entities) {
-      const material = manager.getComponent(entity, PolygonMaterial);
+      const material = manager.getComponent(entity, ShapeMaterial);
       const transform = manager.getComponent(entity, Transform);
       const position = transform.position;
       const scale = transform.scale;
