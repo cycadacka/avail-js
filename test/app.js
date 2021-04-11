@@ -2,8 +2,8 @@ import Transform from '../src/components/transform.js';
 import Scene from '../src/core/scene.js';
 import Vector2D from '../src/math/vector2d.js';
 import Rect from '../src/components/shapes/rect.js';
-import PolygonRenderer from '../src/systems/rendering/polygon-renderer.js';
-import PolygonMaterial from '../src/components/rendering/polygon-material.js';
+import ShapeRenderer from '../src/systems/rendering/shape-renderer.js';
+import ShapeMaterial from '../src/components/rendering/shape-material.js';
 import Ellipse from '../src/components/shapes/ellipse.js';
 
 /** @type {HTMLCanvasElement} */
@@ -11,9 +11,9 @@ const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
 const scene = new Scene([
-  new PolygonRenderer(canvas),
+  new ShapeRenderer(canvas),
   {
-    fixedUpdate(time, entityManager) {
+    update(time, entityManager) {
       const transform = entityManager.getComponent(
         entityManager.getEntityWithTag('a'),
         Transform,
@@ -28,11 +28,11 @@ scene.entityManager.addComponents(
   entityA,
   new Rect(1, 1),
   new Ellipse(1, 1),
-  new PolygonMaterial({
+  new ShapeMaterial({
     fillStyle: (() => {
       const grd = context.createLinearGradient(0, 0, 600, 0);
-      grd.addColorStop(0, '#000');
-      grd.addColorStop(1, '#fff');
+      grd.addColorStop(0, 'blue');
+      grd.addColorStop(1, 'red');
       return grd;
     })(),
     strokeStyle: 'red',
@@ -40,7 +40,7 @@ scene.entityManager.addComponents(
   new Transform(
     new Vector2D(canvas.width/2, canvas.height/2),
     0,
-    new Vector2D(canvas.width/2, 50),
+    new Vector2D(canvas.width, 50),
   ),
 );
 
