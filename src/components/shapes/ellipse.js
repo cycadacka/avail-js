@@ -1,13 +1,13 @@
-import Component from '../../core/component.js';
 import Transform from '../transform.js';
+import Shape from './package/shape.js';
 
 /**
  * Represents an ellipse.
  *
  * @class Ellipse
- * @extends {Component}
+ * @extends {Shape}
  */
-class Ellipse extends Component {
+class Ellipse extends Shape {
   /**
    * Creates an instance of Ellipse.
    *

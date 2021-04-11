@@ -1,6 +1,6 @@
-import Component from '../../core/component.js';
 import Vector2D from '../../math/vector2d.js';
 import Transform from '../transform.js';
+import Shape from './package/shape.js';
 
 /**
  * Returns true if the polygon is clockwise.
@@ -33,9 +33,9 @@ function isClockwise(vertices) {
  * Represents a polygon.
  *
  * @class Polygon
- * @extends {Component}
+ * @extends {Shape}
  */
-class Polygon extends Component {
+class Polygon extends Shape {
   /**
    * Creates an instance of Polygon.
    *
