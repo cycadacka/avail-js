@@ -1,5 +1,4 @@
 import Vector2D from '../../math/vector2d.js';
-import Transform from '../transform.js';
 import Shape from './package/shape.js';
 
 /**
@@ -119,7 +118,5 @@ class Polygon extends Shape {
     return this._clockwise;
   }
 }
-
-Polygon.ATTRIBUTES.REQUIRES = [Transform];
 
 export default Polygon;

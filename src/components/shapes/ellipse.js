@@ -1,4 +1,3 @@
-import Transform from '../transform.js';
 import Shape from './package/shape.js';
 
 /**
