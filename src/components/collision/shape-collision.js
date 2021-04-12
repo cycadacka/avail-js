@@ -5,16 +5,16 @@ import Transform from '../transform.js';
 /**
  * Represents the collider of a shape.
  *
- * @class ShapeCollider
+ * @class ShapeCollision
  * @extends {Component}
  */
-class ShapeCollider extends Component {
+class ShapeCollision extends Component {
   /**
-   * Creates an instance of PolygonCollider.
+   * Creates an instance of ShapeCollision.
    *
    * @param {number} friction
    * @param {number} bounciness
-   * @memberof PolygonCollider
+   * @memberof ShapeCollision
    */
   constructor(friction, bounciness) {
     super();
@@ -24,7 +24,7 @@ class ShapeCollider extends Component {
   }
 }
 
-ShapeCollider.ATTRIBUTES = {
+ShapeCollision.ATTRIBUTES = {
   SINGLE: true,
   REQUIRES: [
     Transform,
@@ -32,4 +32,4 @@ ShapeCollider.ATTRIBUTES = {
   ],
 };
 
-export default ShapeCollider;
+export default ShapeCollision;
