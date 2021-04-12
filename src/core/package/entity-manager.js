@@ -89,7 +89,7 @@ class EntityManager {
           if (componentType.ATTRIBUTES.SINGLE) {
             throw new Error(
               `Component '${componentType.name}' can only have one instance` +
-              `attached per entity.`,
+              ` attached per entity.`,
             );
           }
 
@@ -292,7 +292,7 @@ class EntityManager {
    *
    * @template T
    * @param {new T} componentType
-   * @return {Iterator<string, undefined>} Entities associated with a component.
+   * @return {IterableIterator<string>} Entities associated with a component.
    *
    * @memberof EntityManager
    */
