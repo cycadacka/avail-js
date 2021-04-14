@@ -1,16 +1,16 @@
 import Component from '../../core/component.js';
-import Shape from '../shapes/package/shape.js';
+import Polygon from '../shapes/polygon.js';
 import Transform from '../transform.js';
 
 /**
  * Represents how the shape should be rendered.
  *
- * @class ShapeMaterial
+ * @class PolygonMaterial
  * @extends {Component}
  */
-class ShapeMaterial extends Component {
+class PolygonMaterial extends Component {
   /**
-   * Creates an instance of ShapeMaterial.
+   * Creates an instance of PolygonMaterial.
    *
    * @param {object} param
    * @param {number} [param.lineWidth=1]
@@ -86,13 +86,12 @@ class ShapeMaterial extends Component {
   }
 }
 
-// TODO: Change from Polygon to Shape (maybe parent? abstract?)
-ShapeMaterial.ATTRIBUTES = {
+PolygonMaterial.ATTRIBUTES = {
   SINGLE: true,
   REQUIRES: [
     Transform,
-    Shape,
+    Polygon,
   ],
 };
 
-export default ShapeMaterial;
+export default PolygonMaterial;

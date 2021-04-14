@@ -1,5 +1,6 @@
+import Component from '../../core/component.js';
 import Vector2D from '../../math/vector2d.js';
-import Shape from './package/shape.js';
+import Transform from '../transform.js';
 
 /**
  * Returns true if the polygon is clockwise.
@@ -32,9 +33,8 @@ function isClockwise(vertices) {
  * Represents a polygon.
  *
  * @class Polygon
- * @extends {Shape}
  */
-class Polygon extends Shape {
+class Polygon extends Component {
   /**
    * Creates an instance of Polygon.
    *
@@ -42,7 +42,7 @@ class Polygon extends Shape {
    * @param {boolean} [clockwise]
    * @memberof Polygon
    */
-  constructor(vertices, clockwise=undefined) {
+  constructor(vertices, clockwise=isClockwise(vertices)) {
     super();
 
     if (vertices.length < 3) {
@@ -52,25 +52,8 @@ class Polygon extends Shape {
     }
 
     /** @type {Vector2D[]} */
-    this._vertices = vertices;
-    this._clockwise = clockwise;
-  }
-
-  /**
-   * Retrieves a proxy for the vertices.
-   *
-   * @type {ArrayProxy<Vector2D>}
-   * @readonly
-   * @memberof Polygon
-   */
-  get vertices() {
-    const self = this;
-    return {
-      get(index) {
-        return self._vertices[index];
-      },
-      length: self._vertices.length,
-    };
+    this.vertices = Object.seal(vertices);
+    this.clockwise = clockwise;
   }
 
   /**
@@ -104,19 +87,45 @@ class Polygon extends Shape {
   }
 
   /**
-   * Returns true if the polygon is clockwise.
+   * Retrieves the object-aligned bounding box for a polygon.
    *
-   * @type {boolean}
+   * @virtual
    * @readonly
    * @memberof Polygon
    */
-  get clockwise() {
-    if (!this._clockwise) {
-      this._clockwse = isClockwise(this._vertices);
+  get obb() {
+    const min = new Vector2D(Infinity, Infinity);
+    const max = new Vector2D(Infinity, Infinity).negative();
+
+    for (let i = 0; i < this.vertices.length; i++) {
+      const vertex = this.vertices[i];
+
+      if (vertex.x < min.x) {
+        min.x = vertex.x;
+      }
+
+      if (vertex.x > max.x) {
+        max.x = vertex.x;
+      }
+
+      if (vertex.y < min.y) {
+        min.y = vertex.y;
+      }
+
+      if (vertex.y > max.y) {
+        max.y = vertex.y;
+      }
     }
 
-    return this._clockwise;
+    return {min, max};
   }
 }
+
+Polygon.ATTRIBUTES = {
+  SINGLE: true,
+  REQUIRES: [
+    Transform,
+  ],
+};
 
 export default Polygon;
