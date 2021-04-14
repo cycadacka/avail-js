@@ -2,7 +2,10 @@ import PolygonCollider from '../../components/collision/polygon-collider.js';
 import Polygon from '../../components/shapes/polygon.js';
 import Transform from '../../components/transform.js';
 import {getAABB} from './package/get-aabb.js';
-import * as CollisionUtility from './package/collision.js';
+import {
+  rectangleRectangleCollision,
+  polygonPolygonCollision
+} from './package/collision.js';
 import Vector2D from '../../math/vector2d.js';
 
 /**
@@ -82,9 +85,9 @@ class PolygonCollision {
    * @param {Map<string, {min: Vector2D, max: Vector2D}>} entity2aabb
    * @return {{
    *   components: {
-   *     shapeCollision: PolygonCollider,
+   *     collider: PolygonCollider,
    *     transform: Transform,
-   *     shape: Polygon,
+   *     polygon: Polygon,
    *   },
    *   obb: {
    *     min: Vector2D,
@@ -135,12 +138,13 @@ class PolygonCollision {
     );
     /** @type {Map<string, {min: Vector2D, max: Vector2D}>} */
     const entity2aabb = new Map();
+    /** @type {Map<string, Vector2D[]>} */
+    const entity2vertices = new Map();
 
     for (const currentID of entities) {
       const current = this._constructEntity(
         currentID, entityManager, entity2aabb,
       );
-      // Set axis-aligned bounding box
 
       for (const againstID of entities) {
         if (currentID !== againstID) {
@@ -148,11 +152,36 @@ class PolygonCollision {
             againstID, entityManager, entity2aabb,
           );
 
-          if (CollisionUtility.rectangleRectangleCollision(
+          if (rectangleRectangleCollision(
             current.aabb.min, current.aabb.max,
             against.aabb.min, against.aabb.max,
           )) {
-            console.log('Collision!');
+            current.components.collider.broadCollided = true;
+
+            // Polygon to Polygon Collision
+            const currentMatrix = (
+              current.components.transform.localToWorldMatrix
+            );
+            let currentVertices = entity2vertices.get(currentID);
+            if (!currentVertices) {
+              currentVertices = current.components.polygon.vertices
+                .map((value) => currentMatrix.multiplyVector2(value));
+              entity2vertices.set(currentID, currentVertices);
+            }
+
+            const againstMatrix = (
+              against.components.transform.localToWorldMatrix
+            );
+            let againstVertices = entity2vertices.get(againstID);
+            if (!againstVertices) {
+              againstVertices = against.components.polygon.vertices
+                .map((value) => againstMatrix.multiplyVector2(value));
+              entity2vertices.set(againstID, againstVertices);
+            }
+
+            if (polygonPolygonCollision(currentVertices, againstVertices)) {
+              current.components.collider.narrowCollided = true;
+            }
           }
         }
       }
