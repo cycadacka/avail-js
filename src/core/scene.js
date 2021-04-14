@@ -41,7 +41,7 @@ class Scene {
    * @param {number} variableFpsLimit
    * @memberOf Scene
    */
-  constructor(systems=[], fixedFpsLimit=50, variableFpsLimit=60) {
+  constructor(systems=[], fixedFpsLimit=70, variableFpsLimit=70) {
     this.entityManager = new EntityManager();
 
     this._FIXED_DELTA_TIME = (1000/fixedFpsLimit);
