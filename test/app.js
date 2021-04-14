@@ -12,30 +12,49 @@ import PolygonCollider from '../src/components/collision/polygon-collider.js';
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
 
+const gradientEntityA = context.createLinearGradient(0, 0, 600, 0);
+gradientEntityA.addColorStop(0, 'blue');
+gradientEntityA.addColorStop(1, 'red');
+
+// Set-up scene with system (called in array order)
 const scene = new Scene([
+  {
+    update(time, entityManager) {
+      const target = entityManager.getEntityWithTag('a');
+      const transform = entityManager.getComponent(target, Transform);
+
+      transform.rotation += 50 * time.deltaTime;
+    },
+  },
   new PolygonRenderer(canvas),
   new PolygonCollision(canvas),
   {
     update(time, entityManager) {
       const target = entityManager.getEntityWithTag('a');
-      entityManager.getComponent(target, Transform).rotation += (
-        50 * time.deltaTime
-      );
+      const collider = entityManager.getComponent(target, PolygonCollider);
+      const material = entityManager.getComponent(target, PolygonMaterial);
+
+      if (collider.narrowCollided) {
+        material.fillStyle = 'red';
+      } else if (collider.broadCollided) {
+        material.fillStyle = 'orange';
+      } else {
+        material.fillStyle = gradientEntityA;
+      }
+
+      collider.broadCollided = false;
+      collider.narrowCollided = false;
     },
   },
 ]);
 
+// Set-up an entity whose tag is 'a'
 const entityA = scene.entityManager.createEntity('a');
 scene.entityManager.addComponents(
   entityA,
-  new Ellipse(1, 1, 3),
+  new Ellipse(1, 2),
   new PolygonMaterial({
-    fillStyle: (() => {
-      const grd = context.createLinearGradient(0, 0, 600, 0);
-      grd.addColorStop(0, 'blue');
-      grd.addColorStop(1, 'red');
-      return grd;
-    })(),
+    fillStyle: gradientEntityA,
     strokeStyle: 'red',
   }),
   new PolygonCollider(0, 0),
@@ -46,6 +65,7 @@ scene.entityManager.addComponents(
   ),
 );
 
+// Set-up an entity whose tag is 'b'
 const entityB = scene.entityManager.createEntity('b');
 scene.entityManager.addComponents(
   entityB,
