@@ -36,7 +36,7 @@ class Ellipse extends Polygon {
    * @param {number} [resolution]
    * @memberof Ellipse
    */
-  constructor(x, y, resolution=180) {
+  constructor(x, y, resolution=36) {
     super(ellipseToPolygon(x, y, resolution));
 
     this.radius = new Vector2D(x, y);
