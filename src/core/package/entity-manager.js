@@ -28,7 +28,7 @@ class EntityManager {
    * Retrieves the first-attached component of an entity. Returns null if there
    * is none attached.
    *
-   * @template T
+   * @template {import('../component.js').default} T
    * @param {string} entity
    * @param {new T} component
    * @return {T|null} First-attached component of an entity.
@@ -41,7 +41,7 @@ class EntityManager {
   /**
    * Retrieves multiple components attached to an entity.
    *
-   * @template T
+   * @template {import('../component.js').default} T
    * @param {string} entity
    * @param {new T} component
    * @return {T[]} Multiple components attached to an entity.
@@ -86,7 +86,7 @@ class EntityManager {
         }
 
         if (storage.has(entity)) {
-          if (componentType.ATTRIBUTES.SINGLE) {
+          if (componentType.ATTRIBUTES?.SINGLE) {
             throw new Error(
               `Component '${componentType.name}' can only have one instance` +
               ` attached per entity.`,
@@ -99,7 +99,7 @@ class EntityManager {
         }
 
         // Keep track of required components from the target/parent.
-        if (componentType.ATTRIBUTES.REQUIRES) {
+        if (componentType.ATTRIBUTES?.REQUIRES) {
           for (const requiredType of componentType.ATTRIBUTES.REQUIRES) {
             if (requiredComponents.has(requiredType)) {
               if (!requiredComponents.get(requiredType).present) {
@@ -148,11 +148,10 @@ class EntityManager {
   /**
    * Attaches a component to an entity.
    *
-   * @template T
+   * @template {import('../component.js').default} T
    * @param {string} entity
    * @param {T} component
    * @return {EntityManager}
-   *
    * @memberof EntityManager
    */
   addComponent(entity, component) {
@@ -162,39 +161,48 @@ class EntityManager {
   /**
    * Removes attached components from an entity.
    *
-   * @param {...Component} components
+   * @param {...import('../component.js').default} components
    * @return {EntityManager}
-   *
    * @memberOf EntityManager
    */
   removeComponents(...components) {
     for (let i = 0; i < components.length; i++) {
-      let componentType = components[i].constructor;
-
-      while (componentType.name.length > 0) {
-        const storage =this._componentStorage.get(componentType)
-          .get(components[i].ENTITY);
-
-        storage.splice(
-          storage.indexOf(components[i]),
-          1,
-        );
-
-        componentType = Reflect.getPrototypeOf(componentType);
-      }
+      this.removeComponent(components[i]);
     }
 
     return this;
   }
 
   /**
+   * Removes an attached component from an entity.
+   *
+   * @template {import('../component.js').default} T
+   * @param {T} component
+   * @memberof EntityManager
+   */
+  removeComponent(component) {
+    let componentType = component.constructor;
+
+    while (componentType.name.length > 0) {
+      const storage = this._componentStorage.get(componentType)
+        .get(component.ENTITY);
+
+      storage.splice(
+        storage.indexOf(component),
+        1,
+      );
+
+      componentType = Reflect.getPrototypeOf(componentType);
+    }
+  }
+
+  /**
    * Removes attached components of the same component type from an entity.
    *
-   * @template T
+   * @template {import('../component.js').default} T
    * @param {string} entity
    * @param {new T} componentType
    * @return {EntityManager}
-   *
    * @memberOf EntityManager
    */
   removeComponentsOfType(entity, componentType) {
@@ -225,7 +233,6 @@ class EntityManager {
    *
    * @param {string} [tag]
    * @return {string} Identifier representing an entity.
-   *
    * @memberof EntityManager
    */
   createEntity(tag='') {
@@ -251,7 +258,6 @@ class EntityManager {
    * Destroys an entity as well as its children.
    *
    * @param {string} entity
-   *
    * @memberOf EntityManager
    */
   destroyEntity(entity) {
@@ -290,10 +296,9 @@ class EntityManager {
   /**
    * Retrieves entities associated with a component.
    *
-   * @template T
+   * @template {import('../component.js').default} T
    * @param {new T} componentType
    * @return {IterableIterator<string>} Entities associated with a component.
-   *
    * @memberof EntityManager
    */
   getEntitiesWithComponentType(componentType) {
@@ -309,7 +314,6 @@ class EntityManager {
    *
    * @param {string} entity
    * @return {string|null} Parent of an entity.
-   *
    * @memberof EntityManager
    */
   getParentOfEntity(entity) {
@@ -322,7 +326,6 @@ class EntityManager {
    * @param {string} entity
    * @param {string} parent
    * @return {EntityManager}
-   *
    * @memberof EntityManager
    */
   setParentOfEntity(entity, parent) {
@@ -350,7 +353,6 @@ class EntityManager {
    *
    * @param {string} entity
    * @return {Iterator<string, number, undefined>} Children of an entity.
-   *
    * @memberof EntityManager
    */
   getChildrenOfEntity(entity) {
@@ -371,7 +373,6 @@ class EntityManager {
    * @param {string} entity
    * @param {string} child
    * @return {EntityManager}
-   *
    * @memberof EntityManager
    */
   addChildToEntity(entity, child) {
@@ -401,7 +402,6 @@ class EntityManager {
    * @param {string} entity
    * @param {...string} children
    * @return {EntityManager}
-   *
    * @memberof EntityManager
    */
   addChildrenToEntity(entity, ...children) {
@@ -418,7 +418,6 @@ class EntityManager {
    * @param {string} entity
    * @param {string} child
    * @return {EntityManager}
-   *
    * @memberof EntityManager
    */
   removeChildFromEntity(entity, child) {
@@ -446,7 +445,6 @@ class EntityManager {
    * @param {string} entity
    * @param {...string} children
    * @return {EntityManager}
-   *
    * @memberof EntityManager
    */
   removeChildrenFromEntity(entity, ...children) {
@@ -466,7 +464,6 @@ class EntityManager {
    *
    * @param {string} tag
    * @return {string|null} First entity associated with a tag.
-   *
    * @memberof EntityManager
    */
   getEntityWithTag(tag) {
@@ -478,7 +475,6 @@ class EntityManager {
    *
    * @param {string} tag
    * @return {string[]} Entities associated with a tag.
-   *
    * @memberof EntityManager
    */
   getEntitiesWithTag(tag) {
@@ -490,7 +486,6 @@ class EntityManager {
    *
    * @param {string} entity
    * @return {string} Tag associated with an entity.
-   *
    * @memberof EntityManager
    */
   getTagOfEntity(entity) {
@@ -503,7 +498,6 @@ class EntityManager {
    * @param {string} entity
    * @param {string} tag
    * @return {EntityManager}
-   *
    * @memberof EntityManager
    */
   setTagOfEntity(entity, tag) {
