@@ -4,7 +4,7 @@ import Transform from '../../components/transform.js';
 import {getAABB} from './package/get-aabb.js';
 import {
   rectangleRectangleCollision,
-  polygonPolygonCollision
+  polygonPolygonCollision,
 } from './package/collision.js';
 import Vector2D from '../../math/vector2d.js';
 
