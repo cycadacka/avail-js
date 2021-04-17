@@ -301,24 +301,15 @@ class Vector2D {
    * @memberof Vector2d
    */
   static angle(from, to) {
-    const n = Vector2D.dot(from.normalized(), to.normalized());
-    return Math.acos(clamp(n, -1, 1)) * RAD_TO_DEG;
-  }
+    const denominator = Math.sqrt(
+      Math.abs(from.sqrMagnitude() * to.sqrMagnitude()),
+    );
+    if (denominator < 1e-15) {
+      return 0;
+    }
 
-  /**
-   * Returns the angle ABC in radians defined by three points, ABC.
-   *
-   * @static
-   * @param {Vector2D} pointA
-   * @param {Vector2D} pointB
-   * @param {Vector2D} pointC
-   * @returns
-   *
-   * @memberOf Vector2d
-   */
-  static angle3(pointA, pointB, pointC) {
-    return Math.atan2(pointB.y - pointC.y, pointB.x - pointC.x) -
-    Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x);
+    const dot = clamp(Vector2D.dot(from, to) / denominator, -1, 1);
+    return Math.acos(dot) * RAD_TO_DEG;
   }
 
   /**
