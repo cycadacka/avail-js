@@ -29,7 +29,7 @@ export function clamp(n, min, max) {
 }
 
 /**
- * Wraps `n` between `min` and `max` (inclusive).
+ * Wraps `n` between `min` (inclusive) and `max` (exclusive).
  *
  * @export
  * @param {number} n
