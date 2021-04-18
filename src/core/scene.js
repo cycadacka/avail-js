@@ -51,20 +51,32 @@ class Scene {
     this._time = 0;
 
     this._systems = systems;
+
+    this.stopped = true;
   }
 
   /**
    * Starts the scene.
    *
-   * @memberOf Scene
+   * @memberof Scene
    */
   start() {
+    this.stopped = false;
     for (const system of this._systems) {
       system.start?.(this.entityManager);
     }
 
     this._time = performance.now();
     requestAnimationFrame(this._update.bind(this), performance.now());
+  }
+
+  /**
+   * Stops the scene
+   *
+   * @memberof Scene
+   */
+  stop() {
+    this.stopped = true;
   }
 
   /**
@@ -98,7 +110,9 @@ class Scene {
       this._time = time;
     }
 
-    requestAnimationFrame(this._update.bind(this));
+    if (!this.stopped) {
+      requestAnimationFrame(this._update.bind(this));
+    }
   }
 }
 
