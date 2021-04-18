@@ -9,6 +9,7 @@ import PolygonMaterial from
   '../../src/components/rendering/polygon-material.js';
 import PolygonCollider from
   '../../src/components/collision/polygon-collider.js';
+import SimplePolygon from '../../src/components/shapes/simple-polygon.js';
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById('canvas');
@@ -48,16 +49,49 @@ const scene = new Scene([
       collider.narrowCollided = false;
     },
   },
+  {
+    update(time, entityManager) {
+      const target = entityManager.getEntityWithTag('a');
+      const simplePolygon = entityManager.getComponent(target, SimplePolygon);
+      const matrix = entityManager.getComponent(target, Transform)
+        .localToWorldMatrix;
+
+      context.save();
+
+      const triangles = simplePolygon.partition.triangle();
+      for (let i = 0; i < triangles.length; i++) {
+        context.beginPath();
+
+        context.moveTo(...matrix.multiplyVector2(triangles[i][0]));
+
+        for (let k = 0; k < triangles[i].length; k++) {
+          context.lineTo(...matrix.multiplyVector2(triangles[i][k]));
+        }
+
+        context.lineTo(...matrix.multiplyVector2(triangles[i][0]));
+
+        const color = new Array(6).fill('').map(() => {
+          return '0123456789ABCDEF'[Math.round(Math.random() * 15)];
+        }).join('');
+        context.strokeStyle = '#' + color;
+        context.stroke();
+
+        context.closePath();
+      }
+
+      context.restore();
+    },
+  },
 ]);
 
 // Set-up an entity whose tag is 'a'
 const entityA = scene.entityManager.createEntity('a');
 scene.entityManager.addComponents(
   entityA,
-  new Ellipse(1, 2),
+  new Ellipse(1, 2, 25),
   new PolygonMaterial({
     fillStyle: gradientEntityA,
-    strokeStyle: 'red',
+    strokeStyle: 'white',
   }),
   new PolygonCollider(0, 0),
   new Transform(
@@ -71,7 +105,13 @@ scene.entityManager.addComponents(
 const entityB = scene.entityManager.createEntity('b');
 scene.entityManager.addComponents(
   entityB,
-  new Rect(50, 50),
+  new SimplePolygon([
+    new Vector2D(-25, -25),
+    new Vector2D(0, 0),
+    new Vector2D(25, -25),
+    new Vector2D(25, 25),
+    new Vector2D(-25, 25),
+  ], true),
   new PolygonMaterial({
     fillStyle: 'gray',
     strokeStyle: 'black',
