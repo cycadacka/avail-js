@@ -1,5 +1,5 @@
 import Vector2D from '../../math/vector2d.js';
-import Polygon from './polygon.js';
+import SimplePolygon from './simple-polygon.js';
 
 /**
  * Converts a rectangle into a polygon (vertices).
@@ -24,9 +24,9 @@ function rectToPolygon(width, height) {
  * Represents a rectangle.
  *
  * @class Rect
- * @extends {Polygon}
+ * @extends {SimplePolygon}
  */
-class Rect extends Polygon {
+class Rect extends SimplePolygon {
   /**
    * Creates an instance of Rect.
    *

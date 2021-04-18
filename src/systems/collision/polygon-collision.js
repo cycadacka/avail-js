@@ -1,5 +1,5 @@
 import PolygonCollider from '../../components/collision/polygon-collider.js';
-import Polygon from '../../components/shapes/polygon.js';
+import SimplePolygon from '../../components/shapes/simple-polygon.js';
 import Transform from '../../components/transform.js';
 import {getAABB} from './package/get-aabb.js';
 import {
@@ -42,7 +42,7 @@ class PolygonCollision {
    *   components: {
    *     collider: PolygonCollider,
    *     transform: Transform,
-   *     polygon: Polygon,
+   *     polygon: SimplePolygon,
    *   },
    *   obb: {
    *     min: Vector2D,
@@ -59,7 +59,7 @@ class PolygonCollision {
     const components = {
       collider: entityManager.getComponent(entity, PolygonCollider),
       transform: entityManager.getComponent(entity, Transform),
-      polygon: entityManager.getComponent(entity, Polygon),
+      polygon: entityManager.getComponent(entity, SimplePolygon),
     };
 
     const obb = this._entity2obb.get(entity) || components.polygon.obb;

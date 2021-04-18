@@ -1,5 +1,5 @@
 import Component from '../../core/component.js';
-import Polygon from '../shapes/polygon.js';
+import SimplePolygon from '../shapes/simple-polygon.js';
 import Transform from '../transform.js';
 
 /**
@@ -31,7 +31,7 @@ PolygonCollider.ATTRIBUTES = {
   SINGLE: true,
   REQUIRES: [
     Transform,
-    Polygon,
+    SimplePolygon,
   ],
 };
 

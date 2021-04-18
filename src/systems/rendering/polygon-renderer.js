@@ -1,6 +1,6 @@
 import Transform from '../../components/transform.js';
 import PolygonMaterial from '../../components/rendering/polygon-material.js';
-import Polygon from '../../components/shapes/polygon.js';
+import SimplePolygon from '../../components/shapes/simple-polygon.js';
 
 /**
  * Handles rendering of `Polygon2dMaterial` unto a canvas element.
@@ -42,7 +42,7 @@ class PolygonRenderer {
 
       material.setStyling(this._context);
 
-      const polygons = manager.getComponents(entity, Polygon);
+      const polygons = manager.getComponents(entity, SimplePolygon);
       const matrix = transform.localToWorldMatrix;
       for (let i = 0; i < polygons.length; i++) {
         const vertices = polygons[i].vertices;

@@ -1,5 +1,5 @@
 import Vector2D from '../../math/vector2d.js';
-import Polygon from './polygon.js';
+import SimplePolygon from './simple-polygon.js';
 
 /**
  * Converts an ellipse to a polygon.
@@ -25,9 +25,9 @@ function ellipseToPolygon(x, y, resolution) {
  * Represents an ellipse.
  *
  * @class Ellipse
- * @extends {Polygon}
+ * @extends {SimplePolygon}
  */
-class Ellipse extends Polygon {
+class Ellipse extends SimplePolygon {
   /**
    * Creates an instance of Ellipse.
    *
