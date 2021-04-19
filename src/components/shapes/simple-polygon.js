@@ -78,51 +78,7 @@ class SimplePolygon extends Component {
 
     this.partition = {
       triangle() {
-        /**
-         * @ignore
-         * @param {number} index
-         * @return {number}
-         */
-        function __getTriangleArea(index) {
-          return getTriangleArea(
-            vertices[wrap(index - 1, 0, vertices.length)],
-            vertices[index],
-            vertices[wrap(index + 1, 0, vertices.length)],
-          );
-        }
-
-        const cvertices = [...vertices];
-        /** @type {Set<number>} */
-        const rvertices = new Set();
-
-        const triangles = [];
-
-        while (cvertices.length >= 3 && cvertices.length > rvertices.size) {
-          const previous = cvertices[cvertices.length - 1];
-          const current = cvertices.shift();
-          const next = cvertices[0];
-
-          // const previousIndex = cvertices.length;
-          const currentIndex = (
-            vertices.length - (cvertices.length - rvertices.size) - 1
-          );
-          let isCurrentReflex = __getTriangleArea(currentIndex) < 0;
-          // const nextIndex = vertices.length - cvertices.length;
-
-          if (!clockwise) {
-            isCurrentReflex = !isCurrentReflex;
-          }
-
-          if (isCurrentReflex) {
-            rvertices.add(currentIndex);
-            // skip current vertex and put it at top
-            cvertices.push(current);
-          } else {
-            triangles.push([previous, current, next]);
-          }
-        }
-
-        return triangles;
+        
       },
       convex() {
       },
