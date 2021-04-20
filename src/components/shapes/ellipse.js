@@ -15,7 +15,7 @@ function ellipseToPolygon(x, y, resolution) {
 
   for (let i = 0; i <= resolution; i++) {
     const angle = i / resolution * 2.0 * Math.PI;
-    vertices.push(new Vector2D(x * Math.cos(angle), y * Math.sin(angle)));
+    vertices.push([x * Math.cos(angle), y * Math.sin(angle)]);
   }
 
   return vertices;

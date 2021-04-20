@@ -1,51 +1,41 @@
 import Component from '../../core/component.js';
 import Vector2D from '../../math/vector2d.js';
 import Transform from '../transform.js';
-import {wrap} from '../../math/math.js';
+import {Vertex} from './package/vertex.js';
 
 /**
- * Returns the sign of the mathematical function for getting the area of a
- * triangle defined by three points.
- *
- * @ignore
- * @param {Vector2D} pointA
- * @param {Vector2D} pointB
- * @param {Vector2D} pointC
- * @return {number}
+ * @template T
+ * @typedef {{
+ *   [Symbol.iterator]: Generator<T, void, void>,
+ *   get(index: number): T,
+ *   length: number,
+ * }} ArrayProxy
  */
-function getTriangleArea(pointA, pointB, pointC) {
-  return Math.sign(
-    pointA.x * (pointB.y - pointC.y) +
-    pointB.x * (pointC.y - pointA.y) +
-    pointC.x * (pointA.y - pointB.y),
-  );
-}
+
+/**
+ * @typedef Edge
+ * @property {Vertex} start
+ * @property {Vertex} end
+ * @property {readonly Vector2D} normal
+ */
 
 /**
  * Returns true if the polygon is clockwise.
  *
  * @ignore
- * @param {Vector2D[]} vertices
+ * @param {Vertex[]} vertices
  * @return {boolean}
  */
-function isClockwise(vertices) {
-  let sum = 0;
+function getPolygonArea(vertices) {
+  let area = 0;
 
   for (let i = 0; i < vertices.length; i++) {
-    const j = (i + 1) % vertices.length;
-
-    sum += vertices[i].x * vertices[j].y - vertices[i].y + vertices[j].x;
+    const previous = vertices[i].previous;
+    area += (previous.x + vertices[i].x) * (previous.y + vertices[i].y);
   }
 
-  return sum > 0;
+  return area > 0;
 }
-
-/**
- * @template T
- * @typedef {object} ArrayProxy
- * @property {(index: number) => T} get
- * @property {number} length
- */
 
 /**
  * Represents a simple polygon.
@@ -56,7 +46,7 @@ class SimplePolygon extends Component {
   /**
    * Creates an instance of SimplePolygon.
    *
-   * @param {Vector2D[]} vertices
+   * @param {[number, number][]} vertices
    * @param {boolean} [clockwise]
    * @memberof SimplePolygon
    */
@@ -69,28 +59,30 @@ class SimplePolygon extends Component {
       );
     }
 
-    /** @type {Vector2D[]} */
-    this.vertices = Object.seal(vertices);
-    if (clockwise == null) {
-      clockwise = isClockwise(this.vertices);
-    }
-    this.clockwise = clockwise;
+    /** @type {Vertex[]} */
+    const convert = [];
+    for (let i = 0; i < vertices.length; i++) {
+      convert.push(new Vertex(vertices[i][0], vertices[i][1]));
 
-    this.partition = {
-      triangle() {
-        
-      },
-      convex() {
-      },
-    };
+      if (i > 0) {
+        // set [i].previous && [i - 1].next
+        convert[i - 1].next = convert[i];
+        convert[i].previous = convert[i - 1];
+      }
+    }
+
+    convert[convert.length - 1].next = convert[0];
+    convert[0].previous = convert[convert.length - 1];
+
+    this.vertices = Object.seal(convert);
+    this.clockwise = (clockwise != null ?
+      clockwise : getPolygonArea(this.vertices));
   }
 
   /**
    * Retrieves a proxy for the edges.
    *
-   * @type {ArrayProxy<
-   *   {start: Vector2D, end: Vector2D, readonly normal: Vector2D}
-   * >}
+   * @type {ArrayProxy<Edge>}
    * @readonly
    * @memberof SimplePolygon
    */
@@ -98,20 +90,24 @@ class SimplePolygon extends Component {
     const self = this;
 
     return {
+      * [Symbol.iterator]() {
+        for (let i = 0; i < self.vertices.length; i++) {
+          yield this.get(i);
+        }
+      },
       get(index) {
-        const start = self._vertices[index];
-        const end = self._vertices[(index + 1) % self._vertices.length];
+        const start = self.vertices[index];
         return {
           start,
-          end,
+          end: start.next,
           get normal() {
-            const dir = end.subtract(start).normalized();
-            return self._clockwise ?
+            const dir = start.next.clone().subtract(start).normalized();
+            return self.clockwise ?
               new Vector2D(-dir.y, dir.x) : new Vector2D(dir.y, -dir.x);
           },
         };
       },
-      length: self._vertices.length,
+      length: self.vertices.length,
     };
   }
 

@@ -23,7 +23,13 @@ class PolygonCollision {
   constructor(canvas) {
     this._context = canvas.getContext('2d');
     /**
-     * @type {Map<string, {min: Vector2D, max: Vector2D}>}
+     * Cache to retrieve the object-aligned bounding box of an entity.
+     *
+     * @ignore
+     * @type {Map<string, {
+     *   min: import('../../math/vector2d.js').default,
+     *   max: import('../../math/vector2d.js').default,
+     * }>}
      */
     this._entity2obb = new Map();
   }
@@ -91,9 +97,19 @@ class PolygonCollision {
     const entities = entityManager.getEntitiesWithComponentType(
       PolygonCollider,
     );
-    /** @type {Map<string, {min: Vector2D, max: Vector2D}>} */
+    /**
+     * Cache to retrieve the axis-aligned bounding box of an entity.
+     *
+     * @ignore
+     * @type {Map<string, {min: Vector2D, max: Vector2D}>}
+     */
     const entity2aabb = new Map();
-    /** @type {Map<string, Vector2D[]>} */
+    /**
+     * Cache to retrieve the transformed vertices of an entity.
+     *
+     * @ignore
+     * @type {Map<string, Vector2D[]>}
+     */
     const entity2vertices = new Map();
 
     for (const currentID of entities) {

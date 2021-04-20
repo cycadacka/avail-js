@@ -13,10 +13,10 @@ function rectToPolygon(width, height) {
   const halfWidth = width / 2;
   const halfHeight = height / 2;
   return [
-    new Vector2D(-halfWidth, -halfHeight),
-    new Vector2D(halfWidth, -halfHeight),
-    new Vector2D(halfWidth, halfHeight),
-    new Vector2D(-halfWidth, halfHeight),
+    [-halfWidth, -halfHeight],
+    [halfWidth, -halfHeight],
+    [halfWidth, halfHeight],
+    [-halfWidth, halfHeight],
   ];
 }
 

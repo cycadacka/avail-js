@@ -50,20 +50,22 @@ class PolygonRenderer {
         this._context.beginPath();
 
         const first = matrix.multiplyVector2(vertices[0]);
-        this._context.moveTo(first.x, first.y);
+        this._context.moveTo(...first);
 
-        for (let i = 0; i < vertices.length; i++) {
+        for (let i = 1; i < vertices.length; i++) {
           const vertex = matrix.multiplyVector2(vertices[i]);
-          this._context.lineTo(vertex.x, vertex.y);
+          this._context.lineTo(...vertex);
         }
 
-        this._context.lineTo(first.x, first.y);
+        this._context.lineTo(...first);
 
         this._context.fill();
         this._context.stroke();
 
         this._context.closePath();
       }
+
+      this._context.restore();
     }
   }
 }
