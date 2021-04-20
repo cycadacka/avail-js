@@ -10,20 +10,20 @@ import Component from '../core/component.js';
  */
 class Transform extends Component {
   /**
-   * @param {Vector2D} [localPosition]
+   * @param {[number, number]} [localPosition]
    * @param {number} [localRotation]
-   * @param {Vector2D} [localScale]
+   * @param {[number, number]} [localScale]
    */
   constructor(
-    localPosition=Vector2D.zero,
+    localPosition=[0, 0],
     localRotation=0,
-    localScale=Vector2D.one,
+    localScale=[1, 1],
   ) {
     super();
 
-    this.localPosition = localPosition;
+    this.localPosition = new Vector2D(localPosition[0], localPosition[1]);
     this.localRotation = localRotation;
-    this.localScale = localScale;
+    this.localScale = new Vector2D(localScale[0], localScale[1]);
   }
 
   /**

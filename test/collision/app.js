@@ -1,6 +1,5 @@
 import Transform from '../../src/components/transform.js';
 import Scene from '../../src/core/scene.js';
-import Vector2D from '../../src/math/vector2d.js';
 import Ellipse from '../../src/components/shapes/ellipse.js';
 import PolygonRenderer from '../../src/systems/rendering/polygon-renderer.js';
 import PolygonCollision from '../../src/systems/collision/polygon-collision.js';
@@ -59,9 +58,9 @@ scene.entityManager.addComponents(
   }),
   new PolygonCollider(0, 0),
   new Transform(
-    new Vector2D(canvas.width/2, canvas.height/2),
+    [canvas.width/2, canvas.height/2],
     0,
-    new Vector2D(canvas.width / 2, 50),
+    [canvas.width / 2, 50],
   ),
 );
 
@@ -80,7 +79,7 @@ scene.entityManager.addComponents(
   }),
   new PolygonCollider(0, 0),
   new Transform(
-    new Vector2D(100, 100),
+    [100, 100],
     0,
   ),
 );
