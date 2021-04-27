@@ -1,4 +1,3 @@
-// Generated using webpack-cli http://github.com/webpack-cli
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
@@ -14,7 +13,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "index.ejs",
+      template: path.resolve(__dirname, "config/index.ejs"),
       inject: false,
       scriptLoading: "blocking",
     }),
