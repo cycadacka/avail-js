@@ -4,22 +4,19 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 module.exports = {
   mode: "development",
-  entry: path.resolve(__dirname, "src/index.ts"),
+  entry: "./src/index.ts",
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: "./dist",
     filename: "bundle.js",
     library: "AvailJS",
     libraryTarget: "umd",
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "config/index.ejs"),
+      template: "./config/index.ejs",
       inject: false,
       scriptLoading: "blocking",
     }),
-
-    // Add your plugins here
-    // Learn more obout plugins from https://webpack.js.org/configuration/plugins/
   ],
   module: {
     rules: [
@@ -36,9 +33,6 @@ module.exports = {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/,
         type: "asset",
       },
-
-      // Add your rules for custom modules here
-      // Learn more about loaders from https://webpack.js.org/loaders/
     ],
   },
   resolve: {
