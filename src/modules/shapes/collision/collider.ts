@@ -1,5 +1,5 @@
 import Component from 'core/component';
-import SimplePolygon from '../simple-polygon';
+import SimplePolygon from '../polygon';
 import Transform from 'modules/transform';
 
 /**

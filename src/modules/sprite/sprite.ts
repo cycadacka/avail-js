@@ -1,5 +1,5 @@
-import Component from '../../core/component';
-import Vector2D from '../../math/vector2d';
+import Component from 'core/component';
+import Vector2D from 'math/vector2d';
 import Transform2D from '../transform';
 
 /**

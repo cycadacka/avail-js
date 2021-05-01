@@ -1,42 +1,61 @@
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
-module.exports = {
-  mode: "development",
-  entry: "./src/index.ts",
-  output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "bundle.js",
-    library: "AvailJS",
-    libraryTarget: "umd",
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: "./config/index.ejs",
-      inject: false,
-      scriptLoading: "blocking",
-    }),
-  ],
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        loader: "ts-loader",
-        exclude: ["/node_modules/"],
+function arg(library) {
+  const regex = /[A-Z][^A-Z]+/g;
+  let filename = "";
+  let array;
+
+  while ((array = regex.exec(library)) !== null) {
+    if (filename.length > 0) {
+      filename += "-";
+    }
+
+    filename += array[0].toLowerCase();
+  }
+
+  return [`./exports/${filename}.ts`, library, `${filename}.js`];
+}
+
+function config(entry, library, filename) {
+  return {
+    mode: "development",
+    entry,
+    output: {
+      path: path.resolve(__dirname, "dist"),
+      library: {
+        type: "umd",
+        name: library,
       },
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-      {
-        test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/,
-        type: "asset",
-      },
-    ],
-  },
-  resolve: {
-    plugins: [new TsconfigPathsPlugin()],
-    extensions: [".tsx", ".ts", ".js"],
-  },
-};
+      filename,
+    },
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          loader: "ts-loader",
+          exclude: ["/node_modules/"],
+        },
+        {
+          test: /\.css$/i,
+          use: ["style-loader", "css-loader"],
+        },
+        {
+          test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/,
+          type: "asset",
+        },
+      ],
+    },
+    resolve: {
+      plugins: [new TsconfigPathsPlugin()],
+      extensions: [".tsx", ".ts", ".js"],
+    },
+  };
+}
+
+module.exports = [
+  config(...arg("AvailCore")),
+  config(...arg("AvailPhysics")),
+  config(...arg("AvailShapes")),
+  config(...arg("AvailSprite")),
+];

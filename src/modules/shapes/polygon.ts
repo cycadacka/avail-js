@@ -1,7 +1,8 @@
-import Component from '../../core/component';
-import Transform from '../transform';
-import Vector2D from '../../math/vector2d';
-import { ArrayProxy, BoundingBox } from '../../types';
+import Component from 'core/component';
+import Transform from 'modules/transform';
+import Vector2D from 'math/vector2d';
+import { ArrayProxy, BoundingBox } from 'types';
+import { area } from './util';
 
 export interface Vertex extends Vector2D {
   x: number;
@@ -14,18 +15,6 @@ export interface Edge {
   start: Vertex;
   end: Vertex;
   readonly normal: Vector2D;
-}
-
-function getPolygonArea(vertices: [number, number][]): boolean {
-  let area = 0;
-
-  let previous = vertices[vertices.length - 1];
-  for (let i = 0; i < vertices.length; i++) {
-    area += (previous[0] + vertices[i][0]) * (previous[1] + vertices[i][1]);
-    previous = vertices[i];
-  }
-
-  return area > 0;
 }
 
 /**
@@ -42,7 +31,7 @@ class SimplePolygon extends Component {
    *
    * @memberof SimplePolygon
    */
-  constructor(vertices: [number, number][], clockwise: boolean = getPolygonArea(vertices)) {
+  constructor(vertices: [number, number][], clockwise: boolean = (area(vertices) > 0)) {
     super();
 
     if (vertices.length < 3) {

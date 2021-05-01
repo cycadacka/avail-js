@@ -1,104 +1,144 @@
-import { PointLike } from 'types';
+import PolygonCollider from './collider';
+import SimplePolygon from '../polygon';
+import { BoundingBox } from 'types';
+import {
+  aabb as uAABB,
+  rectangleRectangleCollision,
+  polygonPolygonCollision,
+} from './util';
+import Transform from 'modules/transform';
 import Vector2D from 'math/vector2d';
+import EntityManager from 'core/entity-manager';
+import System, { SceneInfo } from 'core/system';
+
+interface PolygonCollisionEntity {
+  components: {
+    polygonCollider: PolygonCollider;
+    transform: Transform;
+    simplePolygon: SimplePolygon;
+  };
+  obb: BoundingBox;
+  aabb: BoundingBox;
+}
 
 /**
- * @param minA Top-left of the first rectangle.
- * @param maxA Bottom-right of the second rectangle.
- * @param minB Top-left of the second rectangle.
- * @param maxB Bottom-right of the second rectangle.
+ * Handles collision between shapes.
+ *
+ * @class PolygonCollision
  */
-export function rectangleRectangleCollision(
-  minA: PointLike, maxA: PointLike, minB: PointLike, maxB: PointLike
-  ): boolean {
-  return (
-    minA.x < maxB.x &&
-    minA.y < maxB.y &&
-    maxA.x > minB.x &&
-    maxA.y > minB.y
-  );
-}
+System.implement();
+class PolygonCollision implements System {
+  private context: CanvasRenderingContext2D; // <-- For debugging
+  private entity2obb: Map<string, BoundingBox>;
 
-export function circleCircleCollision(
-  originA: Vector2D, radiusA: number, originB: Vector2D, radiusB: number
-  ): boolean {
-  return originA.clone().subtract(originB).sqrMagnitude() <= radiusA + radiusB;
-}
-
-export function linePointCollision(
-  start: Vector2D, end: Vector2D, point: Vector2D
-  ): boolean {
-  return Math.abs(
-    start.clone().subtract(end).sqrMagnitude() -
-    (point.clone().subtract(start).sqrMagnitude() +
-    point.clone().subtract(end).sqrMagnitude()),
-  ) <= 0.1;
-}
-
-export function lineLineCollision(
-  startA: Vector2D, endA: Vector2D, startB: Vector2D, endB: Vector2D
-  ): boolean {
-  const uA =
-    ((endB.x - startB.x) * (startA.y - startB.y) -
-      (endB.y - startB.y) * (startA.x - startB.x)) /
-    ((endB.y - startB.y) * (endA.x - startA.x) -
-      (endB.x - startB.x) * (endA.y - startA.y));
-
-  const uB =
-    ((endA.x - startA.x) * (startA.y - startB.y) -
-      (endA.y - startA.y) * (startA.x - startB.x)) /
-    ((endB.y - startB.y) * (endA.x - startA.x) -
-      (endB.x - startB.x) * (endA.y - startA.y));
-
-  return uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1;
-}
-
-export function polygonPointCollision(
-  point: Vector2D, vertices: Vector2D[]
-  ): boolean {
-  let collision = false;
-
-  for (let ci = 0; ci < vertices.length; ci++) {
-    let ni = ci + 1;
-    if (ni == vertices.length) {
-      ni = 0;
-    }
-
-    const cv = vertices[ci];
-    const nv = vertices[ni];
-
-    if ((
-      (cv.y >= point.y && nv.y < point.y) ||
-      (cv.y < point.y && nv.y >= point.y)) &&
-      (point.x < (nv.x - cv.x) * (point.y - cv.y) / (nv.y - cv.y) + cv.x)) {
-      collision = !collision;
-    }
+  /**
+   * Creates an instance of PolygonCollision.
+   *
+   * @memberof PolygonCollision
+   */
+  constructor(canvas: HTMLCanvasElement) {
+    this.context = canvas.getContext('2d')!;
+    this.entity2obb = new Map();
   }
 
-  return collision;
-}
+  /**
+   * Constructs the entity and retrieves the needed components and
+   * object-aligned bounding boxes.
+   *
+   * @memberof PolygonCollision
+   */
+  private constructPolygonCollisionEntity(
+    entity: string,
+    entityManager: EntityManager, 
+    entity2aabb: Map<string, BoundingBox>
+  ): PolygonCollisionEntity {
+    // Get components.
+    const components = {
+      polygonCollider: entityManager.getComponent(entity, PolygonCollider)!,
+      transform: entityManager.getComponent(entity, Transform)!,
+      simplePolygon: entityManager.getComponent(entity, SimplePolygon)!,
+    };
 
-export function polygonLineCollision(
-  start: Vector2D, end: Vector2D, vertices: Vector2D[]
-  ): boolean {
-  for (let i = 0; i < vertices.length; i++) {
-    const next = (i + 1) % vertices.length;
-    if (lineLineCollision(vertices[i], vertices[next], start, end)) {
-      return true;
+    // Get object-aligned bounding-box
+    const obb = this.entity2obb.get(entity) ?? components.simplePolygon.obb;
+    if (!this.entity2obb.has(entity)) {
+      this.entity2obb.set(entity, obb);
     }
+
+    // Get axis-aligned bounding-box
+    let aabb = entity2aabb.get(entity)!;
+    if (!aabb) {
+      aabb = uAABB(obb, components.transform);
+      entity2aabb.set(entity, aabb);
+    }
+
+    return { components, obb, aabb };
   }
 
-  return false;
-}
 
-export function polygonPolygonCollision(
-  verticesA: Vector2D[], verticesB: Vector2D[]
-  ): boolean {
-  for (let i = 0; i < verticesA.length; i++) {
-    const next = (i + 1) % verticesA.length;
-    if (polygonLineCollision(verticesA[i], verticesA[next], verticesB)) {
-      return true;
+  /**
+   * @memberof PolygonCollision
+   */
+  fixedUpdate({ entityManager }: SceneInfo): void {
+    const entities = entityManager.getEntitiesWithComponent(PolygonCollider);
+
+    const entity2aabb = new Map<string, BoundingBox>();
+    const entity2vertices = new Map<string, Vector2D[]>();
+
+    for (const currentID of entities) {
+      const current = this.constructPolygonCollisionEntity(
+        currentID,
+        entityManager,
+        entity2aabb,
+      );
+
+      for (const againstID of entities) {
+        if (currentID !== againstID) {
+          const against = this.constructPolygonCollisionEntity(
+            againstID,
+            entityManager,
+            entity2aabb,
+          );
+
+          if (
+            rectangleRectangleCollision(
+              current.aabb.min,
+              current.aabb.max,
+              against.aabb.min,
+              against.aabb.max,
+            )
+          ) {
+
+            const currentMatrix = (
+              current.components.transform.localToWorldMatrix
+            );
+            let currentVertices = entity2vertices.get(currentID);
+            if (!currentVertices) {
+              currentVertices = current.components.simplePolygon.vertices.map(
+                value => currentMatrix.multiplyVector2(value),
+              );
+              entity2vertices.set(currentID, currentVertices);
+            }
+
+            const againstMatrix = (
+              against.components.transform.localToWorldMatrix
+            );
+            let againstVertices = entity2vertices.get(againstID);
+            if (!againstVertices) {
+              againstVertices = against.components.simplePolygon.vertices.map(
+                value => againstMatrix.multiplyVector2(value),
+              );
+              entity2vertices.set(againstID, againstVertices);
+            }
+
+            if (polygonPolygonCollision(currentVertices, againstVertices)) {
+              // TODO: Some way to recieve collision info.
+            }
+          }
+        }
+      }
     }
   }
-
-  return false;
 }
+
+export default PolygonCollision;

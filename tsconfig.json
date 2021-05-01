@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
     "sourceMap": true,
-    "baseUrl": "./src",
+    "baseUrl": "src",
     "lib": [ "ES2020", "DOM" ],
     "module": "ES6",
     "target": "ES6",
-    "strict": true,
+    "strict": true
   },
-  "files": [
-    "src/index.ts"
+  "include": [
+    "src/**/*",
+    "exports/**/*"
   ]
 }

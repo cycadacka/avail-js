@@ -1,5 +1,5 @@
-import Transform from '../transform';
-import Sprite from './sprite';
+import Transform from 'modules/transform';
+import Sprite from '../sprite';
 import System, { SceneInfo } from 'core/system';
 
 /**

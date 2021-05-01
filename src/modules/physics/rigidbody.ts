@@ -64,7 +64,7 @@ export enum SleepMode {
   Insomniac,
 }
 
-interface Rigidbody2DConfig {
+interface RigidbodyConfig {
   bodyType: BodyType,
   mass: number,
   linearDrag: number,
@@ -83,7 +83,7 @@ interface Rigidbody2DConfig {
  * @class Rigidbody2D
  * @extends {Component}
  */
-class Rigidbody2D extends Component {
+class Rigidbody extends Component {
   public bodyType: BodyType;
   public mass: number;
   public linearDrag: number;
@@ -111,7 +111,7 @@ class Rigidbody2D extends Component {
     constrainX=false,
     constrainY=false,
     constrainZ=false,
-  }: Rigidbody2DConfig) {
+  }: RigidbodyConfig) {
     super();
 
     this.bodyType = bodyType;
@@ -134,4 +134,4 @@ class Rigidbody2D extends Component {
   }
 }
 
-export default Rigidbody2D;
+export default Rigidbody;

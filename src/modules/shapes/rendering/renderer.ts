@@ -1,6 +1,6 @@
 import Transform from 'modules/transform';
-import PolygonMaterial from './polygon-material';
-import SimplePolygon from '../simple-polygon';
+import PolygonMaterial from './material';
+import SimplePolygon from '../polygon';
 import System, { SceneInfo } from 'core/system';
 
 /**

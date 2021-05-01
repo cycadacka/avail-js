@@ -1,6 +1,6 @@
-import Vector2D from '../../math/vector2d';
-import SimplePolygon from './simple-polygon';
-import { BoundingBox } from '../../types';
+import Vector2D from 'math/vector2d';
+import SimplePolygon from './polygon';
+import { BoundingBox } from 'types';
 
 /**
  * Converts a rectangle into a polygon (vertices).
