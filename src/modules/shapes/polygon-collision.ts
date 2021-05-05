@@ -11,6 +11,7 @@ import Vector2D from 'math/vector2d';
 import EntityManager from 'core/entity-manager';
 import System, { SceneInfo } from 'core/system';
 import CollisionListener from '../collision-listener';
+import { ContactPoint } from '../collision-listener';
 
 interface PolygonCollisionEntity {
   components: {
@@ -21,11 +22,6 @@ interface PolygonCollisionEntity {
   obb: BoundingBox;
   aabb: BoundingBox;
 };
-
-export interface PolygonCollisionInfo {
-  current: string;
-  against: string;
-}
 
 /**
  * Handles collision between shapes.
@@ -48,14 +44,13 @@ class PolygonCollision implements System {
    * Constructs the entity and retrieves the needed components and
    * object-aligned bounding boxes.
    *
-   * @returns {PolygonCollisionEntity | null} Constructed entity; null if it
-   * fails.
+   * @returns {PolygonCollisionEntity | null} Constructed entity; null if it fails.
    * @memberof PolygonCollision
    */
   private constructEntity(
     entity: string,
+    entityAABBs: Map<string, BoundingBox>,
     entityManager: EntityManager, 
-    entityAABBs: Map<string, BoundingBox>
   ): PolygonCollisionEntity | null {
     // Get components
     const components = {
@@ -69,8 +64,9 @@ class PolygonCollision implements System {
     }
 
     // Get object-aligned bounding-box
-    const obb = this.entity2obb.get(entity) ?? components.polygon.obb;
-    if (!this.entity2obb.has(entity)) {
+    let obb = this.entity2obb.get(entity);
+    if (!obb) {
+      obb = components.polygon.obb;
       this.entity2obb.set(entity, obb);
     }
 
@@ -84,22 +80,6 @@ class PolygonCollision implements System {
     return <PolygonCollisionEntity>{ components, obb, aabb };
   }
 
-  protected onCollision(entityManager: EntityManager, first: PolygonCollisionEntity, idFirst: string, second: PolygonCollisionEntity, idSecond: string) {
-    const lfirst = entityManager.getComponents(idFirst, CollisionListener);
-    const lsecond = entityManager.getComponents(idSecond, CollisionListener);
-    const llength = Math.max(lfirst.length, lsecond.length);
-
-    for (let i = 0; i < llength; i++) {
-      if (i < lfirst.length) {
-        lfirst[i].callback({ current: idFirst, against: idSecond });
-      }
-
-      if (i < lsecond.length) {
-        lsecond[i].callback({ current: idSecond, against: idFirst });
-      }
-    }
-  }
-
   /**
    * @memberof PolygonCollision
    */
@@ -111,33 +91,36 @@ class PolygonCollision implements System {
       PolygonCollisionEntity, PolygonCollisionEntity
     ]>();
 
-    for (const idFirst of entities) {
+    for (const firstID of entities) {
       const first = this.constructEntity(
-        idFirst,
-        entityManager,
+        firstID,
         entityAABBs,
+        entityManager,
       );
 
-      if (first === null) { // Check if needed components are available.
+      // Check if needed components are available.
+      if (first == null) {
         continue;
       }
 
-      for (const idSecond of entities) {
+      for (const secondID of entities) {
+        // Check if the second is itself or collision between has already happened.
         if (
-          idFirst === idSecond ||
-          entityCollisions.has(idFirst + idSecond) ||
-          entityCollisions.has(idSecond + idFirst)
-        ) { // Check if the second is itself or collision between has already happened.
+          firstID === secondID ||
+          entityCollisions.has(firstID + secondID) ||
+          entityCollisions.has(secondID + firstID)
+        ) {
           continue;
         }
 
         const second = this.constructEntity(
-          idSecond,
-          entityManager,
+          secondID,
           entityAABBs,
+          entityManager,
         );
 
-        if (second === null) { // Check if needed components are available.
+        // Check if needed components are available.
+        if (second == null) {
           continue;
         }
 
@@ -150,31 +133,55 @@ class PolygonCollision implements System {
           )
         ) {
 
-          const currentMatrix = (
-            first.components.transform.localToWorldMatrix
-          );
-          let currentVertices = entityVertices.get(idFirst);
-          if (!currentVertices) {
-            currentVertices = first.components.polygon.vertices.map(
-              value => currentMatrix.multiplyVector2(value),
+          let firstVertices = entityVertices.get(firstID);
+          if (!firstVertices) {
+            const matrix = first.components.transform.localToWorldMatrix;
+            
+            firstVertices = first.components.polygon.vertices.map(
+              (value) => matrix.multiplyVector2(value),
             );
-            entityVertices.set(idFirst, currentVertices);
+            entityVertices.set(firstID, firstVertices);
           }
 
-          const againstMatrix = (
-            second.components.transform.localToWorldMatrix
-          );
-          let againstVertices = entityVertices.get(idSecond);
+          let againstVertices = entityVertices.get(secondID);
           if (!againstVertices) {
+            const matrix = second.components.transform.localToWorldMatrix;
+
             againstVertices = second.components.polygon.vertices.map(
-              value => againstMatrix.multiplyVector2(value),
+              (value) => matrix.multiplyVector2(value),
             );
-            entityVertices.set(idSecond, againstVertices);
+            entityVertices.set(secondID, againstVertices);
           }
 
-          if (polygonPolygonCollision(currentVertices, againstVertices)) {
-            this.onCollision(entityManager, first, idFirst, second, idSecond);
-            entityCollisions.set(idFirst + idSecond, [ first, second ]);
+          if (polygonPolygonCollision(firstVertices, againstVertices)) {
+            const firstListeners = entityManager.getComponents(
+              firstID, CollisionListener
+            );
+            const secondListeners = entityManager.getComponents(
+              secondID, CollisionListener
+            );
+            const contacts: ContactPoint[] = [];
+        
+            const length = Math.max(firstListeners.length, secondListeners.length);
+            for (let i = 0; i < length; i++) {
+              if (i < firstListeners.length) {
+                firstListeners[i].fire({
+                  entity: firstID,
+                  otherEntity: secondID,
+                  contacts: contacts,
+                });
+              }
+        
+              if (i < secondListeners.length) {
+                secondListeners[i].fire({
+                  entity: secondID,
+                  otherEntity: firstID,
+                  contacts: contacts,
+                });
+              }
+            }
+
+            entityCollisions.set(firstID + secondID, [ first, second ]);
           }
         }
         
