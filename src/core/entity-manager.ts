@@ -29,13 +29,35 @@ class EntityManager {
   }
 
   /**
-   * Retrieves multiple components attached to an entity.
+   * Retrieves components attached to an entity.
    *
-   * @return Multiple components attached to an entity.
+   * @return Components attached to an entity.
    * @memberof EntityManager
    */
   getComponents<T extends Component>(entity: string, component: ClassConstructor<T>): T[] {
     return this.componentStorage.get(component)?.get(entity) as T[] ?? [];
+  }
+
+  /**
+   * Retrieves multiple components attached to an entity.
+   *
+   * @return {Component[][]} Multiple components attached to an entity.
+   * @memberof EntityManager
+   */
+  getMultipleComponents(entity: string, ...components: ClassConstructor<Component>[]): Component[][] {
+    const multiple: Component[][] = [];
+
+    for (let i = 0; i < components.length; i++) {
+      const instances = this.getComponents(entity, components[i]);
+
+      if (instances.length <= 0) {
+        return [];
+      }
+  
+      multiple.push(instances);
+    }
+
+    return multiple;
   }
 
   /**

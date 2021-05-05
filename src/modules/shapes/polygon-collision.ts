@@ -2,7 +2,7 @@ import PolygonCollider from './polygon-collider';
 import Polygon from './polygon';
 import { BoundingBox } from 'types';
 import {
-  aabb as uAABB,
+  aabb as aabbUtil,
   rectangleRectangleCollision,
   polygonPolygonCollision,
 } from './util/collision';
@@ -12,11 +12,7 @@ import EntityManager from 'core/entity-manager';
 import System, { SceneInfo } from 'core/system';
 
 interface PolygonCollisionEntity {
-  components: {
-    polygonCollider: PolygonCollider;
-    transform: Transform;
-    simplePolygon: Polygon;
-  };
+  components: [PolygonCollider[], Polygon[], Transform[]];
   obb: BoundingBox;
   aabb: BoundingBox;
 }
@@ -46,20 +42,19 @@ class PolygonCollision implements System {
    *
    * @memberof PolygonCollision
    */
-  private constructPolygonCollisionManagerEntity(
+  private constructEntity(
     entity: string,
     entityManager: EntityManager, 
     entity2aabb: Map<string, BoundingBox>
   ): PolygonCollisionEntity {
     // Get components.
-    const components = {
-      polygonCollider: entityManager.getComponent(entity, PolygonCollider)!,
-      transform: entityManager.getComponent(entity, Transform)!,
-      simplePolygon: entityManager.getComponent(entity, Polygon)!,
-    };
+    const components = (
+      <[PolygonCollider[], Polygon[], Transform[]]>
+      entityManager.getMultipleComponents(entity, PolygonCollider, Polygon, Transform)
+    );
 
     // Get object-aligned bounding-box
-    const obb = this.entity2obb.get(entity) ?? components.simplePolygon.obb;
+    const obb = this.entity2obb.get(entity) ?? components[1][0].obb;
     if (!this.entity2obb.has(entity)) {
       this.entity2obb.set(entity, obb);
     }
@@ -67,7 +62,7 @@ class PolygonCollision implements System {
     // Get axis-aligned bounding-box
     let aabb = entity2aabb.get(entity)!;
     if (!aabb) {
-      aabb = uAABB(obb, components.transform);
+      aabb = aabbUtil(obb, components[2][0]);
       entity2aabb.set(entity, aabb);
     }
 
@@ -85,7 +80,7 @@ class PolygonCollision implements System {
     const entity2vertices = new Map<string, Vector2D[]>();
 
     for (const currentID of entities) {
-      const current = this.constructPolygonCollisionManagerEntity(
+      const current = this.constructEntity(
         currentID,
         entityManager,
         entity2aabb,
@@ -93,7 +88,7 @@ class PolygonCollision implements System {
 
       for (const againstID of entities) {
         if (currentID !== againstID) {
-          const against = this.constructPolygonCollisionManagerEntity(
+          const against = this.constructEntity(
             againstID,
             entityManager,
             entity2aabb,
@@ -109,22 +104,22 @@ class PolygonCollision implements System {
           ) {
 
             const currentMatrix = (
-              current.components.transform.localToWorldMatrix
+              current.components[2][0].localToWorldMatrix
             );
             let currentVertices = entity2vertices.get(currentID);
             if (!currentVertices) {
-              currentVertices = current.components.simplePolygon.vertices.map(
+              currentVertices = current.components[1][0].vertices.map(
                 value => currentMatrix.multiplyVector2(value),
               );
               entity2vertices.set(currentID, currentVertices);
             }
 
             const againstMatrix = (
-              against.components.transform.localToWorldMatrix
+              against.components[2][0].localToWorldMatrix
             );
             let againstVertices = entity2vertices.get(againstID);
             if (!againstVertices) {
-              againstVertices = against.components.simplePolygon.vertices.map(
+              againstVertices = against.components[1][0].vertices.map(
                 value => againstMatrix.multiplyVector2(value),
               );
               entity2vertices.set(againstID, againstVertices);
