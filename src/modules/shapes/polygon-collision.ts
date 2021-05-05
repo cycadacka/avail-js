@@ -11,11 +11,11 @@ import Vector2D from 'math/vector2d';
 import EntityManager from 'core/entity-manager';
 import System, { SceneInfo } from 'core/system';
 
-interface PolygonCollisionEntity {
+type PolygonCollisionEntity = {
   components: [PolygonCollider[], Polygon[], Transform[]];
   obb: BoundingBox;
   aabb: BoundingBox;
-}
+} | null;
 
 /**
  * Handles collision between shapes.
@@ -53,6 +53,10 @@ class PolygonCollision implements System {
       entityManager.getMultipleComponents(entity, PolygonCollider, Polygon, Transform)
     );
 
+    if (components.length <= 0) {
+      return null;
+    }
+
     // Get object-aligned bounding-box
     const obb = this.entity2obb.get(entity) ?? components[1][0].obb;
     if (!this.entity2obb.has(entity)) {
@@ -68,7 +72,6 @@ class PolygonCollision implements System {
 
     return { components, obb, aabb };
   }
-
 
   /**
    * @memberof PolygonCollision
@@ -86,6 +89,10 @@ class PolygonCollision implements System {
         entity2aabb,
       );
 
+      if (current === null) {
+        continue;
+      }
+
       for (const againstID of entities) {
         if (currentID !== againstID) {
           const against = this.constructEntity(
@@ -93,6 +100,10 @@ class PolygonCollision implements System {
             entityManager,
             entity2aabb,
           );
+
+          if (against === null) {
+            continue;
+          }
 
           if (
             rectangleRectangleCollision(
