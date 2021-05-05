@@ -39,28 +39,6 @@ class EntityManager {
   }
 
   /**
-   * Retrieves multiple components attached to an entity.
-   *
-   * @return {Component[][]} Multiple components attached to an entity.
-   * @memberof EntityManager
-   */
-  getMultipleComponents(entity: string, ...components: ClassConstructor<Component>[]): Component[][] {
-    const multiple: Component[][] = [];
-
-    for (let i = 0; i < components.length; i++) {
-      const instances = this.getComponents(entity, components[i]);
-
-      if (instances.length <= 0) {
-        return [];
-      }
-  
-      multiple.push(instances);
-    }
-
-    return multiple;
-  }
-
-  /**
    * Attaches multiple components to an entity.
    *
    * @memberof EntityManager

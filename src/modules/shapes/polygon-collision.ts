@@ -10,12 +10,22 @@ import Transform from 'modules/transform';
 import Vector2D from 'math/vector2d';
 import EntityManager from 'core/entity-manager';
 import System, { SceneInfo } from 'core/system';
+import CollisionListener from '../collision-listener';
 
-type PolygonCollisionEntity = {
-  components: [PolygonCollider[], Polygon[], Transform[]];
+interface PolygonCollisionEntity {
+  components: {
+    polygonCollider: PolygonCollider;
+    polygon: Polygon;
+    transform: Transform;
+  };
   obb: BoundingBox;
   aabb: BoundingBox;
-} | null;
+};
+
+export interface PolygonCollisionInfo {
+  current: string;
+  against: string;
+}
 
 /**
  * Handles collision between shapes.
@@ -23,7 +33,6 @@ type PolygonCollisionEntity = {
  * @class PolygonCollision
  */
 class PolygonCollision implements System {
-  private context: CanvasRenderingContext2D; // <-- For debugging
   private entity2obb: Map<string, BoundingBox>;
 
   /**
@@ -31,8 +40,7 @@ class PolygonCollision implements System {
    *
    * @memberof PolygonCollision
    */
-  constructor(canvas: HTMLCanvasElement) {
-    this.context = canvas.getContext('2d')!;
+  constructor() {
     this.entity2obb = new Map();
   }
 
@@ -40,37 +48,56 @@ class PolygonCollision implements System {
    * Constructs the entity and retrieves the needed components and
    * object-aligned bounding boxes.
    *
+   * @returns {PolygonCollisionEntity | null} Constructed entity; null if it
+   * fails.
    * @memberof PolygonCollision
    */
   private constructEntity(
     entity: string,
     entityManager: EntityManager, 
-    entity2aabb: Map<string, BoundingBox>
-  ): PolygonCollisionEntity {
-    // Get components.
-    const components = (
-      <[PolygonCollider[], Polygon[], Transform[]]>
-      entityManager.getMultipleComponents(entity, PolygonCollider, Polygon, Transform)
-    );
+    entityAABBs: Map<string, BoundingBox>
+  ): PolygonCollisionEntity | null {
+    // Get components
+    const components = {
+      polygonCollider: entityManager.getComponent(entity, PolygonCollider),
+      polygon: entityManager.getComponent(entity, Polygon),
+      transform: entityManager.getComponent(entity, Transform),
+    };
 
-    if (components.length <= 0) {
+    if (!(components.polygonCollider && components.polygon && components.transform)) {
       return null;
     }
 
     // Get object-aligned bounding-box
-    const obb = this.entity2obb.get(entity) ?? components[1][0].obb;
+    const obb = this.entity2obb.get(entity) ?? components.polygon.obb;
     if (!this.entity2obb.has(entity)) {
       this.entity2obb.set(entity, obb);
     }
 
     // Get axis-aligned bounding-box
-    let aabb = entity2aabb.get(entity)!;
+    let aabb = entityAABBs.get(entity)!;
     if (!aabb) {
-      aabb = aabbUtil(obb, components[2][0]);
-      entity2aabb.set(entity, aabb);
+      aabb = aabbUtil(obb, components.transform);
+      entityAABBs.set(entity, aabb);
     }
 
-    return { components, obb, aabb };
+    return <PolygonCollisionEntity>{ components, obb, aabb };
+  }
+
+  protected onCollision(entityManager: EntityManager, first: PolygonCollisionEntity, idFirst: string, second: PolygonCollisionEntity, idSecond: string) {
+    const lfirst = entityManager.getComponents(idFirst, CollisionListener);
+    const lsecond = entityManager.getComponents(idSecond, CollisionListener);
+    const llength = Math.max(lfirst.length, lsecond.length);
+
+    for (let i = 0; i < llength; i++) {
+      if (i < lfirst.length) {
+        lfirst[i].callback({ current: idFirst, against: idSecond });
+      }
+
+      if (i < lsecond.length) {
+        lsecond[i].callback({ current: idSecond, against: idFirst });
+      }
+    }
   }
 
   /**
@@ -78,69 +105,79 @@ class PolygonCollision implements System {
    */
   fixedUpdate({ entityManager }: SceneInfo): void {
     const entities = entityManager.getEntitiesWithComponent(PolygonCollider);
+    const entityAABBs = new Map<string, BoundingBox>();
+    const entityVertices = new Map<string, Vector2D[]>();
+    const entityCollisions = new Map<string, [
+      PolygonCollisionEntity, PolygonCollisionEntity
+    ]>();
 
-    const entity2aabb = new Map<string, BoundingBox>();
-    const entity2vertices = new Map<string, Vector2D[]>();
-
-    for (const currentID of entities) {
-      const current = this.constructEntity(
-        currentID,
+    for (const idFirst of entities) {
+      const first = this.constructEntity(
+        idFirst,
         entityManager,
-        entity2aabb,
+        entityAABBs,
       );
 
-      if (current === null) {
+      if (first === null) { // Check if needed components are available.
         continue;
       }
 
-      for (const againstID of entities) {
-        if (currentID !== againstID) {
-          const against = this.constructEntity(
-            againstID,
-            entityManager,
-            entity2aabb,
-          );
+      for (const idSecond of entities) {
+        if (
+          idFirst === idSecond ||
+          entityCollisions.has(idFirst + idSecond) ||
+          entityCollisions.has(idSecond + idFirst)
+        ) { // Check if the second is itself or collision between has already happened.
+          continue;
+        }
 
-          if (against === null) {
-            continue;
+        const second = this.constructEntity(
+          idSecond,
+          entityManager,
+          entityAABBs,
+        );
+
+        if (second === null) { // Check if needed components are available.
+          continue;
+        }
+
+        if (
+          rectangleRectangleCollision(
+            first.aabb.min,
+            first.aabb.max,
+            second.aabb.min,
+            second.aabb.max,
+          )
+        ) {
+
+          const currentMatrix = (
+            first.components.transform.localToWorldMatrix
+          );
+          let currentVertices = entityVertices.get(idFirst);
+          if (!currentVertices) {
+            currentVertices = first.components.polygon.vertices.map(
+              value => currentMatrix.multiplyVector2(value),
+            );
+            entityVertices.set(idFirst, currentVertices);
           }
 
-          if (
-            rectangleRectangleCollision(
-              current.aabb.min,
-              current.aabb.max,
-              against.aabb.min,
-              against.aabb.max,
-            )
-          ) {
-
-            const currentMatrix = (
-              current.components[2][0].localToWorldMatrix
+          const againstMatrix = (
+            second.components.transform.localToWorldMatrix
+          );
+          let againstVertices = entityVertices.get(idSecond);
+          if (!againstVertices) {
+            againstVertices = second.components.polygon.vertices.map(
+              value => againstMatrix.multiplyVector2(value),
             );
-            let currentVertices = entity2vertices.get(currentID);
-            if (!currentVertices) {
-              currentVertices = current.components[1][0].vertices.map(
-                value => currentMatrix.multiplyVector2(value),
-              );
-              entity2vertices.set(currentID, currentVertices);
-            }
+            entityVertices.set(idSecond, againstVertices);
+          }
 
-            const againstMatrix = (
-              against.components[2][0].localToWorldMatrix
-            );
-            let againstVertices = entity2vertices.get(againstID);
-            if (!againstVertices) {
-              againstVertices = against.components[1][0].vertices.map(
-                value => againstMatrix.multiplyVector2(value),
-              );
-              entity2vertices.set(againstID, againstVertices);
-            }
-
-            if (polygonPolygonCollision(currentVertices, againstVertices)) {
-              // TODO: Some way to recieve collision info.
-            }
+          if (polygonPolygonCollision(currentVertices, againstVertices)) {
+            this.onCollision(entityManager, first, idFirst, second, idSecond);
+            entityCollisions.set(idFirst + idSecond, [ first, second ]);
           }
         }
+        
       }
     }
   }

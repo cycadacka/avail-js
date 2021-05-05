@@ -34,21 +34,19 @@ class PolygonRenderer implements System {
 
     const entities = entityManager.getEntitiesWithComponent(PolygonMaterial);
     for (const entity of entities) {
-      const current = (
-        <[PolygonMaterial[], Transform[]]>
-        entityManager.getMultipleComponents(entity, PolygonMaterial, Transform)
-      );
+      const polygonMaterial = entityManager.getComponent(entity, PolygonMaterial);
+      const transform = entityManager.getComponent(entity, Transform);
+      const polygons = entityManager.getComponents(entity, Polygon);
 
-      if (current.length <= 0) {
+      if (!(polygonMaterial && transform) || polygons.length <= 0) {
         continue;
       }
 
       this.context.save();
 
-      current[0][0].setStyling(this.context);
+      polygonMaterial.setStyling(this.context);
 
-      const polygons = entityManager.getComponents(entity, Polygon);
-      const matrix = current[1][0].localToWorldMatrix;
+      const matrix = transform.localToWorldMatrix;
       for (let i = 0; i < polygons.length; i++) {
         const vertices = polygons[i].vertices;
 

@@ -104,7 +104,7 @@ class Matrix3x3 {
   }
 
   /**
-   * Transforms a position by this matrix.
+   * Transforms a position by this matrix (does not mutate the vector).
    *
    * @memberof Matrix3x3
    */

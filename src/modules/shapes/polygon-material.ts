@@ -98,10 +98,7 @@ class PolygonMaterial extends Component {
   get attributes() {
     return {
       single: true,
-      requires: [
-        Transform,
-        Polygon,
-      ],
+      requires: [],
     };
   }
 }
