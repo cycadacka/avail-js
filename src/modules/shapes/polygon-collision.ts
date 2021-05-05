@@ -1,11 +1,11 @@
-import PolygonCollider from './collider';
-import SimplePolygon from '../polygon';
+import PolygonCollider from './polygon-collider';
+import Polygon from './polygon';
 import { BoundingBox } from 'types';
 import {
   aabb as uAABB,
   rectangleRectangleCollision,
   polygonPolygonCollision,
-} from './util';
+} from './util/collision';
 import Transform from 'modules/transform';
 import Vector2D from 'math/vector2d';
 import EntityManager from 'core/entity-manager';
@@ -15,7 +15,7 @@ interface PolygonCollisionEntity {
   components: {
     polygonCollider: PolygonCollider;
     transform: Transform;
-    simplePolygon: SimplePolygon;
+    simplePolygon: Polygon;
   };
   obb: BoundingBox;
   aabb: BoundingBox;
@@ -47,7 +47,7 @@ class PolygonCollision implements System {
    *
    * @memberof PolygonCollision
    */
-  private constructPolygonCollisionEntity(
+  private constructPolygonCollisionManagerEntity(
     entity: string,
     entityManager: EntityManager, 
     entity2aabb: Map<string, BoundingBox>
@@ -56,7 +56,7 @@ class PolygonCollision implements System {
     const components = {
       polygonCollider: entityManager.getComponent(entity, PolygonCollider)!,
       transform: entityManager.getComponent(entity, Transform)!,
-      simplePolygon: entityManager.getComponent(entity, SimplePolygon)!,
+      simplePolygon: entityManager.getComponent(entity, Polygon)!,
     };
 
     // Get object-aligned bounding-box
@@ -86,7 +86,7 @@ class PolygonCollision implements System {
     const entity2vertices = new Map<string, Vector2D[]>();
 
     for (const currentID of entities) {
-      const current = this.constructPolygonCollisionEntity(
+      const current = this.constructPolygonCollisionManagerEntity(
         currentID,
         entityManager,
         entity2aabb,
@@ -94,7 +94,7 @@ class PolygonCollision implements System {
 
       for (const againstID of entities) {
         if (currentID !== againstID) {
-          const against = this.constructPolygonCollisionEntity(
+          const against = this.constructPolygonCollisionManagerEntity(
             againstID,
             entityManager,
             entity2aabb,

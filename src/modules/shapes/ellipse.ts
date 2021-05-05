@@ -1,5 +1,5 @@
 import Vector2D from 'math/vector2d';
-import SimplePolygon from './polygon';
+import Polygon from './polygon';
 import { BoundingBox } from 'types';
 
 /**
@@ -22,9 +22,9 @@ function ellipseToPolygon(x: number, y: number, resolution: number): [number, nu
  * Represents an ellipse.
  *
  * @class Ellipse
- * @extends {SimplePolygon}
+ * @extends {Polygon}
  */
-class Ellipse extends SimplePolygon {
+class Ellipse extends Polygon {
   private _radius: Vector2D;
 
   /**

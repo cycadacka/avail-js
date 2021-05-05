@@ -1,4 +1,4 @@
-import { Vertex } from './polygon';
+import { Vertex } from '../polygon';
 
 /**
  * Sorts the vertices, increasingly, by their y-coordinate.

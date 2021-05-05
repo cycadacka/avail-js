@@ -1,5 +1,5 @@
 import Vector2D from 'math/vector2d';
-import SimplePolygon from './polygon';
+import Polygon from './polygon';
 import { BoundingBox } from 'types';
 
 /**
@@ -22,9 +22,9 @@ function rectToPolygon(width: number, height: number): [number, number][] {
  * Represents a rectangle.
  *
  * @class Rect
- * @extends {SimplePolygon}
+ * @extends {Polygon}
  */
-class Rect extends SimplePolygon {
+class Rect extends Polygon {
   private _width: number;
   private _height: number;
 

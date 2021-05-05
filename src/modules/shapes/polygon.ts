@@ -2,7 +2,7 @@ import Component from 'core/component';
 import Transform from 'modules/transform';
 import Vector2D from 'math/vector2d';
 import { ArrayProxy, BoundingBox } from 'types';
-import { area } from './util';
+import { area } from './util/common';
 
 export interface Vertex extends Vector2D {
   x: number;
@@ -20,23 +20,23 @@ export interface Edge {
 /**
  * Represents a simple polygon.
  *
- * @class SimplePolygon
+ * @class Polygon
  */
-class SimplePolygon extends Component {
+class Polygon extends Component {
   public vertices: Vertex[];
   public readonly clockwise: boolean;
 
   /**
-   * Creates an instance of SimplePolygon.
+   * Creates an instance of Polygon.
    *
-   * @memberof SimplePolygon
+   * @memberof Polygon
    */
   constructor(vertices: [number, number][], clockwise: boolean = (area(vertices) > 0)) {
     super();
 
     if (vertices.length < 3) {
       throw new Error(
-        'SimplePolygon cannot be constructed with less than 3 vertices',
+        'Polygon cannot be constructed with less than 3 vertices',
       );
     }
 
@@ -73,7 +73,7 @@ class SimplePolygon extends Component {
   /**
    * Retrieves a proxy for the edges.
    *
-   * @memberof SimplePolygon
+   * @memberof Polygon
    */
   get edges(): ArrayProxy<Edge> {
     const self = this;
@@ -103,7 +103,7 @@ class SimplePolygon extends Component {
   /**
    * Retrieves the object-aligned bounding box for a polygon.
    *
-   * @memberof SimplePolygon
+   * @memberof Polygon
    */
   get obb(): BoundingBox {
     const min = new Vector2D(Infinity, Infinity);
@@ -133,4 +133,4 @@ class SimplePolygon extends Component {
   }
 }
 
-export default SimplePolygon;
+export default Polygon;

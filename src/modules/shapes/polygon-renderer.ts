@@ -1,6 +1,6 @@
 import Transform from 'modules/transform';
-import PolygonMaterial from './material';
-import SimplePolygon from '../polygon';
+import PolygonMaterial from './polygon-material';
+import Polygon from './polygon';
 import System, { SceneInfo } from 'core/system';
 
 /**
@@ -41,7 +41,7 @@ class PolygonRenderer implements System {
 
       material.setStyling(this.context);
 
-      const polygons = entityManager.getComponents(entity, SimplePolygon);
+      const polygons = entityManager.getComponents(entity, Polygon);
       const matrix = transform.localToWorldMatrix;
       for (let i = 0; i < polygons.length; i++) {
         const vertices = polygons[i].vertices;

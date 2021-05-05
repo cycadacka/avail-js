@@ -1,5 +1,5 @@
 import Component from 'core/component';
-import SimplePolygon from '../polygon';
+import Polygon from './polygon';
 import Transform from 'modules/transform';
 
 interface MaterialConfig {
@@ -100,7 +100,7 @@ class PolygonMaterial extends Component {
       single: true,
       requires: [
         Transform,
-        SimplePolygon,
+        Polygon,
       ],
     };
   }

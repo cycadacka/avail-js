@@ -80,7 +80,7 @@ interface RigidbodyConfig {
 /**
  * Represents the a polygon that can be affected by Physics
  *
- * @class Rigidbody2D
+ * @class Rigidbody
  * @extends {Component}
  */
 class Rigidbody extends Component {
@@ -96,9 +96,9 @@ class Rigidbody extends Component {
   public constrainZ: boolean;
 
   /**
-   * Creates an instance of Rigidbody2D.
+   * Creates an instance of Rigidbody.
    *
-   * @memberof Rigidbody2D
+   * @memberof Rigidbody
    */
   constructor({
     bodyType=BodyType.Dynamic,

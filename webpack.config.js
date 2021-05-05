@@ -53,9 +53,4 @@ function config(entry, library, filename) {
   };
 }
 
-module.exports = [
-  config(...arg("AvailCore")),
-  config(...arg("AvailPhysics")),
-  config(...arg("AvailShapes")),
-  config(...arg("AvailSprite")),
-];
+module.exports = config("./exports/avail-js.ts", "AvailJS", "avail-js.js");
