@@ -154,6 +154,7 @@ class PolygonCollision implements System {
           }
 
           if (polygonPolygonCollision(firstVertices, againstVertices)) {
+            // TODO: Calculate contact points.
             const firstListeners = entityManager.getComponents(
               firstID, CollisionListener
             );
