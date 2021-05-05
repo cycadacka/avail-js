@@ -6,11 +6,6 @@ interface IEntityRelationship {
   children: string[];
 }
 
-interface IComponentRequire {
-  present: boolean;
-  beggars: Set<ComponentType>;
-}
-
 /**
  * Manages entities and their attached components.
  *
@@ -49,7 +44,10 @@ class EntityManager {
    * @memberof EntityManager
    */
   addComponents(entity: string, ...components: Component[]): void {
-    const requiredComponents = new Map<ComponentType, IComponentRequire>();
+    const requiredComponents = new Map<ComponentType, {
+      present: boolean;
+      beggars: Set<ComponentType>;
+    }>();
     const missingRequiredComponents = new Set<ComponentType>();
 
     while (components.length > 0) {
