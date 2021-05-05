@@ -26,7 +26,6 @@ interface PolygonCollisionEntity {
  *
  * @class PolygonCollision
  */
-System.implement();
 class PolygonCollision implements System {
   private context: CanvasRenderingContext2D; // <-- For debugging
   private entity2obb: Map<string, BoundingBox>;

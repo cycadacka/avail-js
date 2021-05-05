@@ -7,14 +7,6 @@ export interface SceneInfo {
   entityManager: EntityManager;
 }
 
-interface SystemStatic {
-  new(): System;
-  attributes: Readonly<{
-    main: Component;
-    secondary: Component[];
-  }>;
-} 
-
 /**
  * Represents the system-part of the entity-component-system.
  *
@@ -22,10 +14,6 @@ interface SystemStatic {
  * @class System
  */
 abstract class System {
-  public static implement() {
-    return <U extends SystemStatic>(constructor: U) => constructor;
-  }
-
   /**
    * Function called when a scene is started.
    *
