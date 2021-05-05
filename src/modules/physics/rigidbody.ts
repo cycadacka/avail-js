@@ -114,7 +114,6 @@ class Rigidbody extends CollisionListener {
     constrainZ=false,
   }: RigidbodyConfig) {
     super(() => {
-      // TODO:
     });
 
     this.bodyType = bodyType;

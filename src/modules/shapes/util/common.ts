@@ -13,8 +13,6 @@ function sort(vertices: Vertex[]): Vertex[] {
 function partition(vertices: Vertex[]): Vertex[][] {
   const polygons = [sort(vertices)];
 
-  // TODO: Partition to y-monotone
-
   return polygons;
 }
 
