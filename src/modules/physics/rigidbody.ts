@@ -1,5 +1,6 @@
 import Component from 'core/component';
 import Transform from '../transform';
+import CollisionListener from '../collision-listener';
 
 /**
  * Defines the behavior of a rigidbody.
@@ -81,9 +82,9 @@ interface RigidbodyConfig {
  * Represents the a polygon that can be affected by Physics
  *
  * @class Rigidbody
- * @extends {Component}
+ * @extends {CollisionListener}
  */
-class Rigidbody extends Component {
+class Rigidbody extends CollisionListener {
   public bodyType: BodyType;
   public mass: number;
   public linearDrag: number;
@@ -112,7 +113,9 @@ class Rigidbody extends Component {
     constrainY=false,
     constrainZ=false,
   }: RigidbodyConfig) {
-    super();
+    super(() => {
+      // TODO:
+    });
 
     this.bodyType = bodyType;
     this.mass = mass;
@@ -128,8 +131,8 @@ class Rigidbody extends Component {
 
   get attributes() {
     return {
-      single: false,
-      requires: [ Transform ],
+      single: true,
+      requires: [],
     };
   }
 }
