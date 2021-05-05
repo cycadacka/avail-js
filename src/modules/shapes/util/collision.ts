@@ -107,7 +107,7 @@ export function polygonPolygonCollision(
 /**
  * Retrieves the axis-aligned bounding box for an object-aligned bounding box.
  */
- export function aabb(obb: BoundingBox, transform: Transform): BoundingBox {
+ export function obb2aabb(obb: BoundingBox, transform: Transform): BoundingBox {
   // Construct a box from object-aligned bounding-box
   const box = [
     obb.min,

@@ -2,7 +2,7 @@ import PolygonCollider from './polygon-collider';
 import Polygon from './polygon';
 import { BoundingBox } from 'types';
 import {
-  aabb as aabbUtil,
+  obb2aabb,
   rectangleRectangleCollision,
   polygonPolygonCollision,
 } from './util/collision';
@@ -77,7 +77,7 @@ class PolygonCollision implements System {
     // Get axis-aligned bounding-box
     let aabb = entityAABBs.get(entity)!;
     if (!aabb) {
-      aabb = aabbUtil(obb, components.transform);
+      aabb = obb2aabb(obb, components.transform);
       entityAABBs.set(entity, aabb);
     }
 
