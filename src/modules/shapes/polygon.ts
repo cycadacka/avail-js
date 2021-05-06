@@ -2,7 +2,7 @@ import Component from 'core/component';
 import Transform from 'modules/transform';
 import Vector2D from 'math/vector2d';
 import { ArrayProxy, BoundingBox } from 'types';
-import { area } from './util/common';
+import { getPolygonArea } from './util/common';
 
 export interface Vertex extends Vector2D {
   x: number;
@@ -31,7 +31,7 @@ class Polygon extends Component {
    *
    * @memberof Polygon
    */
-  constructor(vertices: [number, number][], clockwise: boolean = (area(vertices) > 0)) {
+  constructor(vertices: [number, number][], clockwise: boolean = (getPolygonArea(vertices) > 0)) {
     super();
 
     if (vertices.length < 3) {

@@ -46,7 +46,7 @@ export function triangulate(vertices: Vertex[]): Vertex[][] {
 
 type sign = 0 | 1 | -1;
 
-export function area(vertices: [number, number][]): sign {
+export function getPolygonArea(vertices: [number, number][]): sign {
   let area = 0;
 
   let previous = vertices[vertices.length - 1];
