@@ -9,7 +9,7 @@ import {
 import Transform from 'modules/transform';
 import Vector2D from 'math/vector2d';
 import EntityManager from 'core/entity-manager';
-import System, { SceneInfo } from 'core/system';
+import System, { SceneInfo } from 'core/types';
 import CollisionListener from '../collision-listener';
 import { ContactPoint } from '../collision-listener';
 
@@ -83,7 +83,8 @@ class PolygonCollision implements System {
   /**
    * @memberof PolygonCollision
    */
-  fixedUpdate({ entityManager }: SceneInfo): void {
+  fixedUpdate(info: SceneInfo): void {
+    const { entityManager } = info;
     const entities = entityManager.getEntitiesWithComponent(PolygonCollider);
     const entityAABBs = new Map<string, BoundingBox>();
     const entityVertices = new Map<string, Vector2D[]>();
@@ -166,19 +167,19 @@ class PolygonCollision implements System {
             const length = Math.max(firstListeners.length, secondListeners.length);
             for (let i = 0; i < length; i++) {
               if (i < firstListeners.length) {
-                firstListeners[i].fire({
+                firstListeners[i].fire(Object.assign({
                   entity: firstID,
                   otherEntity: secondID,
                   contacts: contacts,
-                });
+                }, info));
               }
         
               if (i < secondListeners.length) {
-                secondListeners[i].fire({
+                secondListeners[i].fire(Object.assign({
                   entity: secondID,
                   otherEntity: firstID,
                   contacts: contacts,
-                });
+                }, info));
               }
             }
 

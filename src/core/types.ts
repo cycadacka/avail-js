@@ -1,4 +1,4 @@
-import EntityManager from './entity-manager';
+import EntityManager from 'core/entity-manager';
 
 export interface SceneInfo {
   time: {
@@ -15,7 +15,7 @@ export interface SceneInfo {
  *
  * @interface System
  */
-interface System {
+export default interface System {
   /**
    * Function called when a scene is started.
    *
@@ -37,5 +37,3 @@ interface System {
    */
   fixedUpdate?(info: SceneInfo): void;
 }
-
-export default System;

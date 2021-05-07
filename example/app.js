@@ -17,10 +17,14 @@ loadScript("../dist/avail-js.js")
   .then(() => {
     class Velocity extends AvailJS.modules.CollisionListener {
       constructor(x, y) {
-        super(() => {
-          this.x = -x;
-          this.y = -y;
+        super((info) => {
+          if (info.time.time != this.lastTime) {
+            this.lastTime = info.time.time;
+            this.x = -this.x * 1.15;
+            this.y = -this.y * 1.15;
+          }
         });
+        this.lastTime = 0;
         this.x = x;
         this.y = y;
       }
@@ -66,7 +70,7 @@ loadScript("../dist/avail-js.js")
       }
 
       const box = createBox(150, 150, 50, 50, "box");
-      scene.entityManager.addComponent(box, new Velocity(500, 500));
+      scene.entityManager.addComponent(box, new Velocity(25, 25));
 
       createBox(0, canvas.height / 2, 25, canvas.height);
       createBox(canvas.width, canvas.height / 2, 25, canvas.height);

@@ -1,7 +1,7 @@
 import Transform from 'modules/transform';
 import PolygonMaterial from './polygon-material';
 import Polygon from './polygon';
-import System, { SceneInfo } from 'core/system';
+import System, { SceneInfo } from 'core/types';
 
 /**
  * Handles rendering of `Polygon2dMaterial` unto a canvas element.

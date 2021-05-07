@@ -1,6 +1,5 @@
 import Scene from 'core/scene';
 import Component from 'core/component';
-import System from 'core/system';
 
 import image from 'loader/loadImage';
 
@@ -54,4 +53,4 @@ const modules = {
   },
 };
 
-export { Scene, Component, System, loader, math, modules };
+export { Scene, Component, loader, math, modules };

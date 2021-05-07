@@ -1,5 +1,5 @@
 import EntityManager from './entity-manager';
-import System from './system';
+import System from './types';
 
 /**
  * Represents the entities.
@@ -94,7 +94,7 @@ class Scene {
       }
     }
 
-    while (this._time.fixedTime < this._time.time) {
+    while (this._time.fixedTime < timeSeconds) {
       this._time.fixedTime += this._time.fixedDeltaTime;
 
       for (const system of this.systems.fixedUpdate) {

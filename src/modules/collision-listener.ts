@@ -1,12 +1,13 @@
 import Component from '../core/component';
 import Vector2D from 'math/vector2d';
+import { SceneInfo } from '../core/types';
 
 export interface ContactPoint {
   point: Vector2D;
   normal: Vector2D;
 }
 
-export interface CollisionInfo {
+export interface CollisionInfo extends SceneInfo {
   entity: string;
   otherEntity: string;
   readonly contacts: ContactPoint[];

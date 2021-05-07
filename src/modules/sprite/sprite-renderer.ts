@@ -1,6 +1,6 @@
 import Transform from 'modules/transform';
 import Sprite from './sprite';
-import System, { SceneInfo } from 'core/system';
+import System, { SceneInfo } from 'core/types';
 
 /**
  * Handles rendering of `Sprite` unto a canvas element.
