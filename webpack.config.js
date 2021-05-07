@@ -1,4 +1,5 @@
 const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 function arg(library) {
@@ -49,6 +50,10 @@ function config(entry, library, filename) {
     resolve: {
       plugins: [new TsconfigPathsPlugin()],
       extensions: [".tsx", ".ts", ".js"],
+    },
+    optimization: {
+      minimize: true,
+      minimizer: [new TerserPlugin()],
     },
   };
 }
