@@ -5,7 +5,7 @@ export type ComponentType = ClassConstructor<Component>;
 
 interface IComponentAttributes {
   readonly allowMultiple: boolean;
-  readonly requiredComponents: ComponentType[];
+  readonly requiredComponents?: ComponentType[];
 }
 
 /**

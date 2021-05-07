@@ -98,7 +98,6 @@ class PolygonMaterial extends Component {
   getAttributes() {
     return {
       allowMultiple: false,
-      requiredComponents: [],
     };
   }
 }

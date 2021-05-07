@@ -29,7 +29,6 @@ class PolygonCollider extends Component {
   getAttributes() {
     return {
       allowMultiple: true,
-      requiredComponents: [],
     }
   }
 }

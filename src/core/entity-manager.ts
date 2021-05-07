@@ -77,11 +77,13 @@ class EntityManager {
           }
 
           // Keep track of required components from the target/parent.
-          for (let i = 0; i < typeAttributes.requiredComponents.length; i++) {
-            const requiredType = <ComponentType>typeAttributes.requiredComponents[i];
+          if (typeAttributes.requiredComponents != undefined) {
+            for (let i = 0; i < typeAttributes.requiredComponents.length; i++) {
+              const requiredType = <ComponentType>typeAttributes.requiredComponents[i];
 
-            if (!addedComponents.has(requiredType)) {
-              missingComponents.add(requiredType);
+              if (!addedComponents.has(requiredType)) {
+                missingComponents.add(requiredType);
+              }
             }
           }
         }
