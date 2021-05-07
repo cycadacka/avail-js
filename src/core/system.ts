@@ -1,8 +1,12 @@
 import EntityManager from './entity-manager';
-import { Time } from './time';
 
 export interface SceneInfo {
-  time: Time;
+  time: {
+    readonly fixedDeltaTime: number,
+    readonly fixedTime: number;
+    readonly deltaTime: number,
+    readonly time: number,
+  };
   entityManager: EntityManager;
 }
 

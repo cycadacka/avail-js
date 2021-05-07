@@ -1,6 +1,5 @@
 import EntityManager from './entity-manager';
 import System from './system';
-import { TimeImplementation } from './time';
 
 /**
  * Represents the entities.
@@ -16,10 +15,15 @@ class Scene {
   };
 
   protected framing = {
-    update: 0,
+    targetDeltaTime: 0,
   };
 
-  private _time: TimeImplementation;
+  private _time = {
+    fixedDeltaTime: 0,
+    fixedTime: 0,
+    deltaTime: 0,
+    time: 0,
+  };
   private _entityManager: EntityManager;
 
   /**
@@ -27,7 +31,7 @@ class Scene {
    *
    * @memberof Scene
    */
-  constructor(systems: System[] = [], fixedDeltaTime: number = 0.02, targetFrameRate: number = 60) {
+  constructor(systems: System[] = [], fixedDeltaTime: number = (1 / 50), targetFrameRate: number = 60) {
     for (let i = 0; i < systems.length; i++) {
       const system = systems[i];
       if (system.start) {
@@ -42,9 +46,9 @@ class Scene {
         this.systems.update.push(system);
       }
     }
-    this.framing.update = 1 / targetFrameRate;
+    this.framing.targetDeltaTime = 1 / targetFrameRate;
 
-    this._time = new TimeImplementation(fixedDeltaTime);
+    this._time.fixedDeltaTime = fixedDeltaTime;
     this._entityManager = new EntityManager();
   }
 
@@ -65,9 +69,9 @@ class Scene {
       });
     }
 
-    this._time._time = performance.now() * 1000;
-    this._time._fixedTime = Math.floor(this._time._time / this._time.fixedDeltaTime);
-    requestAnimationFrame(this.update.bind(this, performance.now()));
+    this._time.time = performance.now() / 1000;
+    this._time.fixedTime = this._time.time;
+    this.update(this._time.time * 1000);
   }
 
   /**
@@ -76,29 +80,29 @@ class Scene {
    * @memberof Scene
    */
   private update(time: DOMHighResTimeStamp):void {
-    const timeSeconds = time * 1000;
+    const timeSeconds = time / 1000;
+    this._time.deltaTime = timeSeconds - this._time.time;
 
-    while (this._time._fixedTime < timeSeconds) {
-      for (const system of this.systems.fixedUpdate) {
-        system.fixedUpdate!({
-          time: this._time,
-          entityManager: this._entityManager,
-        });
-      }
+    if (this._time.deltaTime > this.framing.targetDeltaTime) {
+      this._time.time = timeSeconds - (this._time.deltaTime % this.framing.targetDeltaTime);
 
-      this._time._fixedTime += this._time.fixedDeltaTime;
-    }
-
-    const deltaTime = timeSeconds - this._time._time;
-    if (deltaTime > this.framing.update) {
       for (const system of this.systems.update) {
         system.update!({
           time: this._time,
           entityManager: this._entityManager,
         });
       }
+    }
 
-      this._time._time = timeSeconds - (deltaTime % this.framing.update);
+    while (this._time.fixedTime < this._time.time) {
+      this._time.fixedTime += this._time.fixedDeltaTime;
+
+      for (const system of this.systems.fixedUpdate) {
+        system.fixedUpdate!({
+          time: this._time,
+          entityManager: this._entityManager,
+        });
+      }
     }
 
     requestAnimationFrame(this.update.bind(this));
