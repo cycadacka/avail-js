@@ -15,27 +15,68 @@ function loadScript(src) {
 
 loadScript("../dist/avail-js.js")
   .then(() => {
-    const scene = (function () {
+    class Velocity extends AvailJS.modules.CollisionListener {
+      constructor(x, y) {
+        super(() => {
+          this.x = -x;
+          this.y = -y;
+        });
+        this.x = x;
+        this.y = y;
+      }
+    }
+
+    window.scene = (function () {
       const canvas = document.getElementsByTagName("canvas")[0];
+      const scene = new AvailJS.Scene(
+        [
+          new AvailJS.modules.shapes.PolygonRenderer(canvas),
+          new AvailJS.modules.shapes.PolygonCollision(),
+          {
+            fixedUpdate({ entityManager, time }) {
+              const transform = entityManager.getComponent(
+                entityManager.getEntityWithTag("box"),
+                AvailJS.modules.Transform,
+              );
 
-      const scene = new AvailJS.Scene([
-        new AvailJS.modules.shapes.PolygonRenderer(canvas),
-        new AvailJS.modules.shapes.PolygonCollision(),
-      ]);
+              const velocity = entityManager.getComponent(
+                entityManager.getEntityWithTag("box"),
+                Velocity,
+              );
 
-      scene.entityManager.createEntity("", [
-        new AvailJS.modules.Transform([0, 0]),
-        new AvailJS.modules.shapes.Rect(50, 50),
-        new AvailJS.modules.shapes.PolygonMaterial({
-          fillStyle: "red",
-          strokeStyle: "blue",
-        }),
-      ]);
+              transform.position.x += velocity.x * time.deltaTime;
+              transform.position.y += velocity.y * time.deltaTime;
+            },
+          },
+        ],
+        1 / 50,
+        60,
+      );
+
+      function createBox(x, y, width, height, tag = "") {
+        return scene.entityManager.createEntity(tag, [
+          new AvailJS.modules.Transform([x, y]),
+          new AvailJS.modules.shapes.Rect(width, height),
+          new AvailJS.modules.shapes.PolygonCollider(0, 0),
+          new AvailJS.modules.shapes.PolygonMaterial({
+            fillStyle: "red",
+            strokeStyle: "blue",
+          }),
+        ]);
+      }
+
+      const box = createBox(150, 150, 50, 50, "box");
+      scene.entityManager.addComponent(box, new Velocity(500, 500));
+
+      createBox(0, canvas.height / 2, 25, canvas.height);
+      createBox(canvas.width, canvas.height / 2, 25, canvas.height);
+      createBox(canvas.width / 2, 0, canvas.width, 25);
+      createBox(canvas.width / 2, canvas.height, canvas.width, 25);
 
       return scene;
     })();
 
-    window.scene = scene;
+    scene.start();
   })
   .catch((reason) => {
     throw reason;
