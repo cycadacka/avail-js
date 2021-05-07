@@ -95,10 +95,10 @@ class PolygonMaterial extends Component {
     }
   }
 
-  get attributes() {
+  getAttributes() {
     return {
-      single: true,
-      requires: [],
+      allowMultiple: false,
+      requiredComponents: [],
     };
   }
 }

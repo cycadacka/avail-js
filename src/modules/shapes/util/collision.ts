@@ -1,4 +1,5 @@
-import { PointLike, BoundingBox } from 'types';
+import { PointLike } from 'types';
+import { BoundingBox } from '../types';
 import Vector2D from 'math/vector2d';
 import Transform from 'modules/transform';
 

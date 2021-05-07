@@ -26,13 +26,10 @@ class PolygonCollider extends Component {
     this.bounciness = bounciness;
   }
 
-  get attributes() {
+  getAttributes() {
     return {
-      single: true,
-      requires: [
-        Transform,
-        Polygon,
-      ],
+      allowMultiple: true,
+      requiredComponents: [],
     }
   }
 }

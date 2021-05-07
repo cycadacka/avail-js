@@ -44,82 +44,65 @@ class EntityManager {
    * @memberof EntityManager
    */
   addComponents(entity: string, ...components: Component[]): void {
-    const requiredComponents = new Map<ComponentType, {
-      present: boolean;
-      beggars: Set<ComponentType>;
-    }>();
-    const missingRequiredComponents = new Set<ComponentType>();
+    const addedComponents = new Set<ComponentType>();
+    const missingComponents = new Set<ComponentType>();
 
     while (components.length > 0) {
-      const componentInstance = components.shift() as Component;
-      let componentType = componentInstance.constructor as ComponentType;
-      componentInstance.onAttach(this, entity);
+      const component = <Component>components.shift();
+      component.onAttach(this, entity);
 
+      let componentType = component.constructor as ComponentType;
       while (componentType.name.length > 0 && <Function>componentType !== Component) {
-        // Associate component/component-parent with [child] instance.
-        let storage = this.componentStorage.get(componentType as ComponentType);
+        if (!addedComponents.has(componentType)) {
+          addedComponents.add(componentType);
+          missingComponents.delete(componentType);
 
-        if (!storage) {
-          storage = new Map();
-          this.componentStorage.set(componentType, storage);
-        }
+          // Associate component/component-parent with [child] instance.
+          const typeAttributes = (<Component>componentType.prototype).getAttributes();
+          let storage = this.componentStorage.get(componentType as ComponentType);
 
-        if (storage.has(entity)) {
-          if (componentInstance!.attributes.single) {
-            throw new Error(
-              `Component '${componentType.name}' can only have one instance` +
-              ' attached per entity.',
-            );
+          if (!storage) {
+            storage = new Map();
+            this.componentStorage.set(componentType, storage);
           }
 
-          
-          storage.get(entity)!.push(componentInstance);
-        } else {
-          storage.set(entity, [componentInstance]);
-        }
-
-        // Keep track of required components from the target/parent.
-        let require;
-        for (let requiredType of componentInstance.attributes.requires) {
-          requiredType = requiredType as ComponentType;
-          require = requiredComponents.get(requiredType);
-          if (require != undefined) {
-            if (!require.present) {
-              require.beggars.add(componentType);
+          if (storage.has(entity)) {
+            if (!typeAttributes.allowMultiple) {
+              throw new Error(`(${entity}) Component '${componentType.name}' can only have one instance attached per entity.`);
             }
+            
+            storage.get(entity)!.push(component);
           } else {
-            missingRequiredComponents.add(requiredType);
-            requiredComponents.set(
-              requiredType,
-              { present: false, beggars: new Set([componentType]) },
-            );
+            storage.set(entity, [component]);
           }
-        }
 
-        if (requiredComponents.has(componentType)) {
-          missingRequiredComponents.delete(componentType);
-          requiredComponents.get(componentType)!.present = true;
-        } else {
-          requiredComponents.set(
-            componentType,
-            {present: true, beggars: new Set()},
-          );
+          // Keep track of required components from the target/parent.
+          for (let i = 0; i < typeAttributes.requiredComponents.length; i++) {
+            const requiredType = <ComponentType>typeAttributes.requiredComponents[i];
+
+            if (!addedComponents.has(requiredType)) {
+              missingComponents.add(requiredType);
+            }
+          }
         }
 
         // Set focus to component-parent.
-        componentType = Reflect.getPrototypeOf(componentType) as ComponentType;
+        componentType = <ComponentType>Reflect.getPrototypeOf(componentType);
       }
     }
 
-    for (const missingComponentType of missingRequiredComponents) {
-      const beggars = Array.from(
-        requiredComponents.get(missingComponentType)!.beggars,
-      );
+    if (missingComponents.size > 0) {
+      let strMissingComponents = '';
+      for (const value of missingComponents) {
+        if (strMissingComponents.length > 0) {
+          strMissingComponents += ', ';
+        }
+
+        strMissingComponents += `"${value.name}"`
+      }
 
       throw new Error(
-        `Component ${beggars.length > 1 ? 's' : ''}` +
-        beggars.map((value) => '"' + value.name + '"').join(', ') +
-        ` requires "${missingComponentType.name}"`,
+        `(${entity}) Some components are missing from the entity: ${strMissingComponents}.`,
       );
     }
   }
@@ -161,7 +144,7 @@ class EntityManager {
    * @return Identifier representing an entity.
    * @memberof EntityManager
    */
-  createEntity(tag: string = '') {
+  createEntity(tag: string = '', components: Component[] = []) {
     // @ts-expect-error
     const entity = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c) =>
       (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4)
@@ -177,6 +160,8 @@ class EntityManager {
         this.tag2entity.set(tag, [entity]);
       }
     }
+
+    this.addComponents(entity, ...components);
 
     return entity;
   }

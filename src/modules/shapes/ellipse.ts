@@ -1,6 +1,6 @@
 import Vector2D from 'math/vector2d';
 import Polygon from './polygon';
-import { BoundingBox } from 'types';
+import { BoundingBox } from './types';
 
 /**
  * Converts an ellipse to a polygon.
@@ -46,11 +46,11 @@ class Ellipse extends Polygon {
    * @override
    * @memberof Ellipse
    */
-  get obb(): BoundingBox {
+  getOBB(): BoundingBox {
     return this.vertices.length > 36 ? {
       min: new Vector2D(-this._radius.x, -this._radius.y),
       max: new Vector2D(this._radius.x, this._radius.y),
-    } : super.obb;
+    } : Polygon.prototype.getOBB.call(this);
   }
 
   /**

@@ -1,6 +1,6 @@
 import PolygonCollider from './polygon-collider';
 import Polygon from './polygon';
-import { BoundingBox } from 'types';
+import { BoundingBox } from './types';
 import {
   obb2aabb,
   rectangleRectangleCollision,
@@ -66,7 +66,7 @@ class PolygonCollision implements System {
     // Get object-aligned bounding-box
     let obb = this.entity2obb.get(entity);
     if (!obb) {
-      obb = components.polygon.obb;
+      obb = components.polygon.getOBB();
       this.entity2obb.set(entity, obb);
     }
 

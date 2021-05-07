@@ -4,8 +4,8 @@ import { ClassConstructor } from 'types';
 export type ComponentType = ClassConstructor<Component>;
 
 interface IComponentAttributes {
-  readonly single: boolean;
-  readonly requires: ComponentType[];
+  readonly allowMultiple: boolean;
+  readonly requiredComponents: ComponentType[];
 }
 
 /**
@@ -14,7 +14,12 @@ interface IComponentAttributes {
  * @class Component
  */
 export default abstract class Component {
-  abstract readonly attributes: IComponentAttributes;
+  getAttributes(): IComponentAttributes {
+    return {
+      allowMultiple: true,
+      requiredComponents: [],
+    };
+  }
 
   onAttach(entityManager: EntityManager, entity: string): void { }
 

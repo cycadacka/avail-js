@@ -1,4 +1,3 @@
-import Vector2D from './math/vector2d';
 
 export type PointLike = {
   x: number;
@@ -13,7 +12,3 @@ export interface ArrayProxy<T> {
   readonly length: number;
 }
 
-export interface BoundingBox {
-  max: Vector2D;
-  min: Vector2D;
-}

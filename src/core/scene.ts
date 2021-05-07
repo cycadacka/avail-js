@@ -9,7 +9,12 @@ import { TimeImplementation } from './time';
  * @class Scene
  */
 class Scene {
-  protected systems: System[];
+  protected systems = {
+    start: <System[]>[],
+    fixedUpdate: <System[]>[],
+    update: <System[]>[],
+  };
+
   protected framing = {
     update: 0,
   };
@@ -23,7 +28,20 @@ class Scene {
    * @memberof Scene
    */
   constructor(systems: System[] = [], fixedDeltaTime: number = 0.02, targetFrameRate: number = 60) {
-    this.systems = systems;
+    for (let i = 0; i < systems.length; i++) {
+      const system = systems[i];
+      if (system.start) {
+        this.systems.start.push(system);
+      }
+
+      if (system.fixedUpdate) {
+        this.systems.fixedUpdate.push(system);
+      }
+
+      if (system.update) {
+        this.systems.update.push(system);
+      }
+    }
     this.framing.update = 1 / targetFrameRate;
 
     this._time = new TimeImplementation(fixedDeltaTime);
@@ -40,14 +58,15 @@ class Scene {
    * @memberof Scene
    */
   start() {
-    for (const system of this.systems) {
-      system.start?.({
+    for (const system of this.systems.start) {
+      system.start!({
         time: this._time,
         entityManager: this._entityManager,
       });
     }
 
     this._time._time = performance.now() * 1000;
+    this._time._fixedTime = Math.floor(this._time._time / this._time.fixedDeltaTime);
     requestAnimationFrame(this.update.bind(this, performance.now()));
   }
 
@@ -60,8 +79,8 @@ class Scene {
     const timeSeconds = time * 1000;
 
     while (this._time._fixedTime < timeSeconds) {
-      for (const system of this.systems) {
-        system.fixedUpdate?.({
+      for (const system of this.systems.fixedUpdate) {
+        system.fixedUpdate!({
           time: this._time,
           entityManager: this._entityManager,
         });
@@ -72,8 +91,8 @@ class Scene {
 
     const deltaTime = timeSeconds - this._time._time;
     if (deltaTime > this.framing.update) {
-      for (const system of this.systems) {
-        system.update?.({
+      for (const system of this.systems.update) {
+        system.update!({
           time: this._time,
           entityManager: this._entityManager,
         });

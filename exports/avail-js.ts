@@ -1,41 +1,41 @@
-import Scene from '../src/core/scene';
-import Component from '../src/core/component';
-import System from '../src/core/system';
+import Scene from 'core/scene';
+import Component from 'core/component';
+import System from 'core/system';
 
-import image from '../src/loader/loadImage';
+import image from 'loader/loadImage';
 
 const loader = {
   image,
 };
 
-import * as mathf from '../src/math/math';
-import Vector2D from '../src/math/vector2d';
-import Matrix3x3 from '../src/math/matrix3x3';
+import * as mathf from 'math/math';
+import Vector2D from 'math/vector2d';
+import Matrix3x3 from 'math/matrix3x3';
 
 const math = Object.assign(mathf, {
   Vector2D,
   Matrix3x3,
 });
 
-import Transform from '../src/modules/transform';
+import Transform from 'modules/transform';
 // Physics //
-import Rigidbody from '../src/modules/physics/rigidbody';
+import Rigidbody from 'modules/physics/rigidbody';
 // Shapes //
-import Ellipse from '../src/modules/shapes/ellipse';
-import Rect from '../src/modules/shapes/polygon';
-import Polygon from '../src/modules/shapes/rect';
-import PolygonMaterial from '../src/modules/shapes/polygon-material';
-import PolygonRenderer from '../src/modules/shapes/polygon-renderer';
-import PolygonCollider from '../src/modules/shapes/polygon-collider';
-import PolygonCollisionManager from '../src/modules/shapes/polygon-collision';
+import Ellipse from 'modules/shapes/ellipse';
+import Polygon from 'modules/shapes/polygon';
+import Rect from 'modules/shapes/rect';
+import PolygonMaterial from 'modules/shapes/polygon-material';
+import PolygonRenderer from 'modules/shapes/polygon-renderer';
+import PolygonCollider from 'modules/shapes/polygon-collider';
+import PolygonCollision from 'modules/shapes/polygon-collision';
 // Sprite //
-import Sprite from '../src/modules/sprite/sprite'
-import SpriteRenderer from '../src/modules/sprite/sprite-renderer';
+import Sprite from 'modules/sprite/sprite';
+import SpriteRenderer from 'modules/sprite/sprite-renderer';
 
 const modules = {
   Transform,
   physics: {
-    Rigidbody
+    Rigidbody,
   },
   shapes: {
     Ellipse,
@@ -44,7 +44,7 @@ const modules = {
     PolygonMaterial,
     PolygonRenderer,
     PolygonCollider,
-    PolygonCollisionManager,
+    PolygonCollision,
   },
   sprite: {
     Sprite,
@@ -52,11 +52,4 @@ const modules = {
   },
 };
 
-export {
-  Scene,
-  Component,
-  System,
-  loader,
-  math,
-  modules,
-};
+export { Scene, Component, System, loader, math, modules };

@@ -1,7 +1,8 @@
 import Component from 'core/component';
 import Transform from 'modules/transform';
 import Vector2D from 'math/vector2d';
-import { ArrayProxy, BoundingBox } from 'types';
+import { ArrayProxy } from 'types';
+import { BoundingBox } from './types';
 import { getPolygonArea } from './util/common';
 
 export interface Vertex extends Vector2D {
@@ -61,15 +62,6 @@ class Polygon extends Component {
     this.clockwise = clockwise;
   }
 
-  get attributes() {
-    return {
-      single: true,
-      requires: [
-        Transform,
-      ],
-    }
-  }
-
   /**
    * Retrieves a proxy for the edges.
    *
@@ -105,7 +97,7 @@ class Polygon extends Component {
    *
    * @memberof Polygon
    */
-  get obb(): BoundingBox {
+  getOBB(): BoundingBox {
     const min = new Vector2D(Infinity, Infinity);
     const max = new Vector2D(Infinity, Infinity).negative();
 
@@ -130,6 +122,13 @@ class Polygon extends Component {
     }
 
     return {min, max};
+  }
+
+  getAttributes() {
+    return {
+      allowMultiple: false,
+      requiredComponents: [Transform],
+    };
   }
 }
 
