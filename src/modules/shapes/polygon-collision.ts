@@ -107,8 +107,8 @@ class PolygonCollision implements System {
         // Check if the second is itself or collision between has already happened.
         if (
           firstID === secondID ||
-          entityCollisions.has(firstID + secondID) ||
-          entityCollisions.has(secondID + firstID)
+          entityCollisions.has(firstID + " | " + secondID) ||
+          entityCollisions.has(secondID + " | " + firstID)
         ) {
           continue;
         }
@@ -182,7 +182,7 @@ class PolygonCollision implements System {
               }
             }
 
-            entityCollisions.set(firstID + secondID, [ first, second ]);
+            entityCollisions.set(firstID + " | " + secondID, [ first, second ]);
           }
         }
         
