@@ -31,9 +31,11 @@ import PolygonCollision from 'modules/shapes/polygon-collision';
 // Sprite //
 import Sprite from 'modules/sprite/sprite';
 import SpriteRenderer from 'modules/sprite/sprite-renderer';
+import CollisionListener from '../src/modules/collision-listener';
 
 const modules = {
   Transform,
+  CollisionListener,
   physics: {
     Rigidbody,
   },
