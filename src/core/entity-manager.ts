@@ -211,9 +211,9 @@ class EntityManager {
    * @return Entities associated with a component.
    * @memberof EntityManager
    */
-  getEntitiesWithComponent(componentType: ComponentType): IterableIterator<string> {
-    return this.componentStorage.get(componentType)?.keys() || (function* () {
-    })();
+  getEntitiesWithComponent(componentType: ComponentType): string[] {
+    const keys = this.componentStorage.get(componentType)?.keys();
+    return keys != null ? [...keys] : [];
   }
 
   /**
