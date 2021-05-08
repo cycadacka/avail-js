@@ -2,7 +2,6 @@ import Vector2D from 'math/vector2d';
 import Matrix3x3 from 'math/matrix3x3';
 import Component, { ComponentType } from 'core/component';
 import EntityManager from 'core/entity-manager';
-import Dirty from './dirty';
 
 /**
  * Position, rotation and scale of an entity.

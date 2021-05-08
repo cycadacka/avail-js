@@ -2,7 +2,7 @@ import Component from 'core/component';
 import Transform from 'common/transform';
 
 /**
- * Defines the behavior of a rigidbody.
+ * Defines the behavior of a RigidBody.
  * 
  * @enum {number}
  */
@@ -51,20 +51,20 @@ export enum CollisionDetection {
  */
 export enum SleepMode {
   /**
-   * Rigidbody is initially asleep but can be awoken by other collisions.
+   * RigidBody is initially asleep but can be awoken by other collisions.
    */
   Sleep,
   /**
-   * Rigidbody is initially awake (default).
+   * RigidBody is initially awake (default).
    */
   Awake,
   /**
-   * Rigidbody never sleeps.
+   * RigidBody never sleeps.
    */
   Insomniac,
 }
 
-interface RigidbodyConfig {
+interface RigidBodyConfig {
   bodyType: BodyType,
   mass: number,
   linearDrag: number,
@@ -80,10 +80,10 @@ interface RigidbodyConfig {
 /**
  * Represents the a polygon that can be affected by Physics
  *
- * @class Rigidbody
+ * @class RigidBody
  * @extends {CollisionListener}
  */
-class Rigidbody extends Component {
+class RigidBody extends Component {
   public bodyType: BodyType;
   public mass: number;
   public linearDrag: number;
@@ -96,9 +96,9 @@ class Rigidbody extends Component {
   public constrainZ: boolean;
 
   /**
-   * Creates an instance of Rigidbody.
+   * Creates an instance of RigidBody.
    *
-   * @memberof Rigidbody
+   * @memberof RigidBody
    */
   constructor({
     bodyType=BodyType.Dynamic,
@@ -111,7 +111,7 @@ class Rigidbody extends Component {
     constrainX=false,
     constrainY=false,
     constrainZ=false,
-  }: RigidbodyConfig) {
+  }: RigidBodyConfig) {
     super();
 
     this.bodyType = bodyType;
@@ -133,4 +133,4 @@ class Rigidbody extends Component {
   }
 }
 
-export default Rigidbody;
+export default RigidBody;

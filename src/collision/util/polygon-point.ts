@@ -3,7 +3,7 @@ import Vector2D from 'math/vector2d';
 export default function polygonPoint(
   point: Vector2D, vertices: Vector2D[]
   ): boolean {
-  let collision = false;
+  let collided = false;
 
   for (let ci = 0; ci < vertices.length; ci++) {
     let ni = ci + 1;
@@ -18,9 +18,9 @@ export default function polygonPoint(
       (cv.y >= point.y && nv.y < point.y) ||
       (cv.y < point.y && nv.y >= point.y)) &&
       (point.x < (nv.x - cv.x) * (point.y - cv.y) / (nv.y - cv.y) + cv.x)) {
-      collision = !collision;
+      collided = !collided;
     }
   }
 
-  return collision;
+  return collided;
 }

@@ -5,7 +5,7 @@ import Vector2D from 'math/vector2d';
 /**
  * Retrieves the axis-aligned bounding box for an object-aligned bounding box.
  */
- export function toAABB(obb: BoundingBox, transform: Transform): BoundingBox {
+export function toAABB(obb: BoundingBox, transform: Transform): BoundingBox {
   // Construct a box from object-aligned bounding-box
   const box = [
     obb.min,

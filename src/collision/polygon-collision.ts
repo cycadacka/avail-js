@@ -107,15 +107,19 @@ class PolygonCollision implements System {
             entityVertices.set(secondID, againstVertices);
           }
 
-          if (polygonPolygon(firstVertices, againstVertices)) {
+          const collisionInfo = polygonPolygon(firstVertices, againstVertices);
+          if (collisionInfo.contacts.length > 0) {
             let firstStore = this.entityCollisions.get(firstID);
             if (firstStore == undefined) {
               firstStore = this.entityCollisions.set(firstID, new Map()).get(firstID)!;
             }
+            firstStore.set(secondID, collisionInfo);
 
-            firstStore.set(secondID, {
-              contacts: [],
-            });
+            let secondStore = this.entityCollisions.get(secondID);
+            if (secondStore == undefined) {
+              secondStore = this.entityCollisions.set(secondID, new Map()).get(secondID)!;
+            }
+            secondStore.set(firstID, collisionInfo);
           }
         }
       }

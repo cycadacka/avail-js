@@ -18,13 +18,13 @@ const math = Object.assign(mathf, {
 
 // Common //
 import Transform from "common/transform";
-import Dirty from 'common/dirty';
+import Dirtyable from 'common/dirtyable';
 
 // Physics //
-import Rigidbody from "physics/rigidbody";
+import RigidBody from "physics/rigid-body";
 
 const physics = {
-  Rigidbody,
+  RigidBody,
 };
 
 // Shapes //
@@ -66,7 +66,7 @@ export {
   loader,
   math,
   Transform,
-  Dirty,
+  Dirtyable,
   physics,
   shapes,
   collision,

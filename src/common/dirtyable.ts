@@ -1,6 +1,6 @@
 import { Constructor } from "./types";
 
-export default function Dirty<T extends Constructor<{}>>(
+export default function Dirtyable<T extends Constructor<{}>>(
   Base: T,
   ...propertyNames: string[]
 ) {
