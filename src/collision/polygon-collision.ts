@@ -38,10 +38,10 @@ class PolygonCollision implements System {
   /**
    * @memberof PolygonCollision
    */
-  fixedUpdate(info: SceneInfo): void {
+  fixedUpdate({ entityManager }: SceneInfo): void {
+    this.entityOBBs = new Map();
     this.entityCollisions = new Map();
 
-    const { entityManager } = info;
     const entities = entityManager.getEntitiesWithComponent(PolygonCollider);
     const entityAABBs = new Map<string, BoundingBox>();
     const entityVertices = new Map<string, Vector2D[]>();
