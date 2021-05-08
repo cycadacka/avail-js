@@ -1,6 +1,6 @@
 
 import { Vertex } from '../polygon';
-import ySortVertices from './y-sort-vertex-';
+import ySortVertices from './y-sort-vertex';
 
 /**
  * Partitions a non-monotone polygon into a bunch of y-monotone polygons.
