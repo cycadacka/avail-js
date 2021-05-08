@@ -1,6 +1,4 @@
 import Component from 'core/component';
-import Polygon from './polygon';
-import Transform from 'modules/transform';
 
 interface MaterialConfig {
   lineWidth?: number;

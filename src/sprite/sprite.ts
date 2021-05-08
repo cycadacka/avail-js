@@ -1,6 +1,6 @@
 import Component from 'core/component';
 import Vector2D from 'math/vector2d';
-import Transform2D from '../transform';
+import Transform2D from 'common/transform';
 
 /**
  * Texture of an entity with pivot.

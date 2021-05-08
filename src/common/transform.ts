@@ -2,6 +2,7 @@ import Vector2D from 'math/vector2d';
 import Matrix3x3 from 'math/matrix3x3';
 import Component, { ComponentType } from 'core/component';
 import EntityManager from 'core/entity-manager';
+import Dirty from './dirty';
 
 /**
  * Position, rotation and scale of an entity.
@@ -49,19 +50,17 @@ class Transform extends Component {
     const parent = this.parent;
     return new Proxy(this.localPosition, {
       get(target, p: 'x' | 'y') {
-
-        return parent?.localToWorldMatrix.multiplyVector2(target)[p] ||
-        target.clone()[p];
+        return (parent?.localToWorldMatrix.multiplyVector2(target) ?? target)[p];
       },
       set(target, p, value) {
         switch (p) {
         case 'x':
           target.x = parent?.localToWorldMatrix
-            .multiplyVector2(new Vector2D(value, 0)).x || value;
+            .multiplyVector2(new Vector2D(value, 0)).x ?? value;
           break;
         case 'y':
           target.y = parent?.localToWorldMatrix
-            .multiplyVector2(new Vector2D(0, value)).y || value;
+            .multiplyVector2(new Vector2D(0, value)).y ?? value;
           break;
         }
 
@@ -76,10 +75,10 @@ class Transform extends Component {
    * @memberof Transform
    */
   set position(value: Vector2D) {
-    const local = this.worldToLocalMatrix.multiplyVector2(value);
+    const localValue = this.parent ? this.worldToLocalMatrix.multiplyVector2(value) : value;
 
-    this.localPosition.x = local.x;
-    this.localPosition.y = local.y;
+    this.localPosition.x = localValue.x;
+    this.localPosition.y = localValue.y;
   }
 
   /**

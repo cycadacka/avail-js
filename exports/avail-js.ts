@@ -1,56 +1,74 @@
-import Scene from 'core/scene';
-import Component from 'core/component';
+import Scene from "core/scene";
+import Component from "core/component";
 
-import image from 'loader/loadImage';
+import image from "loader/load-image";
 
 const loader = {
   image,
 };
 
-import * as mathf from 'math/math';
-import Vector2D from 'math/vector2d';
-import Matrix3x3 from 'math/matrix3x3';
+import * as mathf from "math/math";
+import Vector2D from "math/vector2d";
+import Matrix3x3 from "math/matrix3x3";
 
 const math = Object.assign(mathf, {
   Vector2D,
   Matrix3x3,
 });
 
-import Transform from 'modules/transform';
-// Physics //
-import Rigidbody from 'modules/physics/rigidbody';
-// Shapes //
-import Ellipse from 'modules/shapes/ellipse';
-import Polygon from 'modules/shapes/polygon';
-import Rect from 'modules/shapes/rect';
-import PolygonMaterial from 'modules/shapes/polygon-material';
-import PolygonRenderer from 'modules/shapes/polygon-renderer';
-import PolygonCollider from 'modules/shapes/polygon-collider';
-import PolygonCollision from 'modules/shapes/polygon-collision';
-// Sprite //
-import Sprite from 'modules/sprite/sprite';
-import SpriteRenderer from 'modules/sprite/sprite-renderer';
-import CollisionListener from '../src/modules/collision-listener';
+// Common //
+import Transform from "common/transform";
+import Dirty from 'common/dirty';
 
-const modules = {
-  Transform,
-  CollisionListener,
-  physics: {
-    Rigidbody,
-  },
-  shapes: {
-    Ellipse,
-    Rect,
-    Polygon,
-    PolygonMaterial,
-    PolygonRenderer,
-    PolygonCollider,
-    PolygonCollision,
-  },
-  sprite: {
-    Sprite,
-    SpriteRenderer,
-  },
+// Physics //
+import Rigidbody from "physics/rigidbody";
+
+const physics = {
+  Rigidbody,
 };
 
-export { Scene, Component, loader, math, modules };
+// Shapes //
+import Ellipse from "shapes/ellipse";
+import Polygon from "shapes/polygon";
+import Rect from "shapes/rect";
+import PolygonMaterial from "shapes/polygon-material";
+import PolygonRenderer from "shapes/polygon-renderer";
+
+const shapes = {
+  Ellipse,
+  Rect,
+  Polygon,
+  PolygonMaterial,
+  PolygonRenderer,
+};
+
+// Collision //
+import PolygonCollider from "collision/polygon-collider";
+import PolygonCollision from "collision/polygon-collision";
+
+const collision = {
+  PolygonCollider,
+  PolygonCollision,
+};
+
+// Sprite //
+import Sprite from "sprite/sprite";
+import SpriteRenderer from "sprite/sprite-renderer";
+
+const sprite = {
+  Sprite,
+  SpriteRenderer,
+};
+
+export {
+  Scene,
+  Component,
+  loader,
+  math,
+  Transform,
+  Dirty,
+  physics,
+  shapes,
+  collision,
+  sprite,
+};

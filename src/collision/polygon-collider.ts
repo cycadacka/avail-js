@@ -1,6 +1,4 @@
 import Component from 'core/component';
-import Polygon from './polygon';
-import Transform from 'modules/transform';
 
 /**
  * Represents the collider of a shape.

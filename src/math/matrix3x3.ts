@@ -1,6 +1,5 @@
 import { DEG_TO_RAD } from './math';
 import Vector2D from './vector2d';
-import { PointLike } from 'types';
 
 /**
  * Representation of a 3x3 transformation matrix.
@@ -108,7 +107,7 @@ class Matrix3x3 {
    *
    * @memberof Matrix3x3
    */
-  multiplyVector2(vector2d: PointLike): Vector2D {
+  multiplyVector2(vector2d: Vector2D): Vector2D {
     return new Vector2D(
       this.m00 * vector2d.x + this.m01 * vector2d.y + this.m02,
       this.m10 * vector2d.x + this.m11 * vector2d.y + this.m12,

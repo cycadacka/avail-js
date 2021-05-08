@@ -1,4 +1,4 @@
-import Transform from 'modules/transform';
+import Transform from 'common/transform';
 import Sprite from './sprite';
 import System, { SceneInfo } from 'core/types';
 

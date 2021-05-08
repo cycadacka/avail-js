@@ -1,4 +1,4 @@
-import Transform from 'modules/transform';
+import Transform from 'common/transform';
 import PolygonMaterial from './polygon-material';
 import Polygon from './polygon';
 import System, { SceneInfo } from 'core/types';

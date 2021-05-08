@@ -1,7 +1,7 @@
 import EntityManager from './entity-manager';
-import { ClassConstructor } from 'types';
+import { Constructor } from 'common/types';
 
-export type ComponentType = ClassConstructor<Component>;
+export type ComponentType = Constructor<Component>;
 
 interface IComponentAttributes {
   readonly allowMultiple: boolean;
@@ -32,7 +32,7 @@ export default abstract class Component {
   static getParent<T extends Component>(entityManager: EntityManager, entity: string): T[] {
     return entityManager.getComponents(
       entityManager.getParentOfEntity(entity) ?? "",
-      this.constructor as ClassConstructor<T>,
+      this.constructor as Constructor<T>,
     );
   }
 
@@ -51,7 +51,7 @@ export default abstract class Component {
       children.push(
         entityManager.getComponents(
           entity,
-          this.constructor as ClassConstructor<T>,
+          this.constructor as Constructor<T>,
         ),
       );
       result = iterator.next();

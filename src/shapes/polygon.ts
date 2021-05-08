@@ -1,9 +1,9 @@
 import Component from 'core/component';
-import Transform from 'modules/transform';
+import Transform from 'common/transform';
 import Vector2D from 'math/vector2d';
-import { ArrayProxy } from 'types';
+import { ArrayProxy } from 'common/types';
 import { BoundingBox } from './types';
-import { getPolygonArea } from './util/common';
+import getPolygonArea from './util/get-polygon-area';
 
 export interface Vertex extends Vector2D {
   x: number;

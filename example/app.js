@@ -15,43 +15,49 @@ function loadScript(src) {
 
 loadScript("../dist/avail-js.js")
   .then(() => {
-    class Velocity extends AvailJS.modules.CollisionListener {
+    const polygonCollisionSystem = new AvailJS.collision.PolygonCollision();
+
+    class Velocity extends AvailJS.Component {
       constructor(x, y) {
-        super((info) => {
-          if (info.time.time != this.lastTime) {
-            this.lastTime = info.time.time;
-            this.x = -this.x * 1.15;
-            this.y = -this.y * 1.15;
-          }
-        });
-        this.lastTime = 0;
+        super();
         this.x = x;
         this.y = y;
       }
     }
 
+    class VelocitySystem {
+      fixedUpdate({ entityManager, time }) {
+        const playerID = entityManager.getEntityWithTag("player");
+
+        const transform = entityManager.getComponent(
+          playerID,
+          AvailJS.Transform,
+        );
+        const velocity = entityManager.getComponent(playerID, Velocity);
+
+        const position = transform.position;
+
+        if (polygonCollisionSystem.getCollisions(playerID).next().value !== 0) {
+          velocity.x = -velocity.x * 2;
+          velocity.y = -velocity.y * 2;
+        }
+
+        transform.position.x += velocity.x * time.fixedDeltaTime;
+        transform.position.y += velocity.y * time.fixedDeltaTime;
+
+        transform.position = position;
+      }
+    }
+
     window.scene = (function () {
       const canvas = document.getElementsByTagName("canvas")[0];
+      window.polygonRenderer = new AvailJS.shapes.PolygonRenderer(canvas);
+
       const scene = new AvailJS.Scene(
         [
-          new AvailJS.modules.shapes.PolygonRenderer(canvas),
-          new AvailJS.modules.shapes.PolygonCollision(),
-          {
-            fixedUpdate({ entityManager, time }) {
-              const transform = entityManager.getComponent(
-                entityManager.getEntityWithTag("box"),
-                AvailJS.modules.Transform,
-              );
-
-              const velocity = entityManager.getComponent(
-                entityManager.getEntityWithTag("box"),
-                Velocity,
-              );
-
-              transform.position.x += velocity.x * time.deltaTime;
-              transform.position.y += velocity.y * time.deltaTime;
-            },
-          },
+          new VelocitySystem(),
+          new AvailJS.shapes.PolygonRenderer(canvas),
+          polygonCollisionSystem,
         ],
         1 / 50,
         60,
@@ -59,18 +65,18 @@ loadScript("../dist/avail-js.js")
 
       function createBox(x, y, width, height, tag = "") {
         return scene.entityManager.createEntity(tag, [
-          new AvailJS.modules.Transform([x, y]),
-          new AvailJS.modules.shapes.Rect(width, height),
-          new AvailJS.modules.shapes.PolygonCollider(0, 0),
-          new AvailJS.modules.shapes.PolygonMaterial({
+          new AvailJS.Transform([x, y]),
+          new AvailJS.shapes.Rect(width, height),
+          new AvailJS.collision.PolygonCollider(0, 0),
+          new AvailJS.shapes.PolygonMaterial({
             fillStyle: "red",
             strokeStyle: "blue",
           }),
         ]);
       }
 
-      const box = createBox(150, 150, 50, 50, "box");
-      scene.entityManager.addComponent(box, new Velocity(25, 25));
+      const player = createBox(150, 175, 50, 50, "player");
+      scene.entityManager.addComponent(player, new Velocity(-25, -25));
 
       createBox(0, canvas.height / 2, 25, canvas.height);
       createBox(canvas.width, canvas.height / 2, 25, canvas.height);

@@ -1,4 +1,4 @@
-import { ClassConstructor } from 'types';
+import { Constructor } from 'common/types';
 import Component, { ComponentType } from './component';
 
 interface IEntityRelationship {
@@ -24,7 +24,7 @@ class EntityManager {
    * @return First-attached component of an entity.
    * @memberof EntityManager
    */
-  getComponent<T extends Component>(entity: string, component: ClassConstructor<T>): T | null {
+  getComponent<T extends Component>(entity: string, component: Constructor<T>): T | null {
     return this.componentStorage.get(component)?.get(entity)?.[0] as T ?? null;
   }
 
@@ -34,7 +34,7 @@ class EntityManager {
    * @return Components attached to an entity.
    * @memberof EntityManager
    */
-  getComponents<T extends Component>(entity: string, component: ClassConstructor<T>): T[] {
+  getComponents<T extends Component>(entity: string, component: Constructor<T>): T[] {
     return this.componentStorage.get(component)?.get(entity) as T[] ?? [];
   }
 
