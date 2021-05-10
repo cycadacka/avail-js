@@ -14,8 +14,7 @@
     "build": "webpack --mode=production",
     "build:dev": "webpack --mode=development",
     "build:prod": "webpack --mode=production",
-    "watch": "webpack --watch",
-    "build:tsc": "tsc --project tsconfig.json && node build-tsc/tsc-append.js"
+    "watch": "webpack --watch"
   },
   "version": "1.0.0-alpha",
   "description": "AvailJS is a game engine based on the architectural pattern called ECS or Entity-Component-System.",
