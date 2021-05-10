@@ -43,9 +43,6 @@ class VelocitySystem {
     const collisionInfo = main_polygonCollision.getCollisions(playerID).next()
       .value;
     if (collisionInfo !== 0) {
-      console.log(
-        `Collide with ${entityManager.getTagOfEntity(collisionInfo.other)}`
-      );
       velocity.x =
         (velocity.xMin + (velocity.xMax - velocity.xMin) * Math.random()) *
         Math.sign(velocity.x);
