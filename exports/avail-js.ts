@@ -43,10 +43,12 @@ const shapes = {
 };
 
 // Collision //
+import CollisionMatrix from "collision/collision-matrix";
 import PolygonCollider from "collision/polygon-collider";
 import PolygonCollision from "collision/polygon-collision";
 
 const collision = {
+  CollisionMatrix,
   PolygonCollider,
   PolygonCollision,
 };

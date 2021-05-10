@@ -1,4 +1,5 @@
 import { Constructor } from 'common/types';
+import getUUID from 'util/get-uuid';
 import Component, { ComponentType } from './component';
 
 interface IEntityRelationship {
@@ -147,11 +148,7 @@ class EntityManager {
    * @memberof EntityManager
    */
   createEntity(tag: string = '', components: Component[] = []) {
-    // @ts-expect-error
-    const entity = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c) =>
-      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4)
-        .toString(16),
-    );
+    const entity = getUUID();
 
     if (tag.length > 0) {
       this.entity2tag.set(entity, tag);

@@ -1,6 +1,16 @@
 "strict mode";
 
-const AvailJS_collision_PolygonCollision = new AvailJS.collision.PolygonCollision();
+const main_collisionMatrix = new AvailJS.collision.CollisionMatrix(
+  ["Player", "Box"],
+  [
+    // Box Player
+    [true, false],
+    [false],
+  ]
+);
+const main_polygonCollision = new AvailJS.collision.PolygonCollision(
+  main_collisionMatrix
+);
 
 class Velocity extends AvailJS.Component {
   constructor(xMin, xMax, yMin, yMax) {
@@ -30,10 +40,12 @@ class VelocitySystem {
     const transform = entityManager.getComponent(playerID, AvailJS.Transform);
     const velocity = entityManager.getComponent(playerID, Velocity);
 
-    const collisionInfo = AvailJS_collision_PolygonCollision.getCollisions(
-      playerID
-    ).next().value;
+    const collisionInfo = main_polygonCollision.getCollisions(playerID).next()
+      .value;
     if (collisionInfo !== 0) {
+      console.log(
+        `Collide with ${entityManager.getTagOfEntity(collisionInfo.other)}`
+      );
       velocity.x =
         (velocity.xMin + (velocity.xMax - velocity.xMin) * Math.random()) *
         Math.sign(velocity.x);
@@ -61,13 +73,13 @@ const scene = new AvailJS.Scene(
   [
     new VelocitySystem(),
     new AvailJS.shapes.PolygonRenderer(canvas),
-    AvailJS_collision_PolygonCollision,
+    main_polygonCollision,
   ],
   1 / 50,
   60
 );
 
-const player = createBox(150, 175, 50, 50, "player");
+const player = createBox(150, 175, 50, 50, "player", "Player");
 scene.entityManager.addComponent(player, new Velocity(20, 27, 20, 27));
 
 createBox(0, canvas.height / 2, 25, canvas.height, "left-box");
@@ -77,11 +89,15 @@ createBox(canvas.width / 2, canvas.height, canvas.width, 25, "down-box");
 
 scene.start();
 
-function createBox(x, y, width, height, tag = "") {
+function createBox(x, y, width, height, tag, layer = "Box") {
   return scene.entityManager.createEntity(tag, [
     new AvailJS.Transform([x, y]),
     new AvailJS.shapes.Rect(width, height),
-    new AvailJS.collision.PolygonCollider(0, 0),
+    new AvailJS.collision.PolygonCollider(
+      0,
+      0,
+      main_collisionMatrix.getLayer(layer)
+    ),
     new AvailJS.shapes.PolygonMaterial({
       fillStyle: "red",
       strokeStyle: "blue",

@@ -1,21 +1,27 @@
-import Vector2D from 'math/vector2d';
-import polygonLine from './polygon-line';
 import { CollisionInfo } from '../types';
+import { Vertex } from 'shapes/types';
+import polygonLine from './polygon-line';
+import Vector2D from 'math/vector2d';
+import lineLine from './line-line';
 
 export default function polygonPolygon(
   verticesA: Vector2D[], verticesB: Vector2D[]
   ): CollisionInfo {
-  for (let i = 0; i < verticesA.length; i++) {
-    const next = (i + 1) % verticesA.length;
+  const finalInfo: CollisionInfo = {
+    contacts: [],
+  };
 
-    const collisionInfo = polygonLine(verticesA[i], verticesA[next], verticesB);
-    if (collisionInfo.contacts.length > 0) {
-      return collisionInfo;
+  for (let k = 0; k < verticesA.length; k++) {
+    const kNext = (k + 1) % verticesA.length;
+
+    for (let j = 0; j < verticesB.length; j++) {
+      const jNext = (j + 1) % verticesB.length;
+      
+      const info = lineLine(verticesA[k], verticesA[kNext], verticesB[k], verticesB[jNext]);
+      finalInfo.contacts = finalInfo.contacts.concat(info.contacts);
     }
   }
 
-  return {
-    contacts: [],
-  };
+  return finalInfo;
 }
 

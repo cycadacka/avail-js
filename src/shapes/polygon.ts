@@ -2,21 +2,8 @@ import Component from 'core/component';
 import Transform from 'common/transform';
 import Vector2D from 'math/vector2d';
 import { ArrayProxy } from 'common/types';
-import { BoundingBox } from './types';
+import { BoundingBox, Vertex, Edge } from './types';
 import getPolygonArea from './util/get-polygon-area';
-
-export interface Vertex extends Vector2D {
-  x: number;
-  y: number;
-  previous: Vertex;
-  next: Vertex;
-}
-
-export interface Edge {
-  start: Vertex;
-  end: Vertex;
-  readonly normal: Vector2D;
-}
 
 /**
  * Represents a simple polygon.

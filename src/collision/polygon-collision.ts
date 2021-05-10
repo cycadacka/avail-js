@@ -1,13 +1,14 @@
-import PolygonCollider from './polygon-collider';
-import Polygon from 'shapes/polygon';
-import { BoundingBox } from 'shapes/types';
-import Transform from 'common/transform';
-import Vector2D from 'math/vector2d';
-import EntityManager from 'core/entity-manager';
-import System, { SceneInfo } from 'core/types';
-import rectangleRectangle from './util/rectangle-rectangle';
-import polygonPolygon from './util/polygon-polygon';
-import { toAABB } from './util/to-aabb';
+import PolygonCollider from "./polygon-collider";
+import Polygon from "shapes/polygon";
+import { BoundingBox, Vertex } from "shapes/types";
+import Transform from "common/transform";
+import Vector2D from "math/vector2d";
+import EntityManager from "core/entity-manager";
+import System, { SceneInfo } from "core/types";
+import rectangleRectangle from "./util/rectangle-rectangle";
+import polygonPolygon from "./util/polygon-polygon";
+import { makeAABB } from "./util/make-aabb";
+import CollisionMatrix from "./collision-matrix";
 
 interface Entity {
   components: {
@@ -17,7 +18,7 @@ interface Entity {
   };
   obb: BoundingBox;
   aabb: BoundingBox;
-};
+}
 
 interface EntityCollision {
   contacts: {
@@ -33,7 +34,15 @@ interface EntityCollision {
  */
 class PolygonCollision implements System {
   private entityOBBs: Map<string, BoundingBox> = new Map();
-  private entityCollisions: Map<string, Map<string, EntityCollision>> = new Map();
+  private entityCollisions: Map<
+    string,
+    Map<string, EntityCollision>
+  > = new Map();
+  private collisionMatrix: CollisionMatrix | null;
+
+  constructor(collisionMatrix: CollisionMatrix | null = null) {
+    this.collisionMatrix = collisionMatrix;
+  }
 
   /**
    * @memberof PolygonCollision
@@ -47,11 +56,7 @@ class PolygonCollision implements System {
     const entityVertices = new Map<string, Vector2D[]>();
 
     for (const firstID of entities) {
-      const first = this.constructEntity(
-        firstID,
-        entityAABBs,
-        entityManager,
-      );
+      const first = this.constructEntity(firstID, entityAABBs, entityManager);
 
       // Check if needed components are available.
       if (first == null) {
@@ -70,11 +75,22 @@ class PolygonCollision implements System {
         const second = this.constructEntity(
           secondID,
           entityAABBs,
-          entityManager,
+          entityManager
         );
 
         // Check if needed components are available.
         if (second == null) {
+          continue;
+        }
+
+        const firstLayer = first.components.polygonCollider.collisionLayer;
+        const secondLayer = first.components.polygonCollider.collisionLayer;
+        const collisionOccurred = this.collisionMatrix?.compareLayer(
+          typeof firstLayer === "string" ? firstLayer : firstLayer?.name ?? undefined,
+          typeof secondLayer === "string" ? secondLayer : secondLayer?.name ?? undefined
+        );
+        
+        if (collisionOccurred != null && !collisionOccurred) {
           continue;
         }
 
@@ -83,16 +99,15 @@ class PolygonCollision implements System {
             first.aabb.min,
             first.aabb.max,
             second.aabb.min,
-            second.aabb.max,
+            second.aabb.max
           )
         ) {
-
           let firstVertices = entityVertices.get(firstID);
           if (!firstVertices) {
             const matrix = first.components.transform.localToWorldMatrix;
-            
+
             firstVertices = first.components.polygon.vertices.map(
-              (value) => matrix.multiplyVector2(value),
+              (value) => matrix.multiplyVector2(value)
             );
             entityVertices.set(firstID, firstVertices);
           }
@@ -102,7 +117,10 @@ class PolygonCollision implements System {
             const matrix = second.components.transform.localToWorldMatrix;
 
             againstVertices = second.components.polygon.vertices.map(
-              (value) => matrix.multiplyVector2(value),
+              (value) => Object.assign(matrix.multiplyVector2(value), {
+                next: value.next,
+                previous: value.previous,
+              })
             );
             entityVertices.set(secondID, againstVertices);
           }
@@ -111,13 +129,17 @@ class PolygonCollision implements System {
           if (collisionInfo.contacts.length > 0) {
             let firstStore = this.entityCollisions.get(firstID);
             if (firstStore == undefined) {
-              firstStore = this.entityCollisions.set(firstID, new Map()).get(firstID)!;
+              firstStore = this.entityCollisions
+                .set(firstID, new Map())
+                .get(firstID)!;
             }
             firstStore.set(secondID, collisionInfo);
 
             let secondStore = this.entityCollisions.get(secondID);
             if (secondStore == undefined) {
-              secondStore = this.entityCollisions.set(secondID, new Map()).get(secondID)!;
+              secondStore = this.entityCollisions
+                .set(secondID, new Map())
+                .get(secondID)!;
             }
             secondStore.set(firstID, collisionInfo);
           }
@@ -126,7 +148,9 @@ class PolygonCollision implements System {
     }
   }
 
-  public getCollisions(entity: string): Generator<EntityCollision & { other: string }, number, void> {
+  public getCollisions(
+    entity: string
+  ): Generator<EntityCollision & { other: string }, number, void> {
     const collisions = this.entityCollisions.get(entity);
 
     return (function* () {
@@ -140,7 +164,7 @@ class PolygonCollision implements System {
           });
         }
       }
-      
+
       return length;
     })();
   }
@@ -155,7 +179,7 @@ class PolygonCollision implements System {
   private constructEntity(
     entity: string,
     entityAABBs: Map<string, BoundingBox>,
-    entityManager: EntityManager, 
+    entityManager: EntityManager
   ): Entity | null {
     // Get components
     const components = {
@@ -164,7 +188,13 @@ class PolygonCollision implements System {
       transform: entityManager.getComponent(entity, Transform),
     };
 
-    if (!(components.polygonCollider && components.polygon && components.transform)) {
+    if (
+      !(
+        components.polygonCollider &&
+        components.polygon &&
+        components.transform
+      )
+    ) {
       return null;
     }
 
@@ -178,7 +208,7 @@ class PolygonCollision implements System {
     // Get axis-aligned bounding-box
     let aabb = entityAABBs.get(entity)!;
     if (!aabb) {
-      aabb = toAABB(obb, components.transform);
+      aabb = makeAABB(obb, components.transform);
       entityAABBs.set(entity, aabb);
     }
 
