@@ -74,17 +74,17 @@ class Matrix3x3 {
       throw new Error('Can\'t invert matrix whose determinant is 0.');
     }
 
-    const invdet = 1 / determinant;
+    const invDet = 1 / determinant;
     return new Matrix3x3(
-      (this.m00 * this.m11 - this.m10 * this.m01) * invdet,
-      (this.m10 * this.m02 - this.m01 * this.m11) * invdet,
-      (this.m01 * this.m01 - this.m00 * this.m02) * invdet, // Row 1
-      (this.m20 * this.m01 - this.m10 * this.m11) * invdet,
-      (this.m00 * this.m11 - this.m20 * this.m02) * invdet,
-      (this.m10 * this.m02 - this.m00 * this.m01) * invdet, // Row 2
-      (this.m10 * this.m10 - this.m20 * this.m00) * invdet,
-      (this.m20 * this.m01 - this.m00 * this.m10) * invdet,
-      (this.m00 * this.m00 - this.m10 * this.m01) * invdet, // Row 3
+      (this.m00 * this.m11 - this.m10 * this.m01) * invDet,
+      (this.m10 * this.m02 - this.m01 * this.m11) * invDet,
+      (this.m01 * this.m01 - this.m00 * this.m02) * invDet, // Row 1
+      (this.m20 * this.m01 - this.m10 * this.m11) * invDet,
+      (this.m00 * this.m11 - this.m20 * this.m02) * invDet,
+      (this.m10 * this.m02 - this.m00 * this.m01) * invDet, // Row 2
+      (this.m10 * this.m10 - this.m20 * this.m00) * invDet,
+      (this.m20 * this.m01 - this.m00 * this.m10) * invDet,
+      (this.m00 * this.m00 - this.m10 * this.m01) * invDet, // Row 3
     );
   }
 

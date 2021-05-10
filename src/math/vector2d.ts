@@ -457,12 +457,12 @@ class Vector2D {
   }
 
   /**
-   * Proejcts a vector unto another vector.
+   * Projects a vector unto another vector.
    *
    * @static
    * @param vector Vector to project.
    * @param onNormal Vector to project unto.
-   * @return Proejction of a vector unto another vector.
+   * @return Projection of a vector unto another vector.
    * @memberof Vector2d
    */
   static project(vector: Vector2D, onNormal: Vector2D): Vector2D {

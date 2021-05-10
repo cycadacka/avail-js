@@ -8,18 +8,18 @@ import Transform from 'common/transform';
  */
 export enum BodyType {
   /**
-   * Dynamic rigidbodies will **move under simulation** (default).
+   * Dynamic rigid-bodies will **move under simulation** (default).
    */
   Dynamic,
   /**
-   * Kinematic rigidbodies will move under simulation, but under explicit
-   * **user-control**. Note that kinematic rigidbodies still moves with
+   * Kinematic rigid-bodies will move under simulation, but under explicit
+   * **user-control**. Note that kinematic rigid-bodies still moves with
    * velocity but is unaffected by other outside forces or gravity.
    */
   Kinematic,
   /**
-   * Static rigidbodies will **not move** under simulation. Note that collision
-   * between two static rigidbodies is not supported.
+   * Static rigid-bodies will **not move** under simulation. Note that collision
+   * between two static rigid-bodies is not supported.
    */
   Static,
 }
@@ -44,7 +44,7 @@ export enum CollisionDetection {
 }
 
 /**
- * Defines how the rigidbodies "sleeps" to save processor time when it is at rest
+ * Defines how the rigid-bodies "sleeps" to save processor time when it is at rest
  * (not moving).
  *
  * @enum {number}
