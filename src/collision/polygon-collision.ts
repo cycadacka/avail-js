@@ -84,7 +84,7 @@ class PolygonCollision implements System {
         }
 
         const firstLayer = first.components.polygonCollider.collisionLayer;
-        const secondLayer = first.components.polygonCollider.collisionLayer;
+        const secondLayer = second.components.polygonCollider.collisionLayer;
         const collisionOccurred = this.collisionMatrix?.compareLayer(
           typeof firstLayer === "string" ? firstLayer : firstLayer?.name ?? undefined,
           typeof secondLayer === "string" ? secondLayer : secondLayer?.name ?? undefined
