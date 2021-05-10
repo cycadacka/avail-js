@@ -1,7 +1,7 @@
 "strict mode";
 
 const main_collisionMatrix = new AvailJS.collision.CollisionMatrix(
-  ["Player", "Box"],
+  ["player", "box"],
   [
     // Box Player
     [true, false],
@@ -79,7 +79,7 @@ const scene = new AvailJS.Scene(
   60
 );
 
-const player = createBox(150, 175, 50, 50, "player", "Player");
+const player = createBox(150, 175, 50, 50, "player");
 scene.entityManager.addComponent(player, new Velocity(20, 27, 20, 27));
 
 createBox(0, canvas.height / 2, 25, canvas.height, "left-box");
@@ -89,14 +89,14 @@ createBox(canvas.width / 2, canvas.height, canvas.width, 25, "down-box");
 
 scene.start();
 
-function createBox(x, y, width, height, tag, layer = "Box") {
+function createBox(x, y, width, height, tag) {
   return scene.entityManager.createEntity(tag, [
     new AvailJS.Transform([x, y]),
     new AvailJS.shapes.Rect(width, height),
     new AvailJS.collision.PolygonCollider(
       0,
       0,
-      main_collisionMatrix.getLayer(layer)
+      main_collisionMatrix.getLayer(tag !== "player" ? "box" : tag)
     ),
     new AvailJS.shapes.PolygonMaterial({
       fillStyle: "red",
