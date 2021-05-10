@@ -80,7 +80,7 @@ const scene = new AvailJS.Scene(
 );
 
 const player = createBox(150, 175, 50, 50, "player");
-scene.entityManager.addComponent(player, new Velocity(20, 27, 20, 27));
+scene.entityManager.addComponent(player, new Velocity(50, 100, 50, 100));
 
 createBox(0, canvas.height / 2, 25, canvas.height, "left-box");
 createBox(canvas.width, canvas.height / 2, 25, canvas.height, "right-box");
