@@ -1,6 +1,6 @@
 import Transform from 'common/transform';
 import Sprite from './sprite';
-import System, { SceneInfo } from 'core/types';
+import System, { SystemInfo } from 'core/types';
 
 /**
  * Handles rendering of `Sprite` unto a canvas element.
@@ -23,7 +23,7 @@ class SpriteRenderer implements System {
    * @override
    * @memberof SpriteRenderer
    */
-  update({ entityManager }: SceneInfo) {
+  update({ entityManager }: SystemInfo) {
     this.context.clearRect(
       0,
       0,

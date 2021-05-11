@@ -1,6 +1,6 @@
 import EntityManager from 'core/entity-manager';
 
-export interface SceneInfo {
+export interface SystemInfo {
   time: {
     readonly fixedDeltaTime: number,
     readonly fixedTime: number;
@@ -21,19 +21,19 @@ export default interface System {
    *
    * @memberof System
    */
-  start?(info: SceneInfo): void;
+  start?(info: SystemInfo): void;
 
   /**
    * Function called every frame (with the given `targetFrameRate`).
    *
    * @memberof System
    */
-  update?(info: SceneInfo): void;
+  update?(info: SystemInfo): void;
 
   /**
    * Function called every fixed-time (according to `fixedDeltaTime`).
    * 
    * @memberof System
    */
-  fixedUpdate?(info: SceneInfo): void;
+  fixedUpdate?(info: SystemInfo): void;
 }

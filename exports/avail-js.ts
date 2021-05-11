@@ -7,11 +7,11 @@ const loader = {
   image,
 };
 
-import * as mathf from "math/math";
+import * as mathPlus from "math/math";
 import Vector2D from "math/vector2d";
 import Matrix3x3 from "math/matrix3x3";
 
-const math = Object.assign(mathf, {
+const math = Object.assign(mathPlus, {
   Vector2D,
   Matrix3x3,
 });
@@ -56,6 +56,7 @@ const collision = {
 // Sprite //
 import Sprite from "sprite/sprite";
 import SpriteRenderer from "sprite/sprite-renderer";
+import { CollisionEvent } from '../src/collision/collision-event-impl';
 
 const sprite = {
   Sprite,
