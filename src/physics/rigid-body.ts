@@ -1,5 +1,6 @@
 import Component from 'core/component';
 import Transform from 'common/transform';
+import Vector2D from 'math/vector2d';
 
 /**
  * Defines the behavior of a RigidBody.
@@ -29,7 +30,7 @@ export enum BodyType {
  *
  * @enum {number}
  */
-export enum CollisionDetection {
+export enum CollisionDetectionMode {
   /**
    * Collision contacts are only generated at the new position. Note that
    * entities may overlap or pass through each other during a physics update,
@@ -67,10 +68,10 @@ export enum SleepMode {
 interface RigidBodyConfig {
   bodyType: BodyType,
   mass: number,
-  linearDrag: number,
+  drag: number,
   angularDrag: number,
   gravityScale: number,
-  collisionDetection: CollisionDetection,
+  collisionDetectionMode: CollisionDetectionMode,
   sleepMode: SleepMode,
   constrainX: boolean,
   constrainY: boolean,
@@ -84,16 +85,22 @@ interface RigidBodyConfig {
  * @extends {CollisionListener}
  */
 class RigidBody extends Component {
-  public bodyType: BodyType;
-  public mass: number;
-  public linearDrag: number;
-  public angularDrag: number;
-  public gravityScale: number;
-  public collisionDetection: CollisionDetection;
-  public sleepMode: SleepMode;
-  public constrainX: boolean;
-  public constrainY: boolean;
-  public constrainZ: boolean;
+  // #region RigidBodyConfig
+  bodyType: BodyType;
+  mass: number;
+  drag: number;
+  angularDrag: number;
+  gravityScale: number;
+  collisionDetection: CollisionDetectionMode;
+  sleepMode: SleepMode;
+  constrainX: boolean;
+  constrainY: boolean;
+  constrainZ: boolean;
+  // #endregion cspell:disable-line
+  velocity: Vector2D = Vector2D.zero;
+  angularVelocity: number = 0;
+  /** Relative to local-space. */
+  centerOfMass: Vector2D = Vector2D.zero;
 
   /**
    * Creates an instance of RigidBody.
@@ -103,10 +110,10 @@ class RigidBody extends Component {
   constructor({
     bodyType=BodyType.Dynamic,
     mass=1,
-    linearDrag=0,
+    drag=0,
     angularDrag=0.05,
     gravityScale=1,
-    collisionDetection=CollisionDetection.Discrete,
+    collisionDetectionMode: collisionDetection=CollisionDetectionMode.Discrete,
     sleepMode=SleepMode.Awake,
     constrainX=false,
     constrainY=false,
@@ -116,7 +123,7 @@ class RigidBody extends Component {
 
     this.bodyType = bodyType;
     this.mass = mass;
-    this.linearDrag = linearDrag;
+    this.drag = drag;
     this.angularDrag = angularDrag;
     this.gravityScale = gravityScale;
     this.collisionDetection = collisionDetection;
@@ -124,6 +131,14 @@ class RigidBody extends Component {
     this.constrainX = constrainX;
     this.constrainY = constrainY;
     this.constrainZ = constrainZ;
+  }
+
+  addForce(force: Vector2D) {
+    this.velocity.add(force.clone().divide(this.mass));
+  }
+
+  addTorque(force: number) {
+    this.angularVelocity += force / this.mass;
   }
 
   getAttributes() {
