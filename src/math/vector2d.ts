@@ -106,7 +106,7 @@ class Vector2D {
     return (
       this.clone()
         .subtract(vector)
-        .sqrMagnitude() < Number.EPSILON
+        .sqrMagnitude < Number.EPSILON
     );
   }
 
@@ -121,7 +121,7 @@ class Vector2D {
     return (
       this.clone()
         .subtract(vector)
-        .sqrMagnitude() >= Number.EPSILON
+        .sqrMagnitude >= Number.EPSILON
     );
   }
 
@@ -142,7 +142,7 @@ class Vector2D {
    * @return The length of the 2D vector.
    * @memberof Vector2d
    */
-  magnitude(): number {
+  get magnitude(): number {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
@@ -152,7 +152,7 @@ class Vector2D {
    * @return The squared length of the 2D vector.
    * @memberof Vector2d
    */
-  sqrMagnitude(): number {
+  get sqrMagnitude(): number {
     return this.x * this.x + this.y + this.y;
   }
 
@@ -162,7 +162,7 @@ class Vector2D {
    * @return A copy of this vector that has a magnitude of 1.
    * @memberof Vector2d
    */
-  normalized(): Vector2D {
+  get normalized(): Vector2D {
     return this.clone().normalize();
   }
 
@@ -197,7 +197,7 @@ class Vector2D {
    * @memberof Vector2d
    */
   normalize(): Vector2D {
-    const mag = this.magnitude();
+    const mag = this.magnitude;
 
     if (mag > Number.EPSILON) {
       return this.divide(mag);
@@ -305,7 +305,7 @@ class Vector2D {
    */
   static angle(from: Vector2D, to: Vector2D): number {
     const denominator = Math.sqrt(
-      Math.abs(from.sqrMagnitude() * to.sqrMagnitude()),
+      Math.abs(from.sqrMagnitude * to.sqrMagnitude),
     );
     if (denominator < 1e-15) {
       return 0;
@@ -325,8 +325,8 @@ class Vector2D {
    * @memberof Vector2d
    */
   static clampMagnitude(vector: Vector2D, maxLength: number): Vector2D {
-    if (vector.sqrMagnitude() > maxLength * maxLength) {
-      return vector.normalized().multiply(maxLength);
+    if (vector.sqrMagnitude > maxLength * maxLength) {
+      return vector.normalized.multiply(maxLength);
     } else {
       return vector;
     }
@@ -345,7 +345,7 @@ class Vector2D {
     return from
       .clone()
       .subtract(to)
-      .magnitude();
+      .magnitude;
   }
 
   /**
@@ -431,7 +431,7 @@ class Vector2D {
    */
   static moveTowards(current: Vector2D, target: Vector2D, maxDistanceDelta: number): Vector2D {
     const difference = target.clone().subtract(current);
-    const distance = difference.magnitude();
+    const distance = difference.magnitude;
 
     if (distance <= maxDistanceDelta || distance < Number.EPSILON) {
       return target;
@@ -466,7 +466,7 @@ class Vector2D {
    * @memberof Vector2d
    */
   static project(vector: Vector2D, onNormal: Vector2D): Vector2D {
-    const sqrMag = onNormal.sqrMagnitude();
+    const sqrMag = onNormal.sqrMagnitude;
     if (sqrMag < Number.EPSILON) {
       return Vector2D.zero;
     } else {
