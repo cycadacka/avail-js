@@ -56,7 +56,6 @@ const collision = {
 // Sprite //
 import Sprite from "sprite/sprite";
 import SpriteRenderer from "sprite/sprite-renderer";
-import { CollisionEvent } from '../src/collision/collision-event-impl';
 
 const sprite = {
   Sprite,
