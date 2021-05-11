@@ -70,14 +70,14 @@ createBox(canvas.width, canvas.height / 2, 25, canvas.height, "right-box");
 createBox(canvas.width / 2, 0, canvas.width, 25, "up-box");
 createBox(canvas.width / 2, canvas.height, canvas.width, 25, "down-box");
 
-let lastFrameUUID = "";
-polygonCollision.collisionEvent.subscribe(playerID, (info) => {
-  if (lastFrameUUID === info.frameUUID) {
+let lastFrameID = "";
+polygonCollision.subscribe(playerID, (collisionInfo, frameID) => {
+  if (lastFrameID === frameID) {
     return;
   }
 
   const velocity = scene.entityManager.getComponent(playerID, Velocity);
-  lastFrameUUID = info.frameUUID;
+  lastFrameID = frameID;
 
   velocity.x =
     (velocity.xMin + (velocity.xMax - velocity.xMin) * Math.random()) *
@@ -86,7 +86,7 @@ polygonCollision.collisionEvent.subscribe(playerID, (info) => {
     (velocity.yMin + (velocity.yMax - velocity.yMin) * Math.random()) *
     Math.sign(velocity.y);
 
-  const otherTag = scene.entityManager.getTagOfEntity(info.other);
+  const otherTag = scene.entityManager.getTagOfEntity(collisionInfo.other);
   if (otherTag === "left-box" || otherTag === "right-box") {
     velocity.x = -velocity.x;
   }
