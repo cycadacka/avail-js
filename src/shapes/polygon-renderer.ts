@@ -1,7 +1,7 @@
 import Transform from 'common/transform';
 import PolygonMaterial from './polygon-material';
 import Polygon from './polygon';
-import System, { SceneInfo } from 'core/types';
+import System, { SystemInfo } from 'core/types';
 
 /**
  * Handles rendering of `Polygon2dMaterial` unto a canvas element.
@@ -24,7 +24,7 @@ class PolygonRenderer implements System {
    * @override
    * @memberof PolygonRenderer
    */
-  update({entityManager}: SceneInfo) {
+  update({entityManager}: SystemInfo) {
     this.context.clearRect(
       0,
       0,

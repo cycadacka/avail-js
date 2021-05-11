@@ -1,14 +1,17 @@
 import PolygonCollider from "./polygon-collider";
 import Polygon from "shapes/polygon";
-import { BoundingBox, Vertex } from "shapes/types";
+import { BoundingBox } from "shapes/types";
 import Transform from "common/transform";
 import Vector2D from "math/vector2d";
 import EntityManager from "core/entity-manager";
-import System, { SceneInfo } from "core/types";
+import System, { SystemInfo } from "core/types";
 import rectangleRectangle from "./util/rectangle-rectangle";
 import polygonPolygon from "./util/polygon-polygon";
 import { makeAABB } from "./util/make-aabb";
 import CollisionMatrix from "./collision-matrix";
+import { CollisionInfo } from './types';
+import CollisionEventImpl, { CollisionEvent } from './collision-event-impl';
+import getUUID from '../util/get-uuid';
 
 interface Entity {
   components: {
@@ -20,13 +23,6 @@ interface Entity {
   aabb: BoundingBox;
 }
 
-interface EntityCollision {
-  contacts: {
-    point: Vector2D;
-    normal: Vector2D;
-  }[];
-}
-
 /**
  * Handles collision between shapes.
  *
@@ -36,9 +32,11 @@ class PolygonCollision implements System {
   private entityOBBs: Map<string, BoundingBox> = new Map();
   private entityCollisions: Map<
     string,
-    Map<string, EntityCollision>
+    Map<string, CollisionInfo>
   > = new Map();
   private collisionMatrix: CollisionMatrix | null;
+
+  private _collisionEvent: CollisionEventImpl = new CollisionEventImpl();
 
   constructor(collisionMatrix: CollisionMatrix | null = null) {
     this.collisionMatrix = collisionMatrix;
@@ -47,13 +45,15 @@ class PolygonCollision implements System {
   /**
    * @memberof PolygonCollision
    */
-  fixedUpdate({ entityManager }: SceneInfo): void {
+  fixedUpdate({ entityManager }: SystemInfo): void {
     this.entityOBBs = new Map();
     this.entityCollisions = new Map();
 
     const entities = entityManager.getEntitiesWithComponent(PolygonCollider);
     const entityAABBs = new Map<string, BoundingBox>();
     const entityVertices = new Map<string, Vector2D[]>();
+
+    const frameUUID = getUUID();
 
     for (const firstID of entities) {
       const first = this.constructEntity(firstID, entityAABBs, entityManager);
@@ -142,15 +142,22 @@ class PolygonCollision implements System {
                 .get(secondID)!;
             }
             secondStore.set(firstID, collisionInfo);
+
+            this._collisionEvent.invoke(firstID, secondID, collisionInfo, frameUUID);
+            this._collisionEvent.invoke(secondID, firstID, collisionInfo, frameUUID);
           }
         }
       }
     }
   }
 
+  public get collisionEvent(): CollisionEvent {
+    return this._collisionEvent;
+  }
+
   public getCollisions(
     entity: string
-  ): Generator<EntityCollision & { other: string }, number, void> {
+  ): Generator<CollisionInfo & { other: string }, number, void> {
     const collisions = this.entityCollisions.get(entity);
 
     return (function* () {
