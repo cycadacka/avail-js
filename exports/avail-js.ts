@@ -1,15 +1,15 @@
-import Scene from "core/scene";
-import Component from "core/component";
+import Scene from 'core/scene';
+import Component from 'core/component';
 
-import image from "loader/load-image";
+import image from 'loader/load-image';
 
 const loader = {
   image,
 };
 
-import * as mathPlus from "math/math";
-import Vector2D from "math/vector2d";
-import Matrix3x3 from "math/matrix3x3";
+import * as mathPlus from 'math/math';
+import Vector2D from 'math/vector2d';
+import Matrix3x3 from 'math/matrix3x3';
 
 const math = Object.assign(mathPlus, {
   Vector2D,
@@ -17,22 +17,22 @@ const math = Object.assign(mathPlus, {
 });
 
 // Common //
-import Transform from "common/transform";
+import Transform from 'common/transform';
 import Dirtyable from 'common/dirtyable';
 
 // Physics //
-import RigidBody from "physics/rigid-body";
+import RigidBody from 'physics/rigid-body';
 
 const physics = {
   RigidBody,
 };
 
 // Shapes //
-import Ellipse from "shapes/ellipse";
-import Polygon from "shapes/polygon";
-import Rect from "shapes/rect";
-import PolygonMaterial from "shapes/polygon-material";
-import PolygonRenderer from "shapes/polygon-renderer";
+import Ellipse from 'shapes/ellipse';
+import Polygon from 'shapes/polygon';
+import Rect from 'shapes/rect';
+import PolygonMaterial from 'shapes/polygon-material';
+import PolygonRenderer from 'shapes/polygon-renderer';
 
 const shapes = {
   Ellipse,
@@ -43,9 +43,9 @@ const shapes = {
 };
 
 // Collision //
-import CollisionMatrix from "collision/collision-matrix";
-import PolygonCollider from "collision/polygon-collider";
-import PolygonCollision from "collision/polygon-collision";
+import CollisionMatrix from 'collision/collision-matrix';
+import PolygonCollider from 'collision/polygon-collider';
+import PolygonCollision from 'collision/polygon-collision';
 
 const collision = {
   CollisionMatrix,
@@ -54,8 +54,8 @@ const collision = {
 };
 
 // Sprite //
-import Sprite from "sprite/sprite";
-import SpriteRenderer from "sprite/sprite-renderer";
+import Sprite from 'sprite/sprite';
+import SpriteRenderer from 'sprite/sprite-renderer';
 
 const sprite = {
   Sprite,
