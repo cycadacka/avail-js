@@ -19,7 +19,7 @@ export default function lineLine(
     ((endB.y - startB.y) * (endA.x - startA.x) -
       (endB.x - startB.x) * (endA.y - startA.y));
 
-  const dir = endA.clone().subtract(startA).normalized();
+  const normal = endA.clone().subtract(startA).normalized();
   return {
     contacts: uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1 ? [
       {
@@ -27,7 +27,7 @@ export default function lineLine(
           startA.x + (uA * (endA.x - startA.x)),
           startA.y + (uA * (endA.y - startA.y))
         ),
-        normal: new Vector2D(-dir.y, dir.x),
+        normal: new Vector2D(-normal.y, normal.x),
       }
     ] : [],
   };
