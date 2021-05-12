@@ -16,13 +16,13 @@ class Velocity extends AvailJS.Component {
 class VelocitySystem {
   start({ entityManager }) {
     entityManager.getComponent(
-      entityManager.getEntityWithTag("player"),
+      entityManager.getEntityWithTag('player'),
       AvailJS.Transform
     ).rotation = Math.random() * 360;
   }
 
   fixedUpdate({ entityManager, time }) {
-    const playerID = entityManager.getEntityWithTag("player");
+    const playerID = entityManager.getEntityWithTag('player');
 
     const transform = entityManager.getComponent(playerID, AvailJS.Transform);
     const velocity = entityManager.getComponent(playerID, Velocity);
@@ -32,26 +32,26 @@ class VelocitySystem {
   }
 }
 
-function createBox(x, y, width, height, tag, layer = "box") {
+function createBox(x, y, width, height, tag, layer = 'box') {
   return scene.entityManager.createEntity(tag, [
     new AvailJS.Transform([x, y]),
     new AvailJS.shapes.Rect(width, height),
     new AvailJS.collision.PolygonCollider(0, 0, layer),
     new AvailJS.shapes.PolygonMaterial({
-      fillStyle: "red",
-      strokeStyle: "blue",
+      fillStyle: 'red',
+      strokeStyle: 'blue',
     }),
   ]);
 }
 
 const polygonCollision = new AvailJS.collision.PolygonCollision(
   new AvailJS.collision.CollisionMatrix(
-    ["player", "box"],
+    ['player', 'box'],
     [[true, false], [false]]
   )
 );
 
-const canvas = document.getElementsByTagName("canvas")[0];
+const canvas = document.getElementsByTagName('canvas')[0];
 const scene = new AvailJS.Scene(
   [
     new VelocitySystem(),
@@ -62,22 +62,16 @@ const scene = new AvailJS.Scene(
   60
 );
 
-const playerID = createBox(150, 175, 50, 50, "player", "player");
+const playerID = createBox(150, 175, 50, 50, 'player', 'player');
 scene.entityManager.addComponent(playerID, new Velocity(50, 100, 50, 100));
 
-createBox(0, canvas.height / 2, 25, canvas.height, "left-box");
-createBox(canvas.width, canvas.height / 2, 25, canvas.height, "right-box");
-createBox(canvas.width / 2, 0, canvas.width, 25, "up-box");
-createBox(canvas.width / 2, canvas.height, canvas.width, 25, "down-box");
+createBox(0, canvas.height / 2, 25, canvas.height, 'left-box');
+createBox(canvas.width, canvas.height / 2, 25, canvas.height, 'right-box');
+createBox(canvas.width / 2, 0, canvas.width, 25, 'up-box');
+createBox(canvas.width / 2, canvas.height, canvas.width, 25, 'down-box');
 
-let lastFrameID = "";
-polygonCollision.subscribe(playerID, (collisionInfo, frameID) => {
-  if (lastFrameID === frameID) {
-    return;
-  }
-
+polygonCollision.subscribe('enter', playerID, (collisionInfo) => {
   const velocity = scene.entityManager.getComponent(playerID, Velocity);
-  lastFrameID = frameID;
 
   velocity.x =
     (velocity.xMin + (velocity.xMax - velocity.xMin) * Math.random()) *
@@ -87,11 +81,11 @@ polygonCollision.subscribe(playerID, (collisionInfo, frameID) => {
     Math.sign(velocity.y);
 
   const otherTag = scene.entityManager.getTagOfEntity(collisionInfo.other);
-  if (otherTag === "left-box" || otherTag === "right-box") {
+  if (otherTag === 'left-box' || otherTag === 'right-box') {
     velocity.x = -velocity.x;
   }
 
-  if (otherTag === "down-box" || otherTag === "up-box") {
+  if (otherTag === 'down-box' || otherTag === 'up-box') {
     velocity.y = -velocity.y;
   }
 });
