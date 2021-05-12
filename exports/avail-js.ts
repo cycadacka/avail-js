@@ -20,13 +20,6 @@ const math = Object.assign(mathPlus, {
 import Transform from 'common/transform';
 import Dirtyable from 'common/dirtyable';
 
-// Physics //
-import RigidBody from 'physics/rigid-body';
-
-const physics = {
-  RigidBody,
-};
-
 // Shapes //
 import Ellipse from 'shapes/ellipse';
 import Polygon from 'shapes/polygon';
@@ -69,7 +62,6 @@ export {
   math,
   Transform,
   Dirtyable,
-  physics,
   shapes,
   collision,
   sprite,
