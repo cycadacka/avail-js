@@ -1,17 +1,16 @@
-import PolygonCollider from "./polygon-collider";
-import Polygon from "shapes/polygon";
-import { BoundingBox } from "shapes/types";
-import Transform from "common/transform";
-import Vector2D from "math/vector2d";
-import EntityManager from "core/entity-manager";
-import System, { SystemInfo } from "core/types";
-import rectangleRectangle from "./util/rectangle-rectangle";
-import polygonPolygon from "./util/polygon-polygon";
-import { makeAABB } from "./util/make-aabb";
-import CollisionMatrix from "./collision-matrix";
-import { CollisionInfo } from "./types";
-import getUUID from "../util/get-uuid";
-import UtilityEvent from "util/utility-event";
+import PolygonCollider from './polygon-collider';
+import Polygon from 'shapes/polygon';
+import { BoundingBox } from 'shapes/types';
+import Transform from 'common/transform';
+import Vector2D from 'math/vector2d';
+import EntityManager from 'core/entity-manager';
+import System, { SystemInfo } from 'core/types';
+import rectangleRectangle from './util/rectangle-rectangle';
+import polygonPolygon from './util/polygon-polygon';
+import { makeAABB } from './util/make-aabb';
+import CollisionMatrix from './collision-matrix';
+import { CollisionInfo } from './types';
+import UtilityEvent from 'util/utility-event';
 
 interface Entity {
   components: {
@@ -34,16 +33,29 @@ type CollisionInfoUnion = CollisionInfo & {
  * @class PolygonCollision
  */
 class PolygonCollision implements System {
-  private entityOBBs: Map<string, BoundingBox> = new Map();
-  private entityCollisions: Map<string, Map<string, CollisionInfo>> = new Map();
-  private collisionMatrix: CollisionMatrix | null;
-  private collisionEvents: Map<
-    string,
-    UtilityEvent<{ collisionInfo: CollisionInfoUnion; frameID: string }>
-  > = new Map();
+  protected entityOBBs = new Map<string, BoundingBox>();
+  protected entityCollisions = {
+    old: new Map<string, Map<string, CollisionInfo>>(),
+    new: new Map<string, Map<string, CollisionInfo>>(),
+  };
+  protected collisionEvents = {
+    enter: new Map<
+      string,
+      UtilityEvent<{ collisionInfo: CollisionInfoUnion }>
+    >(),
+    stay: new Map<
+      string,
+      UtilityEvent<{ collisionInfo: CollisionInfoUnion }>
+    >(),
+    exit: new Map<
+      string,
+      UtilityEvent<{ collisionInfo: CollisionInfoUnion }>
+    >(),
+  };
+  protected collisionMatrix: CollisionMatrix | null;
 
-  constructor(collisionMatrix: CollisionMatrix | null = null) {
-    this.collisionMatrix = collisionMatrix;
+  constructor(collisionMatrix?: CollisionMatrix) {
+    this.collisionMatrix = collisionMatrix ?? null;
   }
 
   /**
@@ -51,9 +63,9 @@ class PolygonCollision implements System {
    */
   fixedUpdate({ entityManager }: SystemInfo): void {
     this.entityOBBs = new Map();
-    this.entityCollisions = new Map();
+    this.entityCollisions.old = new Map(this.entityCollisions.new);
+    this.entityCollisions.new = new Map();
 
-    const frameID = getUUID();
     const entityAABBs = new Map<string, BoundingBox>();
     const entityVertices = new Map<string, Vector2D[]>();
     const entities = entityManager.getEntitiesWithComponent(PolygonCollider);
@@ -67,10 +79,9 @@ class PolygonCollision implements System {
       }
 
       for (const secondID of entities) {
-        // Check if the second is itself or collision between has already happened.
         if (
-          firstID === secondID ||
-          this.entityCollisions.get(firstID)?.has(secondID)
+          firstID === secondID || // Collision against self (which is impossible).
+          this.entityCollisions.new.get(firstID)?.has(secondID) // Collision between has already happened in the same frame.
         ) {
           continue;
         }
@@ -86,109 +97,105 @@ class PolygonCollision implements System {
           continue;
         }
 
-        const firstLayer = first.components.polygonCollider.collisionLayer;
-        const secondLayer = second.components.polygonCollider.collisionLayer;
-        const collisionOccurred = this.collisionMatrix?.compareLayer(
-          typeof firstLayer === "string" ? firstLayer : firstLayer?.name,
-          typeof secondLayer === "string" ? secondLayer : secondLayer?.name
+        const firstCollisionInfo = this.testPolygonCollision(
+          first,
+          firstID,
+          second,
+          secondID,
+          entityVertices
         );
 
-        if (collisionOccurred != null && !collisionOccurred) {
+        if (firstCollisionInfo.contacts.length <= 0) {
+          /** Invoke events of message "exit" **/
+
+          if (this.entityCollisions.old.get(firstID)?.has(secondID)) {
+            const firstUnion = {
+              contacts: [],
+              self: firstID,
+              other: secondID,
+            };
+
+            const secondUnion = {
+              contacts: [],
+              self: secondID,
+              other: firstID,
+            }
+
+            this.invokeEvent(firstUnion, secondUnion, "exit");
+          }
+
           continue;
         }
 
-        if (
-          rectangleRectangle(
-            first.aabb.min,
-            first.aabb.max,
-            second.aabb.min,
-            second.aabb.max
-          )
-        ) {
-          let firstVertices = entityVertices.get(firstID);
-          if (!firstVertices) {
-            const matrix = first.components.transform.localToWorldMatrix;
+        const secondCollisionInfo = {
+          contacts: firstCollisionInfo.contacts.map((value) => {
+            return {
+              point: value.point.clone(),
+              normal: value.normal.clone(),
+            };
+          }),
+        };
 
-            firstVertices = first.components.polygon.vertices.map((value) =>
-              matrix.multiplyVector2(value)
-            );
-            entityVertices.set(firstID, firstVertices);
-          }
+        let firstStore = this.entityCollisions.new.get(firstID);
+        if (firstStore == undefined) {
+          firstStore = this.entityCollisions.new
+            .set(firstID, new Map())
+            .get(firstID)!;
+        }
+        firstStore.set(secondID, firstCollisionInfo);
 
-          let againstVertices = entityVertices.get(secondID);
-          if (!againstVertices) {
-            const matrix = second.components.transform.localToWorldMatrix;
+        let secondStore = this.entityCollisions.new.get(secondID);
+        if (secondStore == undefined) {
+          secondStore = this.entityCollisions.new
+            .set(secondID, new Map())
+            .get(secondID)!;
+        }
+        secondStore.set(firstID, secondCollisionInfo);
 
-            againstVertices = second.components.polygon.vertices.map((value) =>
-              matrix.multiplyVector2(value)
-            );
-            entityVertices.set(secondID, againstVertices);
-          }
+        /** Invoke events of message "enter" and "stay" **/
 
-          const collisionInfo = polygonPolygon(firstVertices, againstVertices);
-          if (collisionInfo.contacts.length > 0) {
-            let firstStore = this.entityCollisions.get(firstID);
-            if (firstStore == undefined) {
-              firstStore = this.entityCollisions
-                .set(firstID, new Map())
-                .get(firstID)!;
-            }
-            firstStore.set(secondID, collisionInfo);
+        const firstUnion = Object.assign(firstCollisionInfo, {
+          self: firstID,
+          other: secondID,
+        });
 
-            let secondStore = this.entityCollisions.get(secondID);
-            if (secondStore == undefined) {
-              secondStore = this.entityCollisions
-                .set(secondID, new Map())
-                .get(secondID)!;
-            }
-            secondStore.set(firstID, collisionInfo);
+        const secondUnion = Object.assign(secondCollisionInfo, {
+          self: secondID,
+          other: firstID,
+        });
 
-            this.collisionEvents.get(firstID)?.invoke({
-              collisionInfo: Object.assign(collisionInfo, {
-                self: firstID,
-                other: secondID,
-              }),
-              frameID,
-            });
+        this.invokeEvent(firstUnion, secondUnion, 'stay');
 
-            this.collisionEvents.get(secondID)?.invoke({
-              collisionInfo: Object.assign(collisionInfo, {
-                self: secondID,
-                other: firstID,
-              }),
-              frameID,
-            });
-          }
+        if (!this.entityCollisions.old.get(firstID)?.has(secondID)) {
+          this.invokeEvent(firstUnion, secondUnion, 'enter');
         }
       }
     }
   }
 
-  public subscribe(
+  subscribe(
+    message: 'enter' | 'stay' | 'exit',
     entity: string,
-    handler: (collisionInfo: CollisionInfoUnion, frameID: string) => void
+    handler: (collisionInfo: CollisionInfoUnion) => void
   ) {
-    let store = this.collisionEvents.get(entity);
+    let store = this.collisionEvents[message].get(entity);
     if (!store) {
-      store = this.collisionEvents
+      store = this.collisionEvents[message]
         .set(
           entity,
           new UtilityEvent<{
             collisionInfo: CollisionInfoUnion;
-            frameID: string;
           }>()
         )
         .get(entity)!;
     }
     store.subscribe((params) => {
-      handler(params.collisionInfo, params.frameID);
+      handler(params.collisionInfo);
     });
   }
 
-  public getCollisions(
-    entity: string
-  ): Generator<CollisionInfoUnion, number, void> {
-    const collisions = this.entityCollisions.get(entity);
+  getCollisions(entity: string): Generator<CollisionInfoUnion, number, void> {
+    const collisions = this.entityCollisions.new.get(entity);
 
     return (function* () {
       let length = 0;
@@ -207,11 +214,89 @@ class PolygonCollision implements System {
     })();
   }
 
+  private invokeEvent(firstUnion: CollisionInfoUnion, secondUnion: CollisionInfoUnion, message: 'enter' | 'stay' | 'exit') {
+    this.collisionEvents[message].get(firstUnion.self)?.invoke({
+      collisionInfo: firstUnion,
+    });
+
+    this.collisionEvents[message].get(secondUnion.self)?.invoke({
+      collisionInfo: secondUnion,
+    });
+  }
+
+  /**
+   * Test collision between two entities with polygon components.
+   *
+   * @private
+   * @param {Entity} first
+   * @param {string} firstID
+   * @param {Entity} second
+   * @param {string} secondID
+   * @param {Map<string, Vector2D[]>} entityVertices
+   * @return {CollisionInfo}
+   * @memberof PolygonCollision
+   */
+  private testPolygonCollision(
+    first: Entity,
+    firstID: string,
+    second: Entity,
+    secondID: string,
+    entityVertices: Map<string, Vector2D[]>
+  ): CollisionInfo {
+    const firstLayer = first.components.polygonCollider.collisionLayer;
+    const secondLayer = second.components.polygonCollider.collisionLayer;
+    const allowCollision = this.collisionMatrix?.compareLayer(
+      typeof firstLayer === 'string' ? firstLayer : firstLayer?.name,
+      typeof secondLayer === 'string' ? secondLayer : secondLayer?.name
+    );
+
+    if (
+      allowCollision == null ||
+      !allowCollision ||
+      !rectangleRectangle(
+        first.aabb.min,
+        first.aabb.max,
+        second.aabb.min,
+        second.aabb.max
+      )
+    ) {
+      return {
+        contacts: [],
+      };
+    }
+
+    let firstVertices = entityVertices.get(firstID);
+    if (!firstVertices) {
+      const matrix = first.components.transform.localToWorldMatrix;
+
+      firstVertices = first.components.polygon.vertices.map((value) =>
+        matrix.multiplyVector2(value)
+      );
+      entityVertices.set(firstID, firstVertices);
+    }
+
+    let againstVertices = entityVertices.get(secondID);
+    if (!againstVertices) {
+      const matrix = second.components.transform.localToWorldMatrix;
+
+      againstVertices = second.components.polygon.vertices.map((value) =>
+        matrix.multiplyVector2(value)
+      );
+      entityVertices.set(secondID, againstVertices);
+    }
+
+    return polygonPolygon(firstVertices, againstVertices);
+  }
+
   /**
    * Constructs the entity and retrieves the needed components and
    * object-aligned bounding boxes.
    *
-   * @returns {Entity | null} Constructed entity; null if it fails.
+   * @private
+   * @param {string} entity
+   * @param {Map<string, BoundingBox>} entityAABBs
+   * @param {EntityManager} entityManager
+   * @return {(Entity | null)}
    * @memberof PolygonCollision
    */
   private constructEntity(
