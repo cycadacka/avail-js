@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist/ts",
+    "declaration": true,
     "sourceMap": true,
     "baseUrl": "src",
     "lib": [ "ES2020", "DOM" ],
