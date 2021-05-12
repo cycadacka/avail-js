@@ -69,7 +69,7 @@ class Polygon extends Component {
           start,
           end: start.next,
           get normal() {
-            const dir = start.next.clone().subtract(start).normalized();
+            const dir = start.next.clone().subtract(start).normalized;
             return self.clockwise ?
               new Vector2D(-dir.y, dir.x) : new Vector2D(dir.y, -dir.x);
           },

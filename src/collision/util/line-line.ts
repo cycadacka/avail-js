@@ -19,7 +19,7 @@ export default function lineLine(
     ((endB.y - startB.y) * (endA.x - startA.x) -
       (endB.x - startB.x) * (endA.y - startA.y));
 
-  const normal = endA.clone().subtract(startA).normalized();
+  const normal = endA.clone().subtract(startA).normalized;
   return {
     contacts: uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1 ? [
       {

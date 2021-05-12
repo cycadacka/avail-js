@@ -4,9 +4,9 @@ export default function linePoint(
   start: Vector2D, end: Vector2D, point: Vector2D
   ): boolean {
   return Math.abs(
-    start.clone().subtract(end).sqrMagnitude() -
-    (point.clone().subtract(start).sqrMagnitude() +
-    point.clone().subtract(end).sqrMagnitude()),
+    start.clone().subtract(end).sqrMagnitude -
+    (point.clone().subtract(start).sqrMagnitude +
+    point.clone().subtract(end).sqrMagnitude),
   ) <= 0.1;
 }
 
