@@ -2,22 +2,6 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
-function arg(library) {
-  const regex = /[A-Z][^A-Z]+/g;
-  let filename = '';
-  let array;
-
-  while ((array = regex.exec(library)) !== null) {
-    if (filename.length > 0) {
-      filename += '-';
-    }
-
-    filename += array[0].toLowerCase();
-  }
-
-  return [`./exports/${filename}.ts`, library, `${filename}.js`];
-}
-
 function config(entry, library, filename) {
   return {
     mode: 'development',
