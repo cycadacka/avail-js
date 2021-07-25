@@ -1,10 +1,15 @@
 import { Constructor } from "./types";
 
-export default function Dirtyable<T extends Constructor<{}>>(
+interface DirtyableInterface {
+  get isDirty(): boolean;
+  clean(): void;
+}
+
+function Dirtyable<T extends Constructor<{}>>(
   Base: T,
   ...propertyNames: string[]
-) {
-  return class extends Base {
+): Constructor<DirtyableInterface> {
+  return class extends Base implements DirtyableInterface {
     [property: string]: any;
 
     private __hidden_properties__: Map<
@@ -59,3 +64,5 @@ export default function Dirtyable<T extends Constructor<{}>>(
     }
   };
 }
+
+export default Dirtyable;
