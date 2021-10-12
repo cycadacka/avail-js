@@ -1,7 +1,7 @@
 import { Constructor } from "./types";
 
 interface DirtyableInterface {
-  get isDirty(): boolean;
+  isDirty: boolean;
   clean(): void;
 }
 
@@ -47,7 +47,7 @@ function Dirtyable<T extends Constructor<{}>>(
       }
     }
 
-    get isDirty() {
+    get isDirty(): boolean {
       for (const [_, hiddenProperty] of this.__hidden_properties__) {
         if (hiddenProperty.dirty) {
           return true;

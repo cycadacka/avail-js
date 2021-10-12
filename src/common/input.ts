@@ -96,7 +96,7 @@ document.addEventListener('keyup', (ev) => {
 });
 
 export interface InputInterface {
-  get touches(): IterableIterator<TouchInfo>;
+  touches: IterableIterator<TouchInfo>;
   getKeyPress(code: string): boolean;
   getKeyDown(code: string): boolean;
   getKeyUp(code: string): boolean;
