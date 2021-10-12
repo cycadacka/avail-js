@@ -21,8 +21,6 @@ interface TouchInfo {
 const inputSystems: Input[] = [];
 
 document.addEventListener('touchstart', (ev) => {
-  ev.preventDefault();
-  
   for (let k = 0; k < ev.touches.length; k++) {
     const touch: Touch = ev.touches[k];
 
@@ -46,9 +44,7 @@ document.addEventListener('touchend', createTouchListener(TouchPhase.Ended));
 document.addEventListener('touchcancel', createTouchListener(TouchPhase.Cancelled));
 
 function createTouchListener(phase: TouchPhase) {
-  return function touchListener(ev: TouchEvent) {
-    ev.preventDefault();
-    
+  return function touchListener(ev: TouchEvent) {    
     for (let k = 0; k < ev.touches.length; k++) {
       const touch = ev.touches[k];
 
