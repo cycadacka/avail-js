@@ -76,12 +76,12 @@ document.addEventListener('keydown', (ev) => {
   for (let i = 0; i < inputSystems.length; i++) {
     const inputSystem = inputSystems[i];
     
-    if (inputSystem.keys.down.has(ev.code) || inputSystem.keys.press.has(ev.code)) {
+    if (inputSystem._keys.down.has(ev.code) || inputSystem._keys.press.has(ev.code)) {
       continue;
     }
 
-    inputSystem.keys.down.add(ev.code);
-    inputSystem.keys.up.delete(ev.code);
+    inputSystem._keys.down.add(ev.code);
+    inputSystem._keys.up.delete(ev.code);
   }
 });
 
@@ -89,9 +89,9 @@ document.addEventListener('keyup', (ev) => {
   for (let i = 0; i < inputSystems.length; i++) {
     const inputSystem = inputSystems[i];
 
-    inputSystem.keys.press.delete(ev.code);
-    inputSystem.keys.down.delete(ev.code);
-    inputSystem.keys.up.add(ev.code);
+    inputSystem._keys.press.delete(ev.code);
+    inputSystem._keys.down.delete(ev.code);
+    inputSystem._keys.up.add(ev.code);
   }
 });
 
@@ -113,12 +113,12 @@ export interface InputInterface {
 
 class Input implements InputInterface, System {
   _touches: Map<number, TouchInfo> = new Map();
-  keys = {
+  _keys = {
     down: new Set<string>(),
     press: new Set<string>(),
     up: new Set<string>(),
   };
-  mouseButtons = {
+  _mouseButtons = {
     down: new Set<number>(),
     press: new Set<number>(),
     up: new Set<number>(),
@@ -133,67 +133,67 @@ class Input implements InputInterface, System {
   }
 
   getKeyPress(code: string): boolean {
-    return this.keys.press.has(code);
+    return this._keys.press.has(code);
   }
 
   getKeyDown(code: string): boolean {
-    return this.keys.down.has(code);
+    return this._keys.down.has(code);
   }
 
   getKeyUp(code: string): boolean {
-    return this.keys.up.has(code);
+    return this._keys.up.has(code);
   }
 
   getAnyKeyPress(): boolean {
-    return this.keys.press.size > 0;
+    return this._keys.press.size > 0;
   }
 
   getAnyKeyDown(): boolean {
-    return this.keys.down.size > 0;
+    return this._keys.down.size > 0;
   }
 
   getAnyKeyUp(): boolean {
-    return this.keys.up.size > 0;
+    return this._keys.up.size > 0;
   }
 
   getMouseButtonPress(button: number): boolean {
-    return this.mouseButtons.press.has(button);
+    return this._mouseButtons.press.has(button);
   }
 
   getMouseButtonDown(button: number): boolean {
-    return this.mouseButtons.down.has(button);
+    return this._mouseButtons.down.has(button);
   }
 
   getMouseButtonUp(button: number): boolean {
-    return this.mouseButtons.up.has(button);
+    return this._mouseButtons.up.has(button);
   }
 
   getAnyMouseButtonPress(): boolean {
-    return this.mouseButtons.press.size > 0;
+    return this._mouseButtons.press.size > 0;
   }
 
   getAnyMouseButtonDown(): boolean {
-    return this.mouseButtons.down.size > 0;
+    return this._mouseButtons.down.size > 0;
   }
 
   getAnyMouseButtonUp(): boolean {
-    return this.mouseButtons.up.size > 0;
+    return this._mouseButtons.up.size > 0;
   }
 
   update() {
-    for (const keyDown of this.keys.down) {
-      this.keys.press.add(keyDown);
-      this.keys.down.delete(keyDown);
+    for (const keyDown of this._keys.down) {
+      this._keys.press.add(keyDown);
+      this._keys.down.delete(keyDown);
     }
 
-    this.keys.up.clear();
+    this._keys.up.clear();
 
-    for (const mouseButtonDown of this.mouseButtons.down) {
-      this.mouseButtons.press.add(mouseButtonDown);
-      this.mouseButtons.down.delete(mouseButtonDown);
+    for (const mouseButtonDown of this._mouseButtons.down) {
+      this._mouseButtons.press.add(mouseButtonDown);
+      this._mouseButtons.down.delete(mouseButtonDown);
     }
 
-    this.mouseButtons.up.clear();
+    this._mouseButtons.up.clear();
   }
 };
 
