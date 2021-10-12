@@ -6,6 +6,7 @@ enum TouchPhase {
   Began = 1,
   Moved,
   Ended,
+  Cancelled
 }
 
 interface TouchInfo {
@@ -19,18 +20,56 @@ interface TouchInfo {
 
 const inputSystems: Input[] = [];
 
-document.addEventListener('touchmove', (ev) => {
-  for (let i = 0; i < inputSystems.length; i++) {
-    const inputSystem = inputSystems[i];
-    
-    if (inputSystem.keys.down.has(ev.touches[0].) || inputSystem.keys.press.has(ev.code)) {
-      continue;
-    }
+document.addEventListener('touchstart', (ev) => {
+  ev.preventDefault();
+  
+  for (let k = 0; k < ev.touches.length; k++) {
+    const touch: Touch = ev.touches[k];
 
-    inputSystem.keys.down.add(ev.code);
-    inputSystem.keys.up.delete(ev.code);
+    for (let j = 0; j < inputSystems.length; j++) {
+      const inputSystem = inputSystems[j];
+
+      inputSystem._touches.set(touch.identifier, {
+        identifier: touch.identifier,
+        phase: TouchPhase.Began,
+        position: new Vector2D(touch.clientX, touch.clientY),
+        pressure: touch.force,
+        radius: new Vector2D(touch.radiusX, touch.radiusY),
+        rotation: touch.rotationAngle,
+      });
+    }
   }
 });
+
+document.addEventListener('touchmove', createTouchListener(TouchPhase.Moved));
+document.addEventListener('touchend', createTouchListener(TouchPhase.Ended));
+document.addEventListener('touchcancel', createTouchListener(TouchPhase.Cancelled));
+
+function createTouchListener(phase: TouchPhase) {
+  return function touchListener(ev: TouchEvent) {
+    ev.preventDefault();
+    
+    for (let k = 0; k < ev.touches.length; k++) {
+      const touch = ev.touches[k];
+
+      for (let j = 0; j < inputSystems.length; j++) {
+        const inputSystem = inputSystems[j];
+
+        if (inputSystem._touches.has(touch.identifier)) {
+          const touchInfo: TouchInfo = inputSystem._touches.get(touch.identifier)!;
+          
+          touchInfo.phase = phase;
+          touchInfo.position.x = touch.clientX;
+          touchInfo.position.y = touch.clientY;
+          touchInfo.pressure = touch.force;
+          touchInfo.radius.x = touch.radiusX;
+          touchInfo.radius.y = touch.radiusY;
+          touchInfo.rotation = touch.rotationAngle;
+        }
+      }
+    }
+  }
+}
 
 
 document.addEventListener('keydown', (ev) => {
