@@ -13,6 +13,8 @@ class Velocity extends AvailJS.Component {
   }
 }
 
+const input = new AvailJS.Input();
+
 class VelocitySystem {
   start({ entityManager }) {
     entityManager.getComponent(
@@ -26,6 +28,13 @@ class VelocitySystem {
 
     const transform = entityManager.getComponent(playerID, AvailJS.Transform);
     const velocity = entityManager.getComponent(playerID, Velocity);
+
+    const x = input.getKeyPress('KeyD') - input.getKeyPress('KeyA');
+    const y = input.getKeyPress('KeyS') - input.getKeyPress('KeyW');
+    if (y != 0 || x != 0) {
+      velocity.x += 200 * x * time.fixedDeltaTime;
+      velocity.y += 200 * y * time.fixedDeltaTime;
+    }
 
     transform.position.x += velocity.x * time.fixedDeltaTime;
     transform.position.y += velocity.y * time.fixedDeltaTime;
@@ -56,6 +65,7 @@ const scene = new AvailJS.Scene(
   [
     new VelocitySystem(),
     new AvailJS.shapes.PolygonRenderer(canvas),
+    input,
     polygonCollision,
   ],
   1 / 50,
