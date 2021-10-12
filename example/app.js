@@ -36,6 +36,11 @@ class VelocitySystem {
       velocity.y += 200 * y * time.fixedDeltaTime;
     }
 
+    const r = input.getKeyPress('KeyQ') - input.getKeyPress('KeyE');
+    if (r != 0) {
+      transform.rotation += 100 * r * time.fixedDeltaTime;
+    }
+
     transform.position.x += velocity.x * time.fixedDeltaTime;
     transform.position.y += velocity.y * time.fixedDeltaTime;
   }
@@ -55,8 +60,12 @@ function createBox(x, y, width, height, tag, layer = 'box') {
 
 const polygonCollision = new AvailJS.collision.PolygonCollision(
   new AvailJS.collision.CollisionMatrix(
-    ['player', 'box'],
-    [[true, false], [false]]
+    ['player', 'box', 'ellipse'],
+    [
+      [true, false, false], // ellipse
+      [true, false], // box
+      [false], // player
+    ]
   )
 );
 
@@ -80,23 +89,56 @@ createBox(canvas.width, canvas.height / 2, 25, canvas.height, 'right-box');
 createBox(canvas.width / 2, 0, canvas.width, 25, 'up-box');
 createBox(canvas.width / 2, canvas.height, canvas.width, 25, 'down-box');
 
+scene.entityManager.createEntity('ellipse', [
+  new AvailJS.Transform([canvas.width / 2, canvas.height / 2]),
+  new AvailJS.shapes.Ellipse(25, 100),
+  new AvailJS.collision.PolygonCollider(0, 0, 'ellipse'),
+  new AvailJS.shapes.PolygonMaterial({
+    fillStyle: 'blue',
+    strokeStyle: 'red',
+  }),
+]);
+
 polygonCollision.subscribe('enter', playerID, (collisionInfo) => {
   const velocity = scene.entityManager.getComponent(playerID, Velocity);
 
-  velocity.x =
-    (velocity.xMin + (velocity.xMax - velocity.xMin) * Math.random()) *
-    Math.sign(velocity.x);
-  velocity.y =
-    (velocity.yMin + (velocity.yMax - velocity.yMin) * Math.random()) *
-    Math.sign(velocity.y);
-
   const otherTag = scene.entityManager.getTagOfEntity(collisionInfo.other);
   if (otherTag === 'left-box' || otherTag === 'right-box') {
+    velocity.x =
+      (velocity.xMin + (velocity.xMax - velocity.xMin) * Math.random()) *
+      Math.sign(velocity.x);
+    velocity.y =
+      (velocity.yMin + (velocity.yMax - velocity.yMin) * Math.random()) *
+      Math.sign(velocity.y);
+
     velocity.x = -velocity.x;
   }
 
   if (otherTag === 'down-box' || otherTag === 'up-box') {
+    velocity.x =
+      (velocity.xMin + (velocity.xMax - velocity.xMin) * Math.random()) *
+      Math.sign(velocity.x);
+    velocity.y =
+      (velocity.yMin + (velocity.yMax - velocity.yMin) * Math.random()) *
+      Math.sign(velocity.y);
+
     velocity.y = -velocity.y;
+  }
+});
+
+polygonCollision.subscribe('stay', playerID, (collisionInfo) => {
+  const velocity = scene.entityManager.getComponent(playerID, Velocity);
+
+  if (scene.entityManager.getTagOfEntity(collisionInfo.other) === 'ellipse') {
+    const transform = scene.entityManager.getComponent(
+      playerID,
+      AvailJS.Transform
+    );
+
+    console.log(collisionInfo);
+    const dir = collisionInfo.contacts[0].normal.multiply(25);
+    velocity.x = dir.x;
+    velocity.y = dir.y;
   }
 });
 
