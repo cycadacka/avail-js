@@ -130,12 +130,6 @@ polygonCollision.subscribe('stay', playerID, (collisionInfo) => {
   const velocity = scene.entityManager.getComponent(playerID, Velocity);
 
   if (scene.entityManager.getTagOfEntity(collisionInfo.other) === 'ellipse') {
-    const transform = scene.entityManager.getComponent(
-      playerID,
-      AvailJS.Transform
-    );
-
-    console.log(collisionInfo);
     const dir = collisionInfo.contacts[0].normal.multiply(25);
     velocity.x = dir.x;
     velocity.y = dir.y;
