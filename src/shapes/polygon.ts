@@ -6,20 +6,20 @@ import { BoundingBox, Vertex, Edge } from './types';
 import getPolygonArea from './util/get-polygon-area';
 
 /**
- * Represents a simple polygon.
+ * Represents a simple (clockwise) polygon.
  *
  * @class Polygon
  */
 class Polygon extends Component {
   public vertices: Vertex[];
-  public readonly clockwise: boolean;
+  public readonly centre: Vector2D;
 
   /**
    * Creates an instance of Polygon.
    *
    * @memberof Polygon
    */
-  constructor(vertices: [number, number][], clockwise: boolean = (getPolygonArea(vertices) > 0)) {
+  constructor(vertices: [number, number][], clockwise: boolean = true) {
     super();
 
     if (vertices.length < 3) {
@@ -28,12 +28,20 @@ class Polygon extends Component {
       );
     }
 
+    // Force polygon to be clockwise.
+    if (!clockwise && getPolygonArea(vertices) <= 0) {
+      vertices.reverse();
+    }
+
     const convert: Vertex[] = [];
+    let centre: Vector2D = Vector2D.zero;
     for (let i = 0; i < vertices.length; i++) {
       convert.push(<unknown>Object.assign(
         new Vector2D(vertices[i][0], vertices[i][1]),
         { next: null, previous: null },
       ) as Vertex);
+
+      centre.add(convert[i]);
 
       if (i > 0) {
         // set [i].previous && [i - 1].next
@@ -46,7 +54,7 @@ class Polygon extends Component {
     convert[0].previous = convert[convert.length - 1];
 
     this.vertices = Object.seal(convert);
-    this.clockwise = clockwise;
+    this.centre = centre.divide(vertices.length);
   }
 
   /**
@@ -70,8 +78,7 @@ class Polygon extends Component {
           end: start.next,
           get normal() {
             const dir = start.next.clone().subtract(start).normalized;
-            return self.clockwise ?
-              new Vector2D(-dir.y, dir.x) : new Vector2D(dir.y, -dir.x);
+            return new Vector2D(-dir.y, dir.x);
           },
         };
       },
