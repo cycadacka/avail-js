@@ -6,17 +6,20 @@ import Vector2D from 'math/vector2d';
 import EntityManager from 'core/entity-manager';
 import System, { SystemInfo } from 'core/types';
 import rectangleRectangle from './util/rectangle-rectangle';
-import polygonPolygon from './util/polygon-polygon';
+import convexPolygonConvexPolygon from './util/convex-polygon-convex-polygon';
 import { makeAABB } from './util/make-aabb';
 import CollisionMatrix from './collision-matrix';
 import { CollisionInfo } from './types';
 import UtilityEvent from 'util/utility-event';
+import ConvexPolygon from 'shapes/convex-polygon';
+import Ellipse from 'shapes/ellipse';
 
 interface Entity {
   components: {
     polygonCollider: PolygonCollider;
     transform: Transform;
     polygon: Polygon;
+    convexPolygon: ConvexPolygon;
   };
   obb: BoundingBox;
   aabb: BoundingBox;
@@ -78,7 +81,8 @@ class PolygonCollision implements System {
     const entityVertices = new Map<string, Vector2D[]>();
     const entities = entityManager.getEntitiesWithComponent(PolygonCollider);
 
-    for (const firstID of entities) {
+    for (let j = 0; j < entities.length; j++) {
+      const firstID = entities[j];
       const first = this.constructEntity(firstID, entityAABBs, entityManager);
 
       // Check if needed components are available for first entity.
@@ -86,7 +90,8 @@ class PolygonCollision implements System {
         continue;
       }
 
-      for (const secondID of entities) {
+      for (let k = 0; k < entities.length; k++) {
+        const secondID = entities[k];
         // Skip collision-testing when...
         if (
           // Collision against self (which is impossible).
@@ -120,29 +125,34 @@ class PolygonCollision implements System {
           /** Invoke events of message "exit" **/
 
           if (this.entityCollisions.old.get(firstID)?.has(secondID)) {
-            const firstUnion = {
-              contacts: [],
-              self: firstID,
-              other: secondID,
-            };
-
-            const secondUnion = {
-              contacts: [],
-              self: secondID,
-              other: firstID,
-            }
-
-            this.invokeEvent(firstUnion, secondUnion, "exit");
+            this.invokeEvent(
+              {
+                contacts: [],
+                self: firstID,
+                other: secondID,
+              },
+              {
+                contacts: [],
+                self: secondID,
+                other: firstID,
+              },
+              'exit'
+            );
           }
 
           continue;
         }
 
+        const isBothConvex =
+          first.components.polygon instanceof ConvexPolygon &&
+          second.components.polygon instanceof ConvexPolygon;
         const secondCollisionInfo = {
           contacts: firstCollisionInfo.contacts.map((value) => {
             return {
               point: value.point.clone(),
-              normal: value.normal.clone(),
+              normal: isBothConvex
+                ? value.normal.clone().negative()
+                : value.normal.clone(),
             };
           }),
         };
@@ -227,7 +237,11 @@ class PolygonCollision implements System {
     })();
   }
 
-  private invokeEvent(firstUnion: CollisionInfoUnion, secondUnion: CollisionInfoUnion, message: 'enter' | 'stay' | 'exit') {
+  private invokeEvent(
+    firstUnion: CollisionInfoUnion,
+    secondUnion: CollisionInfoUnion,
+    message: 'enter' | 'stay' | 'exit'
+  ) {
     this.collisionEvents[message].get(firstUnion.self)?.invoke({
       collisionInfo: firstUnion,
     });
@@ -300,7 +314,13 @@ class PolygonCollision implements System {
       entityVertices.set(secondID, secondVertices);
     }
 
-    return polygonPolygon(firstVertices, secondVertices);
+    return convexPolygonConvexPolygon(
+      first.components.transform.localToWorldMatrix.multiplyVector2(
+        first.components.polygon.centre
+      ),
+      firstVertices,
+      secondVertices
+    );
   }
 
   /**
@@ -322,7 +342,7 @@ class PolygonCollision implements System {
     // Get components
     const components = {
       polygonCollider: entityManager.getComponent(entity, PolygonCollider),
-      polygon: entityManager.getComponent(entity, Polygon),
+      polygon: entityManager.getComponent(entity, ConvexPolygon),
       transform: entityManager.getComponent(entity, Transform),
     };
 
