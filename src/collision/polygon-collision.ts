@@ -33,7 +33,15 @@ type CollisionInfoUnion = CollisionInfo & {
  * @class PolygonCollision
  */
 class PolygonCollision implements System {
+  /**
+   * Object-aligned bounding box of an entity; needed in constructing an
+   * axis-aligned bounding box of said entity.
+   */
   protected entityOBBs = new Map<string, BoundingBox>();
+  /**
+   * Old and new collisions of the current frame; needed when firing collision
+   * events.
+   */
   protected entityCollisions = {
     old: new Map<string, Map<string, CollisionInfo>>(),
     new: new Map<string, Map<string, CollisionInfo>>(),
@@ -73,15 +81,18 @@ class PolygonCollision implements System {
     for (const firstID of entities) {
       const first = this.constructEntity(firstID, entityAABBs, entityManager);
 
-      // Check if needed components are available.
+      // Check if needed components are available for first entity.
       if (first == null) {
         continue;
       }
 
       for (const secondID of entities) {
+        // Skip collision-testing when...
         if (
-          firstID === secondID || // Collision against self (which is impossible).
-          this.entityCollisions.new.get(firstID)?.has(secondID) // Collision between has already happened in the same frame.
+          // Collision against self (which is impossible).
+          firstID === secondID ||
+          // Collision between has already happened in the same frame.
+          this.entityCollisions.new.get(firstID)?.has(secondID)
         ) {
           continue;
         }
@@ -92,7 +103,7 @@ class PolygonCollision implements System {
           entityManager
         );
 
-        // Check if needed components are available.
+        // Check if needed components are available for second entity.
         if (second == null) {
           continue;
         }
@@ -136,6 +147,7 @@ class PolygonCollision implements System {
           }),
         };
 
+        // Store collision info for first entity.
         let firstStore = this.entityCollisions.new.get(firstID);
         if (firstStore == undefined) {
           firstStore = this.entityCollisions.new
@@ -144,6 +156,7 @@ class PolygonCollision implements System {
         }
         firstStore.set(secondID, firstCollisionInfo);
 
+        // Store collision info for second entity.
         let secondStore = this.entityCollisions.new.get(secondID);
         if (secondStore == undefined) {
           secondStore = this.entityCollisions.new
@@ -289,7 +302,7 @@ class PolygonCollision implements System {
   }
 
   /**
-   * Constructs the entity and retrieves the needed components and
+   * Constructs the entity by retrieves the needed components and
    * object-aligned bounding boxes.
    *
    * @private
