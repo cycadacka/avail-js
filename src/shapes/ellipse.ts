@@ -33,7 +33,7 @@ class Ellipse extends ConvexPolygon {
    * @memberof Ellipse
    */
   constructor(x: number, y: number, resolution: number = 36) {
-    super(ellipseToPolygon(x, y, resolution), true);
+    super(ellipseToPolygon(x, y, resolution));
 
     this._radius = new Vector2D(x, y);
   }
