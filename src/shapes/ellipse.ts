@@ -1,5 +1,5 @@
 import Vector2D from 'math/vector2d';
-import Polygon from './polygon';
+import ConvexPolygon from './convex-polygon';
 import { BoundingBox } from './types';
 
 /**
@@ -24,7 +24,7 @@ function ellipseToPolygon(x: number, y: number, resolution: number): [number, nu
  * @class Ellipse
  * @extends {Polygon}
  */
-class Ellipse extends Polygon {
+class Ellipse extends ConvexPolygon {
   private _radius: Vector2D;
 
   /**
@@ -33,7 +33,7 @@ class Ellipse extends Polygon {
    * @memberof Ellipse
    */
   constructor(x: number, y: number, resolution: number = 36) {
-    super(ellipseToPolygon(x, y, resolution));
+    super(ellipseToPolygon(x, y, resolution), true);
 
     this._radius = new Vector2D(x, y);
   }
@@ -50,7 +50,7 @@ class Ellipse extends Polygon {
     return this.vertices.length > 36 ? {
       min: new Vector2D(-this._radius.x, -this._radius.y),
       max: new Vector2D(this._radius.x, this._radius.y),
-    } : Polygon.prototype.getOBB.call(this);
+    } : ConvexPolygon.prototype.getOBB.call(this);
   }
 
   /**
