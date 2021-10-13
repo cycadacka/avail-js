@@ -278,6 +278,7 @@ class PolygonCollision implements System {
       };
     }
 
+    // Transform vertices of the first polygon.
     let firstVertices = entityVertices.get(firstID);
     if (!firstVertices) {
       const matrix = first.components.transform.localToWorldMatrix;
@@ -288,17 +289,18 @@ class PolygonCollision implements System {
       entityVertices.set(firstID, firstVertices);
     }
 
-    let againstVertices = entityVertices.get(secondID);
-    if (!againstVertices) {
+    // Transform vertices of the second polygon.
+    let secondVertices = entityVertices.get(secondID);
+    if (!secondVertices) {
       const matrix = second.components.transform.localToWorldMatrix;
 
-      againstVertices = second.components.polygon.vertices.map((value) =>
+      secondVertices = second.components.polygon.vertices.map((value) =>
         matrix.multiplyVector2(value)
       );
-      entityVertices.set(secondID, againstVertices);
+      entityVertices.set(secondID, secondVertices);
     }
 
-    return polygonPolygon(firstVertices, againstVertices);
+    return polygonPolygon(firstVertices, secondVertices);
   }
 
   /**
