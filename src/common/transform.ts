@@ -33,9 +33,9 @@ class Transform extends Component {
     this.entity = entity;
   }
 
-  get attributes() {
+  getAttributes() {
     return {
-      single: true,
+      allowMultiple: false,
       requires: <ComponentType[]>[],
     };
   }

@@ -22,6 +22,7 @@ import Input from 'common/input';
 import Dirtyable from 'common/dirtyable';
 
 // Shapes //
+import ConvexPolygon from 'shapes/convex-polygon';
 import Ellipse from 'shapes/ellipse';
 import Polygon from 'shapes/polygon';
 import Rect from 'shapes/rect';
@@ -29,6 +30,7 @@ import PolygonMaterial from 'shapes/polygon-material';
 import PolygonRenderer from 'shapes/polygon-renderer';
 
 const shapes = {
+  ConvexPolygon,
   Ellipse,
   Rect,
   Polygon,

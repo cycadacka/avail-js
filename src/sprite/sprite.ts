@@ -24,9 +24,9 @@ class Sprite extends Component {
     this.pivot = pivot;
   }
 
-  get attributes() {
+  getAttributes() {
     return {
-      single: false,
+      allowMultiple: true,
       requires: [Transform2D],
     }
   }
