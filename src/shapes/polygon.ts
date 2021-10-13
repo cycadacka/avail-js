@@ -4,6 +4,7 @@ import Vector2D from 'math/vector2d';
 import { ArrayProxy } from 'common/types';
 import { BoundingBox, Vertex, Edge } from './types';
 import getPolygonArea from './util/get-polygon-area';
+import triangulate from './util/triangulate';
 
 /**
  * Represents a simple polygon.
@@ -12,6 +13,7 @@ import getPolygonArea from './util/get-polygon-area';
  */
 class Polygon extends Component {
   public vertices: Vertex[];
+  public triangles: Vertex[][];
   public readonly clockwise: boolean;
 
   /**
@@ -19,7 +21,7 @@ class Polygon extends Component {
    *
    * @memberof Polygon
    */
-  constructor(vertices: [number, number][], clockwise: boolean = (getPolygonArea(vertices) > 0)) {
+  constructor(vertices: [number, number][], clockwise: boolean = (getPolygonArea(vertices) > 0), isTriangulate=false) {
     super();
 
     if (vertices.length < 3) {
@@ -46,6 +48,7 @@ class Polygon extends Component {
     convert[0].previous = convert[convert.length - 1];
 
     this.vertices = Object.seal(convert);
+    this.triangles = isTriangulate ? triangulate(this.vertices) : [this.vertices];
     this.clockwise = clockwise;
   }
 
