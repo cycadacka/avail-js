@@ -3,7 +3,8 @@ import Vector2D from 'math/vector2d';
 import lineLine from './line-line';
 
 /**
- * Convex to convex polygon collision using diagonals.
+ * Convex to convex polygon collision by comparing one's diagonals (from centre)
+ * and the edges of the another polygon.
  *
  * @param c1 Center of the first polygon.
  * @param v1 Vertices of the first polygon.
