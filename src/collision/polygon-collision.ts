@@ -164,10 +164,10 @@ class PolygonCollision implements System {
           other: firstID,
         });
 
-        this.invokeEvent(firstUnion, secondUnion, 'stay');
-
         if (!this.entityCollisions.old.get(firstID)?.has(secondID)) {
           this.invokeEvent(firstUnion, secondUnion, 'enter');
+        } else {
+          this.invokeEvent(firstUnion, secondUnion, 'stay');
         }
       }
     }
