@@ -18,14 +18,14 @@ class CollisionMatrix {
       const mainLayer = layers[j];
       const mainMap = this.layers.set(mainLayer, new Map()).get(mainLayer)!;
 
-      for (let k = layers.length - 1; k >= j; k--) {
-        const secondaryLayer = layers[k];
+      for (let k = 0; k < layers.length - j; k++) {
+        const secondaryLayer = layers[layers.length - k - 1];
 
         const isIgnored =
           mainLayer === "DefaultIgnore" || secondaryLayer === "DefaultIgnore";
         mainMap.set(
           secondaryLayer,
-          !!(matrix[j]?.[j - k] ?? (isIgnored ? false : true))
+          !!(matrix[j + k]?.[j] ?? (isIgnored ? false : true))
         );
       }
     }
@@ -74,9 +74,7 @@ class CollisionMatrix {
    * @memberof CollisionMatrix
    */
   compareLayer(main: string, secondary: string): boolean | null {
-    const map = this.layers.get(main) ?? this.layers.get(secondary);
-
-    return map ? !!(map.get(main) ?? map.get(secondary)) : null;
+    return (this.layers.get(main)?.has(secondary) || this.layers.get(secondary)?.has(main)) ?? null;
   }
 }
 
