@@ -101,24 +101,34 @@ const ellipseID = scene.entityManager.createEntity('', [
   }),
 ]);
 
-const polygon = scene.entityManager.getComponent(
-  ellipseID,
-  AvailJS.shapes.ConvexPolygon
-);
-for (let i = 0; i < polygon.vertices.length; i++) {
-  const matrix = scene.entityManager.getComponent(
+{
+  // Visualize diagonals of ellipse polygon.
+  const polygon = scene.entityManager.getComponent(
     ellipseID,
-    AvailJS.Transform
-  ).localToWorldMatrix;
-  createLine(
-    matrix.multiplyVector2(polygon.centre),
-    matrix
-      .multiplyVector2(polygon.vertices[i])
-      .subtract(matrix.multiplyVector2(polygon.centre))
+    AvailJS.shapes.ConvexPolygon
   );
+  for (let i = 0; i < polygon.vertices.length; i++) {
+    const matrix = scene.entityManager.getComponent(
+      ellipseID,
+      AvailJS.Transform
+    ).localToWorldMatrix;
+    createLine(
+      matrix.multiplyVector2(polygon.centre),
+      matrix
+        .multiplyVector2(polygon.vertices[i])
+        .subtract(matrix.multiplyVector2(polygon.centre))
+    );
+  }
 }
 
+let stayCollision = 0;
 polygonCollision.subscribe('enter', playerID, (collisionInfo) => {
+  stayCollision = 0;
+
+  const transform = scene.entityManager.getComponent(
+    playerID,
+    AvailJS.Transform
+  );
   const velocity = scene.entityManager.getComponent(playerID, Velocity);
   const polygonCollider = scene.entityManager.getComponent(
     playerID,
@@ -127,7 +137,12 @@ polygonCollision.subscribe('enter', playerID, (collisionInfo) => {
 
   const normal = AvailJS.math.Vector2D.zero;
   for (let i = 0; i < collisionInfo.contacts.length; i++) {
-    normal.add(collisionInfo.contacts[i].normal.normalized);
+    const contact = collisionInfo.contacts[i];
+
+    transform.position.add(contact.normal.clone().multiply(1.25));
+    createLine(contact.point, contact.normal, 'red');
+
+    normal.add(contact.normal.normalized);
   }
 
   const mag = new AvailJS.math.Vector2D(velocity.x, velocity.y).magnitude;
@@ -135,26 +150,30 @@ polygonCollision.subscribe('enter', playerID, (collisionInfo) => {
     .divide(collisionInfo.contacts.length)
     .multiply(mag * polygonCollider.bounciness);
 
-  velocity.x = normal.x;
-  velocity.y = normal.y;
+  velocity.x = normal.x * 0.75;
+  velocity.y = normal.y * 0.75;
 });
 
 polygonCollision.subscribe('stay', playerID, (collisionInfo) => {
-  const transform = scene.entityManager.getComponent(
-    playerID,
-    AvailJS.Transform
-  );
+  stayCollision++;
 
-  for (let i = 0; i < collisionInfo.contacts.length; i++) {
-    const contact = collisionInfo.contacts[i];
-    createLine(contact.point, contact.normal);
-    transform.position.add(contact.normal);
+  if (stayCollision > 5) {
+    const transform = scene.entityManager.getComponent(
+      playerID,
+      AvailJS.Transform
+    );
 
-    if (contact.normal.magnitude <= 5) {
-      const velocity = scene.entityManager.getComponent(playerID, Velocity);
-      velocity.y = 0;
-      velocity.x = 0;
+    for (let i = 0; i < collisionInfo.contacts.length; i++) {
+      const contact = collisionInfo.contacts[i];
+
+      transform.position.add(
+        contact.normal.clone().add(contact.normal.normalized)
+      );
+      createLine(contact.point, contact.normal, 'black');
     }
+
+    // TODO: Should be static.
+    stayCollision = 0;
   }
 });
 
