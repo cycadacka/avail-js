@@ -4,6 +4,7 @@ class Velocity extends AvailJS.Component {
 
     this.x = x;
     this.y = y;
+    this.state = 'active';
   }
 }
 
@@ -16,20 +17,21 @@ class VelocitySystem {
     const transform = entityManager.getComponent(playerID, AvailJS.Transform);
     const velocity = entityManager.getComponent(playerID, Velocity);
 
-    velocity.x +=
-      50 *
-      (input.getKeyPress('KeyD') - input.getKeyPress('KeyA')) *
-      time.fixedDeltaTime;
+    if (velocity.state === 'active') {
+      velocity.x +=
+        (input.getKeyPress('KeyD') - input.getKeyPress('KeyA')) *
+        50 *
+        time.fixedDeltaTime;
+      transform.rotation +=
+        (input.getKeyPress('KeyQ') - input.getKeyPress('KeyE')) *
+        25 *
+        time.fixedDeltaTime;
 
-    velocity.y += 9.81 * 25 * time.fixedDeltaTime;
+      velocity.y += 9.81 * 25 * time.fixedDeltaTime;
 
-    const r = input.getKeyPress('KeyQ') - input.getKeyPress('KeyE');
-    if (r != 0) {
-      transform.rotation += 50 * r * time.fixedDeltaTime;
+      transform.position.x += velocity.x * time.fixedDeltaTime;
+      transform.position.y += velocity.y * time.fixedDeltaTime;
     }
-
-    transform.position.x += velocity.x * time.fixedDeltaTime;
-    transform.position.y += velocity.y * time.fixedDeltaTime;
   }
 }
 
@@ -157,7 +159,8 @@ polygonCollision.subscribe('enter', playerID, (collisionInfo) => {
 polygonCollision.subscribe('stay', playerID, (collisionInfo) => {
   stayCollision++;
 
-  if (stayCollision > 5) {
+  if (stayCollision > 2) {
+    const velocity = scene.entityManager.getComponent(playerID, Velocity);
     const transform = scene.entityManager.getComponent(
       playerID,
       AvailJS.Transform
@@ -166,13 +169,11 @@ polygonCollision.subscribe('stay', playerID, (collisionInfo) => {
     for (let i = 0; i < collisionInfo.contacts.length; i++) {
       const contact = collisionInfo.contacts[i];
 
-      transform.position.add(
-        contact.normal.clone().add(contact.normal.normalized)
-      );
+      transform.position.add(contact.normal);
       createLine(contact.point, contact.normal, 'black');
     }
 
-    // TODO: Should be static.
+    velocity.state = 'static';
     stayCollision = 0;
   }
 });
