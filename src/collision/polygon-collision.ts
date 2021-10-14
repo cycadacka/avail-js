@@ -8,7 +8,7 @@ import System, { SystemInfo } from 'core/types';
 import rectangleRectangle from './util/rectangle-rectangle';
 import convexPolygonConvexPolygon from './util/convex-polygon-convex-polygon';
 import { makeAABB } from './util/make-aabb';
-import CollisionMatrix from './collision-matrix';
+import LayerCollisionMatrix from './layer-collision-matrix';
 import { CollisionInfo } from './types';
 import UtilityEvent from 'util/utility-event';
 import ConvexPolygon from 'shapes/convex-polygon';
@@ -63,9 +63,9 @@ class PolygonCollision implements System {
       UtilityEvent<{ collisionInfo: CollisionInfoUnion }>
     >(),
   };
-  protected collisionMatrix: CollisionMatrix | null;
+  protected collisionMatrix: LayerCollisionMatrix | null;
 
-  constructor(collisionMatrix?: CollisionMatrix) {
+  constructor(collisionMatrix?: LayerCollisionMatrix) {
     this.collisionMatrix = collisionMatrix ?? null;
   }
 
@@ -189,7 +189,7 @@ class PolygonCollision implements System {
 
         if (!this.entityCollisions.old.get(firstID)?.has(secondID)) {
           this.invokeEvent(firstUnion, secondUnion, 'enter');
-        } else {
+        } else if (this.entityCollisions.new.get(firstID)?.has(secondID)) {
           this.invokeEvent(firstUnion, secondUnion, 'stay');
         }
       }

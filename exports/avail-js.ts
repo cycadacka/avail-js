@@ -39,12 +39,12 @@ const shapes = {
 };
 
 // Collision //
-import CollisionMatrix from 'collision/collision-matrix';
+import LayerCollisionMatrix from 'collision/layer-collision-matrix';
 import PolygonCollider from 'collision/polygon-collider';
 import PolygonCollision from 'collision/polygon-collision';
 
 const collision = {
-  CollisionMatrix,
+  LayerCollisionMatrix,
   PolygonCollider,
   PolygonCollision,
 };

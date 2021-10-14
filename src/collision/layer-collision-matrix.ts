@@ -1,32 +1,21 @@
 
-export interface CollisionLayer {
+export interface LayerCollision {
   readonly name: string;
   compareLayer(secondary: string): boolean;
 }
 
-class CollisionMatrix {
+class LayerCollisionMatrix {
   private layers: Map<string, Map<string, boolean>> = new Map();
 
   constructor(layers: string[], matrix: (boolean|number)[][]) {
-    // Layer collisions will default to YES (true) unless the name is "DefaultIgnore"
-    //
-    //                  SampleLayer DefaultIgnore Default
-    // Default             YES           NO         YES
-    // DefaultIgnore       NO            NO
-    // SampleLayer         YES
     for (let j = 0; j < layers.length; j++) {
-      const mainLayer = layers[j];
-      const mainMap = this.layers.set(mainLayer, new Map()).get(mainLayer)!;
+      const layer1 = layers[j];
+      const map1 = this.layers.set(layer1, new Map()).get(layer1)!;
 
       for (let k = 0; k < layers.length - j; k++) {
-        const secondaryLayer = layers[layers.length - k - 1];
+        const layer2 = layers[layers.length - k - 1];
 
-        const isIgnored =
-          mainLayer === "DefaultIgnore" || secondaryLayer === "DefaultIgnore";
-        mainMap.set(
-          secondaryLayer,
-          !!(matrix[j + k]?.[j] ?? (isIgnored ? false : true))
-        );
+        map1.set(layer2, !!matrix[j + k][j]);
       }
     }
   }
@@ -38,7 +27,7 @@ class CollisionMatrix {
    * @return {*}  {(CollisionLayer | null)}
    * @memberof CollisionMatrix
    */
-  getLayer(main: string): CollisionLayer | null {
+  getLayer(main: string): LayerCollision | null {
     if (this.compareLayer(main, main) == null) {
       return null;
     }
@@ -78,4 +67,4 @@ class CollisionMatrix {
   }
 }
 
-export default CollisionMatrix;
+export default LayerCollisionMatrix;

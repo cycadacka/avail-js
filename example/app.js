@@ -16,18 +16,16 @@ class VelocitySystem {
     const transform = entityManager.getComponent(playerID, AvailJS.Transform);
     const velocity = entityManager.getComponent(playerID, Velocity);
 
-    const x = input.getKeyPress('KeyD') - input.getKeyPress('KeyA');
-    const y = input.getKeyPress('KeyS') - input.getKeyPress('KeyW');
-    if (y != 0 || x != 0) {
-      velocity.x += 200 * x * time.fixedDeltaTime;
-      velocity.y += 200 * y * time.fixedDeltaTime;
-    }
+    velocity.x +=
+      50 *
+      (input.getKeyPress('KeyD') - input.getKeyPress('KeyA')) *
+      time.fixedDeltaTime;
 
-    velocity.y += 9.8 * 50 * time.fixedDeltaTime;
+    velocity.y += 9.81 * 25 * time.fixedDeltaTime;
 
     const r = input.getKeyPress('KeyQ') - input.getKeyPress('KeyE');
     if (r != 0) {
-      transform.rotation += 100 * r * time.fixedDeltaTime;
+      transform.rotation += 50 * r * time.fixedDeltaTime;
     }
 
     transform.position.x += velocity.x * time.fixedDeltaTime;
@@ -35,11 +33,11 @@ class VelocitySystem {
   }
 }
 
-function createBox(x, y, width, height, tag, layer = 'box') {
+function createBox(x, y, width, height, layer, tag) {
   return scene.entityManager.createEntity(tag, [
     new AvailJS.Transform([x, y]),
     new AvailJS.shapes.Rect(width, height),
-    new AvailJS.collision.PolygonCollider(0, 0, layer),
+    new AvailJS.collision.PolygonCollider(0, 1, layer),
     new AvailJS.shapes.PolygonMaterial({
       fillStyle: 'transparent',
       strokeStyle: 'blue',
@@ -68,40 +66,35 @@ function createLine(point, normal, color = 'black') {
 }
 
 const polygonCollision = new AvailJS.collision.PolygonCollision(
-  new AvailJS.collision.CollisionMatrix(
-    ['player', 'box', 'ellipse'],
+  new AvailJS.collision.LayerCollisionMatrix(
+    ['Player', 'PlayerAgainst'],
     [
-      [1, 0, 0], // ellipse
-      [1, 0], // box
-      [0], // player
+      [1, 0], // PlayerAgainst
+      [0], // Player
     ]
   )
 );
 
 const canvas = document.getElementsByTagName('canvas')[0];
-const scene = new AvailJS.Scene(
-  [
-    new VelocitySystem(),
-    new AvailJS.shapes.PolygonRenderer(canvas),
-    input,
-    polygonCollision,
-  ],
-  1 / 60,
-  60
-);
+const scene = new AvailJS.Scene([
+  input,
+  new VelocitySystem(),
+  polygonCollision,
+  new AvailJS.shapes.PolygonRenderer(canvas),
+]);
 
-const playerID = createBox(150, 175, 50, 50, 'player', 'player');
+const playerID = createBox(150, 175, 50, 50, 'Player', 'player');
 scene.entityManager.addComponent(playerID, new Velocity(0));
 
-createBox(0, canvas.height / 2, 25, canvas.height, 'left-box');
-createBox(canvas.width, canvas.height / 2, 25, canvas.height, 'right-box');
-createBox(canvas.width / 2, 0, canvas.width, 25, 'up-box');
-createBox(canvas.width / 2, canvas.height, canvas.width, 25, 'down-box');
+createBox(0, canvas.height / 2, 25, canvas.height, 'PlayerAgainst');
+createBox(canvas.width, canvas.height / 2, 25, canvas.height, 'PlayerAgainst');
+createBox(canvas.width / 2, 0, canvas.width, 25, 'PlayerAgainst');
+createBox(canvas.width / 2, canvas.height, canvas.width, 25, 'PlayerAgainst');
 
-const ellipseID = scene.entityManager.createEntity('ellipse', [
+const ellipseID = scene.entityManager.createEntity('', [
   new AvailJS.Transform([canvas.width / 2, canvas.height / 2]),
-  new AvailJS.shapes.Ellipse(25, 100, 3),
-  new AvailJS.collision.PolygonCollider(0, 0, 'ellipse'),
+  new AvailJS.shapes.Ellipse(25, 100),
+  new AvailJS.collision.PolygonCollider(0, 0, 'PlayerAgainst'),
   new AvailJS.shapes.PolygonMaterial({
     fillStyle: 'transparent',
     strokeStyle: 'red',
@@ -127,6 +120,10 @@ for (let i = 0; i < polygon.vertices.length; i++) {
 
 polygonCollision.subscribe('enter', playerID, (collisionInfo) => {
   const velocity = scene.entityManager.getComponent(playerID, Velocity);
+  const polygonCollider = scene.entityManager.getComponent(
+    playerID,
+    AvailJS.collision.PolygonCollider
+  );
 
   const normal = AvailJS.math.Vector2D.zero;
   for (let i = 0; i < collisionInfo.contacts.length; i++) {
@@ -134,10 +131,12 @@ polygonCollision.subscribe('enter', playerID, (collisionInfo) => {
   }
 
   const mag = new AvailJS.math.Vector2D(velocity.x, velocity.y).magnitude;
-  normal.divide(collisionInfo.contacts.length).multiply(mag);
+  normal
+    .divide(collisionInfo.contacts.length)
+    .multiply(mag * polygonCollider.bounciness);
 
-  velocity.x += normal.x * 1.99;
-  velocity.y += normal.y * 1.99;
+  velocity.x = normal.x;
+  velocity.y = normal.y;
 });
 
 polygonCollision.subscribe('stay', playerID, (collisionInfo) => {
@@ -150,6 +149,12 @@ polygonCollision.subscribe('stay', playerID, (collisionInfo) => {
     const contact = collisionInfo.contacts[i];
     createLine(contact.point, contact.normal);
     transform.position.add(contact.normal);
+
+    if (contact.normal.magnitude <= 5) {
+      const velocity = scene.entityManager.getComponent(playerID, Velocity);
+      velocity.y = 0;
+      velocity.x = 0;
+    }
   }
 });
 

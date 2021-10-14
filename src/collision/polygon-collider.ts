@@ -1,5 +1,5 @@
 import Component from 'core/component';
-import { CollisionLayer } from './collision-matrix';
+import { LayerCollision } from './layer-collision-matrix';
 
 /**
  * Represents the collider of a shape.
@@ -10,7 +10,7 @@ import { CollisionLayer } from './collision-matrix';
 class PolygonCollider extends Component {
   friction: number;
   bounciness: number;
-  readonly collisionLayer: CollisionLayer | string;
+  readonly collisionLayer: LayerCollision | string;
 
   /**
    * Creates an instance of PolygonCollider.
@@ -19,7 +19,7 @@ class PolygonCollider extends Component {
    * @param {number} bounciness
    * @memberof PolygonCollider
    */
-  constructor(friction: number, bounciness: number, collisionLayer: CollisionLayer | string) {
+  constructor(friction: number, bounciness: number, collisionLayer: LayerCollision | string) {
     super();
 
     this.friction = friction;
