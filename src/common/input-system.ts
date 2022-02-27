@@ -18,7 +18,7 @@ interface TouchInfo {
   rotation: number;
 }
 
-const inputSystems: Input[] = [];
+const inputSystems: InputSystem[] = [];
 
 document.addEventListener('touchstart', (ev) => {
   for (let k = 0; k < ev.touches.length; k++) {
@@ -107,7 +107,7 @@ export interface InputInterface {
   getAnyMouseButtonUp(): boolean;
 }
 
-class Input implements InputInterface, System {
+class InputSystem implements InputInterface, System {
   _touches: Map<number, TouchInfo> = new Map();
   _keys = {
     down: new Set<string>(),
@@ -193,4 +193,4 @@ class Input implements InputInterface, System {
   }
 };
 
-export default Input;
+export default InputSystem;

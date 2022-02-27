@@ -18,7 +18,7 @@ const math = Object.assign(mathPlus, {
 
 // Common //
 import Transform from 'common/transform';
-import Input from 'common/input';
+import InputSystem from 'common/input-system';
 import Dirtyable from 'common/dirtyable';
 
 // Shapes //
@@ -64,7 +64,7 @@ export {
   loader,
   math,
   Transform,
-  Input,
+  InputSystem,
   Dirtyable,
   shapes,
   collision,
