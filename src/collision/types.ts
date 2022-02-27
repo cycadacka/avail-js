@@ -8,3 +8,8 @@ export interface ContactPoint {
 export interface CollisionInfo {
   contacts: ContactPoint[];
 }
+
+export type CollisionInfoUnion = CollisionInfo & {
+  self: string;
+  other: string;
+};

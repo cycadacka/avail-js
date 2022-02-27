@@ -9,7 +9,7 @@ import rectangleRectangle from './util/rectangle-rectangle';
 import convexPolygonConvexPolygon from './util/convex-polygon-convex-polygon';
 import { makeAABB } from './util/make-aabb';
 import LayerCollisionMatrix from './layer-collision-matrix';
-import { CollisionInfo } from './types';
+import { CollisionInfoUnion, CollisionInfo } from './types';
 import UtilityEvent from 'util/utility-event';
 import ConvexPolygon from 'shapes/convex-polygon';
 import Ellipse from 'shapes/ellipse';
@@ -25,17 +25,12 @@ interface Entity {
   aabb: BoundingBox;
 }
 
-type CollisionInfoUnion = CollisionInfo & {
-  self: string;
-  other: string;
-};
-
 /**
  * Handles collision between shapes.
  *
  * @class PolygonCollision
  */
-class PolygonCollision implements System {
+class PolygonCollisionSystem implements System {
   /**
    * Object-aligned bounding box of an entity; needed in constructing an
    * axis-aligned bounding box of said entity.
@@ -72,7 +67,7 @@ class PolygonCollision implements System {
   /**
    * @memberof PolygonCollision
    */
-  fixedUpdate({ entityManager }: SystemInfo): void {
+  fixedUpdate({ entityManager }: SystemInfo) {
     this.entityOBBs = new Map();
     this.entityCollisions.old = new Map(this.entityCollisions.new);
     this.entityCollisions.new = new Map();
@@ -242,10 +237,17 @@ class PolygonCollision implements System {
     secondUnion: CollisionInfoUnion,
     message: 'enter' | 'stay' | 'exit'
   ) {
+    // NOTE: ANY is a reserved tag for any entity collision message.
+    this.collisionEvents[message].get("ANY")?.invoke({
+      collisionInfo: firstUnion,
+    });
+
+    // Invoke event in perspective of first collision.
     this.collisionEvents[message].get(firstUnion.self)?.invoke({
       collisionInfo: firstUnion,
     });
 
+    // Invoke event in perspective of second collision.
     this.collisionEvents[message].get(secondUnion.self)?.invoke({
       collisionInfo: secondUnion,
     });
@@ -374,4 +376,4 @@ class PolygonCollision implements System {
   }
 }
 
-export default PolygonCollision;
+export default PolygonCollisionSystem;
