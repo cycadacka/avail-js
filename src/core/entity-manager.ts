@@ -31,6 +31,17 @@ class EntityManager {
   }
 
   /**
+   * Returns true if there is a component of an entity with the same type or
+   * inheriting from the type.
+   *
+   * @return First-attached component of an entity.
+   * @memberof EntityManager
+   */
+  hasComponent<T extends Component>(entity: string, component: Constructor<T>): boolean {
+    return this.getComponent(entity, component) != null;
+  }
+
+  /**
    * Retrieves components attached to an entity.
    *
    * @return Components attached to an entity.
@@ -85,7 +96,7 @@ class EntityManager {
             for (let i = 0; i < typeAttributes.requiredComponents.length; i++) {
               const requiredType = <ComponentType>typeAttributes.requiredComponents[i];
 
-              if (!addedComponents.has(requiredType)) {
+              if (!addedComponents.has(requiredType) && !this.hasComponent(entity, requiredType)) {
                 missingComponents.add(requiredType);
               }
             }
