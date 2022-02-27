@@ -27,34 +27,11 @@ export default abstract class Component {
    * @static
    * @memberof Component
    */
-  static getParent<T extends Component>(entityManager: EntityManager, entity: string): T[] {
+  static getParent<T extends Component>(entityManager: EntityManager, entity: string, component: Constructor<T>): T[] {
+    const parent = entityManager.getParentOfEntity(entity);
     return entityManager.getComponents(
-      entityManager.getParentOfEntity(entity) ?? "",
-      this.constructor as Constructor<T>,
+      parent!,
+      component,
     );
-  }
-
-  /**
-   * Retrieves the components of each children of the same type.
-   *
-   * @static
-   * @memberof Component
-   */
-  static getChildren<T extends Component>(entityManager: EntityManager, entity: string): T[][] {
-    const iterator = entityManager.getChildrenOfEntity(entity);
-    const children: T[][] = [];
-
-    let result = iterator.next();
-    while (!result.done) {
-      children.push(
-        entityManager.getComponents(
-          entity,
-          this.constructor as Constructor<T>,
-        ),
-      );
-      result = iterator.next();
-    }
-
-    return children;
   }
 }

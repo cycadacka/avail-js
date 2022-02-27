@@ -233,21 +233,7 @@ class EntityManager {
    * @memberof EntityManager
    */
   setParentOfEntity(entity: string, parent: string): EntityManager {
-    const entityStore = this.entityStorage.get(entity);
-
-    if (entityStore) {
-      entityStore.parent = parent;
-    } else {
-      this.entityStorage.set(entity, {parent, children: []});
-    }
-
-    const parentStore = this.entityStorage.get(parent);
-
-    if (parentStore) {
-      parentStore.children.push(entity);
-    } else {
-      this.entityStorage.set(parent, { parent: null, children: [entity] });
-    }
+    this.addChildToEntity(parent, entity);
 
     return this;
   }
@@ -258,16 +244,10 @@ class EntityManager {
    * @return Children of an entity.
    * @memberof EntityManager
    */
-  getChildrenOfEntity(entity: string): Generator<string, number, void> {
+  getChildrenOfEntity(entity: string): string[] {
     const children = this.entityStorage.get(entity)?.children ?? [];
 
-    return (function* () {
-      for (let i = 0; i < children.length; i++) {
-        yield children[i];
-      }
-
-      return children.length;
-    })();
+    return [...children];
   }
 
   /**
