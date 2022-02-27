@@ -46,7 +46,7 @@ class LayerCollisionMatrix {
    * @param {boolean} state
    * @memberof CollisionMatrix
    */
-  setLayer(main: string, secondary: string, state: boolean): void {
+  setLayer(main: string, secondary: string, state: boolean) {
     const map = this.layers.get(main) ?? this.layers.get(secondary);
 
     if (map && map.has(secondary)) {

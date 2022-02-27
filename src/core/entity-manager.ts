@@ -14,14 +14,16 @@ interface IEntityRelationship {
  * @class EntityManager
  */
 class EntityManager {
+  // NOTE: type => entity attached to that type => actual instance
   private componentStorage = new Map<ComponentType, Map<string, Component[]>>();
+  // NOTE: Stores relationships between entities as a map.
   private entityStorage = new Map<string, IEntityRelationship>();
   private entity2tag = new Map<string, string>();
   private tag2entity = new Map<string, string[]>();
 
   /**
-   * Retrieves the first-attached component of an entity. Returns null if there
-   * is none attached.
+   * Retrieves the first-attached component (with the same type or inheriting
+   * from the type) of an entity. Returns null if there is none attached.
    *
    * @return First-attached component of an entity.
    * @memberof EntityManager
@@ -56,7 +58,7 @@ class EntityManager {
    *
    * @memberof EntityManager
    */
-  addComponents(entity: string, ...components: Component[]): void {
+  addComponents(entity: string, ...components: Component[]) {
     const addedComponents = new Set<ComponentType>();
     const missingComponents = new Set<ComponentType>();
 
@@ -129,7 +131,7 @@ class EntityManager {
    *
    * @memberof EntityManager
    */
-  addComponent<T extends Component>(entity: string, component: T): void {
+  addComponent<T extends Component>(entity: string, component: T) {
     return this.addComponents(entity, component);
   }
 
@@ -138,7 +140,7 @@ class EntityManager {
    *
    * @memberof EntityManager
    */
-  removeComponents(entity: string, componentType: ComponentType): void {
+  removeComponents(entity: string, componentType: ComponentType) {
     let type = componentType as ComponentType;
     while (type.name.length > 0) {
       const store = this.componentStorage.get(type)!;
@@ -184,7 +186,7 @@ class EntityManager {
    *
    * @memberof EntityManager
    */
-  destroyEntity(entity: string): void {
+  destroyEntity(entity: string) {
     // Remove associated components.
     for (const storage of this.componentStorage.values()) {
       if (storage.has(entity)) {
