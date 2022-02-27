@@ -46,19 +46,20 @@ class Transform extends Component {
    * @memberof Transform
    */
   get position(): Vector2D {
-    const parent = this.parent;
+    const self = this;
+
     return new Proxy(this.localPosition, {
       get(target, p: 'x' | 'y') {
-        return (parent?.localToWorldMatrix.multiplyVector2(target) ?? target)[p];
+        return (self.parent?.localToWorldMatrix.multiplyVector2(target) ?? target)[p];
       },
-      set(target, p, value) {
+      set(target, p: 'x' | 'y', value) {
         switch (p) {
         case 'x':
-          target.x = parent?.localToWorldMatrix
+          target.x = self.parent?.worldToLocalMatrix
             .multiplyVector2(new Vector2D(value, 0)).x ?? value;
           break;
         case 'y':
-          target.y = parent?.localToWorldMatrix
+          target.y = self.parent?.worldToLocalMatrix
             .multiplyVector2(new Vector2D(0, value)).y ?? value;
           break;
         }
@@ -74,7 +75,7 @@ class Transform extends Component {
    * @memberof Transform
    */
   set position(value: Vector2D) {
-    const localValue = this.parent ? this.worldToLocalMatrix.multiplyVector2(value) : value;
+    const localValue = this.parent?.worldToLocalMatrix.multiplyVector2(value) ?? value;
 
     this.localPosition.x = localValue.x;
     this.localPosition.y = localValue.y;
@@ -157,9 +158,10 @@ class Transform extends Component {
     return this.localToWorldMatrix.inverse;
   }
 
-  private get parent(): Transform | null {
+  get parent(): Transform | null {
     if (this.entityManager != null && this.entity != null) {
-      return Component.getParent<Transform>(this.entityManager, this.entity)[0]
+      const components = Component.getParent<Transform>(this.entityManager, this.entity, Transform);
+      return components.length > 0 ? components[0] : null;
     } else {
       return null;
     }

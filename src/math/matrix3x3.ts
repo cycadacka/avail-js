@@ -56,9 +56,9 @@ class Matrix3x3 {
    * @memberof Matrix3x3
    */
   get determinant(): number {
-    return this.m00 * (this.m00 * this.m11 - this.m01 * this.m10) -
-    this.m01 * (this.m10 * this.m11 - this.m01 * this.m20) +
-    this.m02 * (this.m10 * this.m10 - this.m00 * this.m20);
+    return this.m00 * (this.m11 * this.m22 - this.m21 * this.m12) -
+    this.m01 * (this.m10 * this.m22 - this.m12 * this.m20) +
+    this.m02 * (this.m10 * this.m21 - this.m11 * this.m20);
   }
 
   /**
@@ -76,15 +76,15 @@ class Matrix3x3 {
 
     const invDet = 1 / determinant;
     return new Matrix3x3(
-      (this.m00 * this.m11 - this.m10 * this.m01) * invDet,
-      (this.m10 * this.m02 - this.m01 * this.m11) * invDet,
-      (this.m01 * this.m01 - this.m00 * this.m02) * invDet, // Row 1
-      (this.m20 * this.m01 - this.m10 * this.m11) * invDet,
-      (this.m00 * this.m11 - this.m20 * this.m02) * invDet,
-      (this.m10 * this.m02 - this.m00 * this.m01) * invDet, // Row 2
-      (this.m10 * this.m10 - this.m20 * this.m00) * invDet,
-      (this.m20 * this.m01 - this.m00 * this.m10) * invDet,
-      (this.m00 * this.m00 - this.m10 * this.m01) * invDet, // Row 3
+      (this.m11 * this.m22 - this.m21 * this.m12) * invDet,
+      (this.m02 * this.m21 - this.m01 * this.m22) * invDet,
+      (this.m01 * this.m12 - this.m02 * this.m11) * invDet, // Row 1
+      (this.m12 * this.m20 - this.m10 * this.m22) * invDet,
+      (this.m00 * this.m22 - this.m02 * this.m20) * invDet,
+      (this.m10 * this.m02 - this.m00 * this.m12) * invDet, // Row 2
+      (this.m10 * this.m21 - this.m20 * this.m11) * invDet,
+      (this.m20 * this.m01 - this.m00 * this.m21) * invDet,
+      (this.m00 * this.m11 - this.m10 * this.m01) * invDet, // Row 3
     );
   }
 
