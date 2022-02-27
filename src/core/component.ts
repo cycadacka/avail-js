@@ -21,8 +21,6 @@ export default abstract class Component {
     };
   }
 
-  onAttach(entityManager: EntityManager, entity: string): void { }
-
   /**
    * Retrieves the components of the parent of the same type.
    *

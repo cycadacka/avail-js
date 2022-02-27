@@ -1,5 +1,6 @@
 import { Constructor } from 'common/types';
 import getUUID from 'util/get-uuid';
+import { Transform } from '../../exports/avail-js';
 import Component, { ComponentType } from './component';
 
 interface IEntityRelationship {
@@ -50,9 +51,11 @@ class EntityManager {
 
     while (components.length > 0) {
       const component = <Component>components.shift();
-      component.onAttach(this, entity);
 
       let componentType = component.constructor as ComponentType;
+      if (componentType == Transform)
+        (component as Transform).onAttach_INTERNAL?.(this, entity);
+
       while (componentType.name.length > 0 && <Function>componentType !== Component) {
         if (!addedComponents.has(componentType)) {
           addedComponents.add(componentType);

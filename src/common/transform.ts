@@ -28,7 +28,7 @@ class Transform extends Component {
     this.localScale = new Vector2D(localScale[0], localScale[1]);
   }
 
-  onAttach(entityManager: EntityManager, entity: string): void {
+  onAttach_INTERNAL(entityManager: EntityManager, entity: string) {
     this.entityManager = entityManager;
     this.entity = entity;
   }
