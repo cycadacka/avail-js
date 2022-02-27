@@ -1,12 +1,14 @@
 import Scene from 'core/scene';
 import Component from 'core/component';
 
+// Loader //
 import image from 'loader/load-image';
 
 const loader = {
   image,
 };
 
+// Math //
 import * as mathPlus from 'math/math';
 import Vector2D from 'math/vector2d';
 import Matrix3x3 from 'math/matrix3x3';
@@ -41,12 +43,21 @@ const shapes = {
 // Collision //
 import LayerCollisionMatrix from 'collision/layer-collision-matrix';
 import PolygonCollider from 'collision/polygon-collider';
-import PolygonCollision from 'collision/polygon-collision';
+import PolygonCollisionSystem from 'collision/polygon-collision-system';
 
 const collision = {
   LayerCollisionMatrix,
   PolygonCollider,
-  PolygonCollision,
+  PolygonCollisionSystem,
+};
+
+// Physics //
+import PhysicsSystem from 'physics/physics-system';
+import RigidBody from 'physics/rigid-body';
+
+const physics = {
+  PhysicsSystem,
+  RigidBody,
 };
 
 // Sprite //
@@ -68,5 +79,6 @@ export {
   Dirtyable,
   shapes,
   collision,
+  physics,
   sprite,
 };
