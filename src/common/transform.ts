@@ -33,6 +33,24 @@ class Transform extends Component {
     this.entity = entity;
   }
 
+  addChildren(isWorldPositionPreserved: boolean, ...children: string[]) {
+    for (let i = 0; i < children.length; i++) {
+      this.entityManager!.getComponent(children[i], Transform)!.setParent(this.entity!, isWorldPositionPreserved);
+    }
+  }
+
+  setParent(parent: string, isWorldPositionPreserved: boolean = true) {
+    const x = this.position.x;
+    const y = this.position.y;
+    
+    this.entityManager!.setParentOfEntity(this.entity!, parent);
+
+    if (isWorldPositionPreserved) {
+      this.position.x = x;
+      this.position.y = y;
+    }
+  }
+
   getAttributes() {
     return {
       allowMultiple: false,
